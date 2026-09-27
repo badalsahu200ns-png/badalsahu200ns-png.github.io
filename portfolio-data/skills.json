@@ -1,0 +1,185 @@
+{
+  "coreExpertise": [
+    {
+      "id": "business-analytics",
+      "category": "Business Analytics",
+      "tagline": "Translating commercial strategy into operational metrics and revenue engines.",
+      "clusters": [
+        "Commercial Strategy & Pricing Intelligence",
+        "KPI Dashboard Architecture & Performance Metrics",
+        "Supply-Demand Elasticity & Churn Mitigation",
+        "Cross-Functional Stakeholder Alignment"
+      ]
+    },
+    {
+      "id": "ai-strategy",
+      "category": "AI Strategy",
+      "tagline": "Architecting strategic AI adoption roadmaps and business-aligned intelligence systems.",
+      "clusters": [
+        "GenAI Opportunity Identification & Feasibility",
+        "Autonomous Agent Workflow Design",
+        "AI Governance, Latency & Cost Optimization",
+        "Enterprise LLM Integration Strategy"
+      ]
+    },
+    {
+      "id": "generative-ai",
+      "category": "Generative AI",
+      "tagline": "Orchestrating foundational models, vector embeddings, and cognitive reasoning loops.",
+      "clusters": [
+        "Gemini Foundation Models (Pro / Flash)",
+        "Retrieval-Augmented Generation (RAG)",
+        "Prompt Engineering & Chain-of-Thought Workflows",
+        "Autonomous Multi-Agent Task Orchestration"
+      ]
+    },
+    {
+      "id": "data-analytics",
+      "category": "Data Analytics",
+      "tagline": "Uncovering statistical patterns and quantitative clarity from high-volume telemetry.",
+      "clusters": [
+        "Exploratory Data Analysis (EDA)",
+        "Statistical Cohort Segmentation & Variance Tracking",
+        "Data Hygiene, Normalization & Transformation",
+        "Predictive Modeling & Trend Analysis"
+      ]
+    },
+    {
+      "id": "product-intelligence",
+      "category": "Product Intelligence",
+      "tagline": "Connecting user behavioral telemetry to retention levers and roadmap priorities.",
+      "clusters": [
+        "Product Discovery & User Journey Mapping",
+        "Funnel Drop-Off & Feature Engagement Telemetry",
+        "A/B Hypothesis Validation & Lift Measurement",
+        "Data-Informed Backlog Prioritization"
+      ]
+    },
+    {
+      "id": "ai-products",
+      "category": "AI Products",
+      "tagline": "Transforming proof-of-concept AI experiments into production-grade consumer and enterprise tools.",
+      "clusters": [
+        "Natural Language Querying for SQL / Analytics",
+        "Conversational State Machines & Voice Agents",
+        "Context-Aware Recommendation Engines",
+        "Zero-Waste Intelligent Planning Applications"
+      ]
+    },
+    {
+      "id": "cloud-data-platforms",
+      "category": "Cloud / Data Platforms",
+      "tagline": "Deploying petabyte-scale serverless data warehouses and cloud native microservices.",
+      "clusters": [
+        "Google Cloud Platform (GCP) Infrastructure",
+        "Google BigQuery Petabyte Analytics",
+        "Cloud Run Containerized Deployments",
+        "Firestore Document Stores & Google AI Studio"
+      ]
+    },
+    {
+      "id": "software-development",
+      "category": "Software Development",
+      "tagline": "Crafting resilient, type-safe full-stack software with modern reactive architectures.",
+      "clusters": [
+        "TypeScript, React & Modern Web Standards",
+        "Python Application Engineering & FastAPI",
+        "Modular Component Design & Performance Optimization",
+        "Git, GitHub CI/CD & Automated Pipelines"
+      ]
+    }
+  ],
+  "technicalCategories": [
+    {
+      "id": "data-analytics",
+      "name": "DATA ANALYTICS",
+      "skills": [
+        "Data Analysis",
+        "Data Cleaning",
+        "Exploratory Data Analysis (EDA)",
+        "KPI Analysis",
+        "Trend Analysis",
+        "Performance Analytics",
+        "Data Visualization"
+      ]
+    },
+    {
+      "id": "programming",
+      "name": "PROGRAMMING",
+      "skills": [
+        "Python",
+        "Pandas",
+        "Matplotlib",
+        "Core Java"
+      ]
+    },
+    {
+      "id": "database-sql",
+      "name": "DATABASE & SQL",
+      "skills": [
+        "SQL",
+        "Database Management",
+        "Advanced Database Management Systems",
+        "Data Retrieval",
+        "Joins",
+        "Aggregations",
+        "Analytical Queries"
+      ]
+    },
+    {
+      "id": "business-intelligence",
+      "name": "BUSINESS INTELLIGENCE",
+      "skills": [
+        "Power BI",
+        "Tableau",
+        "Advanced Excel",
+        "Pivot Tables",
+        "Lookup Functions",
+        "Dashboard Development",
+        "KPI Dashboards",
+        "MIS Reporting"
+      ]
+    },
+    {
+      "id": "ai-genai",
+      "name": "AI & GENERATIVE AI",
+      "skills": [
+        "Generative AI",
+        "Gemini",
+        "Prompt Engineering",
+        "Retrieval-Augmented Generation (RAG)",
+        "AI Agents"
+      ]
+    },
+    {
+      "id": "cloud-data",
+      "name": "CLOUD & DATA PLATFORMS",
+      "skills": [
+        "Google Cloud",
+        "BigQuery",
+        "Firestore",
+        "Cloud Run",
+        "Google AI Studio"
+      ]
+    },
+    {
+      "id": "dev-tools",
+      "name": "DEVELOPMENT & TOOLS",
+      "skills": [
+        "Streamlit",
+        "GitHub",
+        "Salesforce",
+        "CRM Platforms"
+      ]
+    },
+    {
+      "id": "computer-science",
+      "name": "COMPUTER SCIENCE",
+      "skills": [
+        "Data Structures & Algorithms",
+        "Advanced Software Engineering",
+        "Graph Theory & Combinatorics"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "BADAL KUMAR SAHU",
+  "identityCode": "BADAL // 001",
+  "systemTitle": "BADAL // PROFESSIONAL OPERATING SYSTEM",
+  "headline": "Business Analytics | AI Strategy | AI Software Developer | Generative AI | Data Analytics",
+  "supportingTitle": "Data Analyst & Generative AI Specialist",
+  "summary": "Results-driven Data Analyst, Generative AI Specialist, and AI Software Developer with 5+ years of frontline business experience spanning PropTech, Travel-tech, BFSI, and Telecom. Proven track record of scaling commercial portfolios by 30%, coaching 20+ professionals, and sustaining 130% KPI achievement. Specializes in converting petabyte-scale data into automated Gemini LLM agents, RAG vector pipelines, and executive BI dashboards.",
+  "location": "India",
+  "workplaceStatus": "Available for high-impact Data Analyst, Generative AI Specialist, and Product Intelligence roles",
+  "availability": "AVAILABLE NOW",
+  "workMode": "BASED IN INDIA // OPEN TO REMOTE & HYBRID ROLES",
+  "timezone": "IST (UTC+5:30)",
+  "email": "badalsahu200ns@gmail.com",
+  "linkedin": "https://linkedin.com/in/badalsahu200ns",
+  "github": "https://github.com/badalsahu200ns-png",
+  "heroImage": "/images/badal.png",
+  "profileImage": "/images/nameste hi.png",
+  "profileCutout": "/images/nameste hi.png",
+  "profileImageFallback": "/images/badal.png",
+  "journeyImage": "/images/exp.png",
+  "careerImage": "/images/hi five.png",
+  "contactImage": "/media/contact/cinematic-identity.png",
+  "cinematic": {
+    "video": "/media/cinematic/badal-walking.mp4",
+    "poster": "/media/cinematic/badal-walking-poster.webp",
+    "videoFallback": "/video/WALKING VIDEO.mp4"
+  },
+  "corePillars": [
+    {
+      "title": "BUSINESS ANALYTICS",
+      "subtitle": "Commercial Acumen & Revenue Growth",
+      "description": "5+ years driving multi-million revenue pipelines, leading 20+ professionals, and navigating high-stakes enterprise negotiations."
+    },
+    {
+      "title": "DATA ANALYTICS",
+      "subtitle": "Analytical Conviction & Statistical Clarity",
+      "description": "Translating complex telemetry into predictive insights using SQL, BigQuery, Python, Power BI, and statistical cohort models."
+    },
+    {
+      "title": "AI & GENERATIVE AI",
+      "subtitle": "Autonomous Reasoning & Agentic Systems",
+      "description": "Architecting autonomous LLM agents, RAG vector pipelines, and Gemini integrations that solve high-friction operational problems."
+    },
+    {
+      "title": "AI SOFTWARE DEVELOPMENT",
+      "subtitle": "Scalable Cloud Architecture & Interactive Systems",
+      "description": "Building interactive full-stack AI applications, serverless Cloud Run APIs, Streamlit dashboards, and high-performance web systems."
+    }
+  ]
+}

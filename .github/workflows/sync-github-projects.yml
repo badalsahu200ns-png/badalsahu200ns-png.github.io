@@ -1,0 +1,60 @@
+name: Sync GitHub Repositories
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/sync-github-projects.mjs'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run GitHub Sync Script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/sync-github-projects.mjs
+
+      - name: Commit and Push Changes If Updated
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if [ -n "$(git status --porcelain portfolio-data/github-projects.json)" ]; then
+            git add portfolio-data/github-projects.json
+            git commit -m "chore(data): auto-sync github repositories [skip ci]"
+            git push
+            echo "changes_pushed=true" >> $GITHUB_ENV
+          else
+            echo "No changes in portfolio-data/github-projects.json. Skipping commit."
+            echo "changes_pushed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Trigger Pages Deployment If Changed
+        if: env.changes_pushed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy.yml',
+              ref: 'main',
+            });

@@ -1,0 +1,53 @@
+[
+  {
+    "id": "mca",
+    "degree": "Master of Computer Applications (MCA)",
+    "institution": "Amity University",
+    "dates": "Jul 2025 – Present",
+    "location": "India",
+    "relevantSubjects": [
+      "Distributed Systems",
+      "Advanced Database Management Systems",
+      "Data Structures & Algorithms",
+      "Cloud Architectures",
+      "Machine Learning & AI"
+    ],
+    "currentStatus": "Pursuing",
+    "verifiedAcademicInfo": "Enrolled in postgraduate computing curriculum focusing on scalable systems, database architectures, and applied intelligence.",
+    "description": "Advanced computing curriculum emphasizing distributed systems, algorithmic data analysis, cloud architectures, and machine intelligence."
+  },
+  {
+    "id": "pgdm",
+    "degree": "Post Graduate Diploma in Management (PGDM)",
+    "institution": "Institute of Management and Information Science, Bhubaneswar",
+    "dates": "Completed",
+    "location": "Bhubaneswar, India",
+    "relevantSubjects": [
+      "Quantitative Business Analytics",
+      "Strategic Financial Management",
+      "Market Economics",
+      "Sales & Distribution Strategy",
+      "Operational Leadership"
+    ],
+    "currentStatus": "Graduated",
+    "verifiedAcademicInfo": "Postgraduate management diploma specializing in commercial marketing strategy and quantitative financial analytics.",
+    "description": "Rigorous business management grounding focusing on quantitative financial analytics, business development strategy, market economics, and operational leadership."
+  },
+  {
+    "id": "bcom",
+    "degree": "Bachelor of Commerce (B.Com)",
+    "institution": "J.R.N. Rajasthan Vidyapeeth University",
+    "dates": "Completed",
+    "location": "India",
+    "relevantSubjects": [
+      "Corporate Accounting",
+      "Business Statistics",
+      "Economic Modeling",
+      "Commercial Law",
+      "Business Mathematics"
+    ],
+    "currentStatus": "Graduated",
+    "verifiedAcademicInfo": "Undergraduate degree establishing foundational competence in financial modeling, statistical analysis, and business mathematics.",
+    "description": "Core foundation in corporate accounting, statistical analysis, economic modeling, commercial contracts, and business mathematics."
+  }
+]

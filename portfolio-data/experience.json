@@ -1,0 +1,100 @@
+{
+  "impactMetrics": [
+    {
+      "id": "exp",
+      "value": "5+",
+      "label": "Years Experience",
+      "sublabel": "Across High-Growth Sectors"
+    },
+    {
+      "id": "growth",
+      "value": "30%",
+      "label": "Business Growth",
+      "sublabel": "Delivered at Magicbricks"
+    },
+    {
+      "id": "team",
+      "value": "20+",
+      "label": "Team Members Led",
+      "sublabel": "Coached to Peak Performance"
+    },
+    {
+      "id": "kpi",
+      "value": "130%",
+      "label": "KPI Achievement",
+      "sublabel": "Sustained at redBus India"
+    },
+    {
+      "id": "renewal",
+      "value": "91%",
+      "label": "Renewal Collection",
+      "sublabel": "Achieved at ICICI Pru"
+    }
+  ],
+  "experiences": [
+    {
+      "id": "magicbricks",
+      "company": "Magicbricks",
+      "role": "Business Manager",
+      "period": "2025",
+      "location": "India",
+      "domain": "PropTech & Marketplace",
+      "highlightMetric": "30% Business Growth",
+      "responsibilities": [
+        "Identified market liquidity pockets and analyzed supply-demand elasticity across major developer segments.",
+        "Managed cross-functional stakeholder alignments between digital product teams and tier-1 enterprise clients.",
+        "Utilized property search telemetry and churn indicators to design personalized retention campaigns."
+      ],
+      "businessImpact": "Drove 30% business growth across real estate developer portfolios by identifying market liquidity pockets.",
+      "skills": ["Product Discovery", "Revenue Growth", "Marketplace Analytics", "Account Expansion"]
+    },
+    {
+      "id": "redbus",
+      "company": "redBus India Pvt Ltd",
+      "role": "Key Account Manager",
+      "period": "Mar 2024 – Mar 2025",
+      "location": "India",
+      "domain": "Travel-Tech & Mobility",
+      "highlightMetric": "130% KPI Achievement",
+      "responsibilities": [
+        "Led demand forecasting analysis across major intercity transit corridors during seasonal demand spikes.",
+        "Negotiated high-value strategic partnerships with enterprise bus fleet operators.",
+        "Optimized inventory availability, route fill rates, and dynamic route pricing strategies."
+      ],
+      "businessImpact": "Achieved 130% KPI performance by optimizing inventory availability and route pricing strategies.",
+      "skills": ["Key Account Management", "Inventory Optimization", "Pricing Intelligence", "Stakeholder Management"]
+    },
+    {
+      "id": "reliance-ppm",
+      "company": "Reliance PPM Services Ltd",
+      "role": "JBA Sales Manager",
+      "period": "Feb 2022 – Feb 2024",
+      "location": "India",
+      "domain": "Enterprise Business & Distribution",
+      "highlightMetric": "20+ Team Members Led",
+      "responsibilities": [
+        "Led and mentored high-performing sales force of 20+ professionals, driving sustained market penetration.",
+        "Established disciplined performance tracking frameworks using sales data and pipeline conversion metrics.",
+        "Expanded enterprise channel footprint and structured scalable onboarding playbooks."
+      ],
+      "businessImpact": "Built and managed high-performance team of 20+ professionals while scaling territory revenue.",
+      "skills": ["Team Leadership", "Sales Pipeline Analytics", "Operational Strategy", "Enterprise Sales"]
+    },
+    {
+      "id": "icici-pru",
+      "company": "ICICI Prudential Life Insurance",
+      "role": "Business Trainee – IndusInd Bank Partnership",
+      "period": "Sep 2020 – Jan 2022",
+      "location": "India",
+      "domain": "BFSI & Bancassurance",
+      "highlightMetric": "91% Renewal Collection",
+      "responsibilities": [
+        "Achieved 91% renewal collection improvement through structured customer engagement workflows.",
+        "Collaborated closely with IndusInd Bank retail branch leaders to drive wealth protection penetration.",
+        "Analyzed customer portfolio risk categories to match customized insurance solutions."
+      ],
+      "businessImpact": "Achieved 91% renewal collection improvement through structured customer engagement workflows.",
+      "skills": ["BFSI", "Bancassurance", "Portfolio Risk Analysis", "Retention Optimization"]
+    }
+  ]
+}

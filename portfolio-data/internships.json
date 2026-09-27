@@ -1,0 +1,97 @@
+[
+  {
+    "id": "aws-cloud-computing",
+    "organization": "EWB EDU TECH PRIVATE LIMITED",
+    "program": "Amazon Web Services (AWS) Cloud Computing Internship",
+    "platform": "AICTE National Internship Portal",
+    "role": "AWS Cloud Computing Intern",
+    "mode": "Virtual",
+    "duration": "4 Weeks",
+    "startDate": "September 2026",
+    "endDate": "Present",
+    "period": "September 2026 — Present",
+    "status": "ONGOING",
+    "location": "Virtual",
+    "domain": "Cloud Infrastructure & Systems",
+    "description": "Currently expanding my cloud engineering foundation through an AWS Cloud Computing Internship at EWB EDU TECH PRIVATE LIMITED via the AICTE National Internship Portal. Exploring AWS compute, storage, networking, IAM, databases, serverless architecture, deployment and monitoring through practical learning activities and projects.",
+    "responsibilities": [
+      "Configured and managed core AWS cloud infrastructure components spanning compute, storage, and networking.",
+      "Engineered secure Identity and Access Management (IAM) policies, roles, and resource access controls.",
+      "Deployed relational database instances with Amazon RDS and architected isolated virtual networks with Amazon VPC.",
+      "Explored serverless event-driven architectures with AWS Lambda and instrumented observability with Amazon CloudWatch."
+    ],
+    "currentlyLearning": [
+      "AWS Cloud Computing",
+      "Amazon EC2",
+      "Amazon S3",
+      "AWS IAM",
+      "Amazon RDS",
+      "Amazon VPC",
+      "AWS Lambda",
+      "Amazon CloudWatch",
+      "Cloud Infrastructure",
+      "Cloud Networking",
+      "Cloud Security Fundamentals",
+      "Cloud Deployment",
+      "Monitoring & Observability"
+    ],
+    "skills": ["AWS", "Amazon EC2", "Amazon S3", "AWS IAM", "Amazon RDS", "Amazon VPC", "AWS Lambda", "Amazon CloudWatch", "Cloud Deployment"],
+    "outcomes": "Building practical cloud foundations across compute, storage, networking, security, and observability."
+  },
+  {
+    "id": "edunet-vodafone",
+    "organization": "Edunet Foundation / Vodafone Idea Foundation",
+    "program": "Telecom Data Analytics Initiative",
+    "platform": "Corporate CSR & Skill Development",
+    "role": "Data Analytics Intern",
+    "mode": "Virtual",
+    "duration": "Ongoing",
+    "startDate": "Aug 2026",
+    "endDate": "Present",
+    "period": "Aug 2026 – Present",
+    "status": "ONGOING",
+    "location": "Remote",
+    "domain": "Telecom & CSR Analytics",
+    "description": "Engineered structured data pipelines and exploratory analytics models for telecom social impact assessment and regional engagement monitoring.",
+    "responsibilities": [
+      "Engineered structured data pipelines and exploratory analytics models for telecom impact assessment.",
+      "Formulated dashboards tracking regional digital literacy initiatives and student engagement trends.",
+      "Applied predictive analysis on telemetry indicators to boost retention rates across community programs."
+    ],
+    "currentlyLearning": [
+      "Telecom Data Modeling",
+      "CSR Impact Analytics",
+      "Cohort Retention Modeling"
+    ],
+    "skills": ["SQL", "Python", "Power BI", "Data Cleaning", "Statistical Modeling"],
+    "outcomes": "Delivered high-accuracy telemetry dashboards and structured data pipelines for telecom impact assessment."
+  },
+  {
+    "id": "neo-skillz",
+    "organization": "Neo Skillz",
+    "program": "Applied Analytics & AI Systems",
+    "platform": "Professional Skill Acceleration",
+    "role": "Data Analytics Training & Internship Program",
+    "mode": "Virtual",
+    "duration": "Ongoing",
+    "startDate": "Aug 2026",
+    "endDate": "Present",
+    "period": "Aug 2026 – Present",
+    "status": "ONGOING",
+    "location": "Remote",
+    "domain": "Analytics & GenAI Systems",
+    "description": "Leading modern analytics implementations with a dedicated focus on end-to-end data transformation pipelines and AI-assisted BI systems.",
+    "responsibilities": [
+      "Spearheading modern analytics implementations with focus on end-to-end data transformation pipelines.",
+      "Synthesized custom business intelligence reports and machine learning-powered analytical dashboards.",
+      "Pioneering automated prompt engineering workflows for business insight extraction."
+    ],
+    "currentlyLearning": [
+      "Automated Prompt Pipelines",
+      "Interactive BI Architectures",
+      "Exploratory Feature Engineering"
+    ],
+    "skills": ["Generative AI", "Pandas", "EDA", "Tableau", "Business Intelligence"],
+    "outcomes": "Automated prompt-driven insight extraction workflows and unified reporting architectures."
+  }
+]
