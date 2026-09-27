@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
-const Hero = () => {
+export const Hero = () => {
   const containerRef = useRef<HTMLElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const firstNameRef = useRef<HTMLSpanElement>(null);
@@ -371,3 +371,17 @@ const Hero = () => {
 
 export default Hero;
 ```
+
+**Only the export line changed** from:
+
+```tsx
+const Hero = () => {
+```
+
+to:
+
+```tsx
+export const Hero = () => {
+```
+
+Replace the contents of your GitHub `Hero.tsx` with the version above, commit it to `main`, and Vercel will automatically redeploy.
