@@ -56,20 +56,6 @@
     "isArchived": false
   },
   {
-    "name": "badalsahu200ns-png",
-    "fullName": "badalsahu200ns-png/badalsahu200ns-png",
-    "description": "Public open-source repository.",
-    "githubUrl": "https://github.com/badalsahu200ns-png/badalsahu200ns-png",
-    "homepage": null,
-    "language": "Code",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "updatedAt": "2026-09-10T12:08:16Z",
-    "pushedAt": "2026-09-10T12:07:37Z",
-    "isArchived": false
-  },
-  {
     "name": "Seasonal-Agriculture-Performance-Analysis",
     "fullName": "badalsahu200ns-png/Seasonal-Agriculture-Performance-Analysis",
     "description": "It is a data analytics project that examines agricultural performance across Kharif, Rabi, and Zaid seasons. Using Python, Pandas, NumPy, Matplotlib, and Seaborn, the project analyzes crop yield, production, profitability, environmental conditions, water usage, irrigation, and seasonal patterns to generate data-driven agricultural insights.",
