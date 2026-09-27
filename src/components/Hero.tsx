@@ -1,3 +1,9 @@
+
+That explains why Vercel is reporting errors around lines **375–387**.
+
+Use the clean version below. I have removed all explanatory text and kept your portfolio code unchanged.
+
+:::writing{variant="document" id="73146" title="Clean Hero.tsx — Vercel Ready"}
 ```tsx
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
@@ -219,13 +225,9 @@ export const Hero = () => {
             className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-sm uppercase tracking-[0.12em] sm:text-base"
           >
             <span className="text-[#76ff03]">Data Analyst</span>
-
             <span className="text-white/20">/</span>
-
             <span className="text-white/75">Generative AI</span>
-
             <span className="text-white/20">/</span>
-
             <span className="text-white/75">Google Cloud</span>
           </div>
 
@@ -259,7 +261,6 @@ export const Hero = () => {
               className="group inline-flex items-center gap-3 rounded-full bg-[#76ff03] px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-[0.12em] text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_35px_rgba(118,255,3,0.35)]"
             >
               Explore My Work
-
               <span className="transition-transform duration-300 group-hover:translate-x-1">
                 →
               </span>
@@ -270,7 +271,6 @@ export const Hero = () => {
               className="group inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:-translate-y-1 hover:border-[#76ff03]/50 hover:bg-[#76ff03]/[0.06]"
             >
               Let&apos;s Connect
-
               <span className="text-[#76ff03] transition-transform duration-300 group-hover:translate-x-1">
                 ↗
               </span>
@@ -280,7 +280,6 @@ export const Hero = () => {
           {/* Experience */}
           <div className="mt-10 flex items-center gap-4">
             <div className="h-px w-10 bg-[#76ff03]/50" />
-
             <span className="font-mono text-[9px] tracking-[0.2em] text-white/35">
               5+ YRS CROSS-INDUSTRY IMPACT
             </span>
@@ -370,18 +369,3 @@ export const Hero = () => {
 };
 
 export default Hero;
-```
-
-**Only the export line changed** from:
-
-```tsx
-const Hero = () => {
-```
-
-to:
-
-```tsx
-export const Hero = () => {
-```
-
-Replace the contents of your GitHub `Hero.tsx` with the version above, commit it to `main`, and Vercel will automatically redeploy.
