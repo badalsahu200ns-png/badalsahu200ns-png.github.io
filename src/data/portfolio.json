@@ -1,0 +1,60 @@
+{
+  "profile": {
+    "name": "Badal Kumar Sahu",
+    "headline": "Business Analytics | AI Strategy | AI Software Developer | Generative AI | Data Analytics",
+    "location": "India",
+    "availability": "Available Now",
+    "timezone": "IST (UTC+5:30)",
+    "workPreference": "Open to Remote & Hybrid Roles",
+    "email": "badalsahu200ns@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/badalsahu200ns",
+    "github": "https://github.com/badalsahu200ns-png",
+    "portfolio": "https://badalsahu200ns-png.github.io/",
+    "resume": "/resume/Badal-Kumar-Sahu-Resume.pdf",
+    "portrait": "/images/HERO — FRONT STANDING VERSION.png",
+    "walkingVideo": "/video/WALKING VIDEO.mp4"
+  },
+  "menu": [
+    {"id":"profile","label":"PROFILE"},
+    {"id":"internships","label":"CURRENT INTERNSHIPS"},
+    {"id":"experience","label":"PROFESSIONAL EXPERIENCE"},
+    {"id":"projects","label":"FEATURED PROJECTS"},
+    {"id":"education","label":"EDUCATION"},
+    {"id":"certifications","label":"CERTIFICATIONS"},
+    {"id":"core-skills","label":"CORE SKILLS & EXPERTISE"},
+    {"id":"technical-skills","label":"TECHNICAL SKILLS"},
+    {"id":"contact","label":"DIRECT COLLABORATION CHANNEL"}
+  ],
+  "media": {
+    "heroPortrait": "/images/HERO — FRONT STANDING VERSION.png",
+    "cinematicPortrait": "/images/YOUR CINEMATIC PORTRAIT.png",
+    "walkingVideo": "/video/WALKING VIDEO.mp4",
+    "fallbackPortrait": "/images/TRANSPARENT PERSON CUTOUT PROMPT.png"
+  },
+  "tagline": "Data into insights. Insights into products. Products powered by AI.",
+  "roleFocus": [
+    "Business Analytics",
+    "AI Strategy",
+    "AI Software Developer",
+    "Generative AI",
+    "Data Analytics"
+  ],
+  "technicalSkills": {
+    "Data Analytics": ["Data Analysis","Data Cleaning","Exploratory Data Analysis (EDA)","KPI Analysis","Trend Analysis","Performance Analytics","Data Visualization"],
+    "Programming": ["Python","Pandas","Matplotlib","Core Java"],
+    "Database & SQL": ["SQL","Database Management","Advanced Database Management Systems","Data Retrieval","Joins","Aggregations","Analytical Queries"],
+    "Business Intelligence": ["Power BI","Tableau","Advanced Excel","Pivot Tables","Lookup Functions","Dashboard Development","KPI Dashboards","MIS Reporting"],
+    "AI & Generative AI": ["Generative AI","Gemini","Prompt Engineering","Retrieval-Augmented Generation (RAG)","AI Agents"],
+    "Cloud & Data Platforms": ["Google Cloud","BigQuery","Firestore","Cloud Run","Google AI Studio"],
+    "Development & Tools": ["Streamlit","GitHub","Salesforce","CRM Platforms"],
+    "Computer Science": ["Data Structures & Algorithms","Advanced Software Engineering","Graph Theory & Combinatorics"]
+  },
+  "contact": {
+    "heading": "Reach Out Directly",
+    "description": "Available for high-impact Data Analyst, Generative AI Specialist, and Product Intelligence roles. Open to consulting and strategic architecture discussions.",
+    "status": "AVAILABLE NOW",
+    "timezone": "IST (UTC+5:30)",
+    "location": "BASED IN INDIA",
+    "workPreference": "OPEN TO REMOTE & HYBRID ROLES"
+  }
+}
