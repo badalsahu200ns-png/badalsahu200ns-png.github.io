@@ -60,7 +60,6 @@ body {
 .tech-radial-glow {
   background: radial-gradient(circle at 50% 30%, rgba(118, 255, 3, 0.06) 0%, rgba(0, 229, 255, 0.03) 35%, transparent 70%);
 }
-
 /* Cinematic Scanlines Overlay */
 .cinematic-scanlines {
   background: linear-gradient(

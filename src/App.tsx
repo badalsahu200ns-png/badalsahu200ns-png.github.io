@@ -173,7 +173,6 @@ export function App() {
         isOpen={resumeOpen}
         onClose={() => setResumeOpen(false)}
       />
-
     </div>
   );
 }
