@@ -49,7 +49,7 @@ export function CinematicBackground({
         <div
           className="absolute inset-0 w-full h-full bg-cover bg-center filter brightness-[0.55] transition-opacity duration-1000"
           style={{
-            backgroundImage: `url('/images/badal.png'), url('${posterSrc}')`,
+            backgroundImage: `url('${posterSrc}'), url('/images/nameste-hi.png')`,
             opacity,
           }}
         />

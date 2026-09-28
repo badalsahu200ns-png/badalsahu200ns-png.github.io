@@ -37,8 +37,8 @@ export function ProfileView({ onNavigateToSection, onResumeClick }: ProfileViewP
           <div className="md:col-span-4 flex flex-col items-center">
             <div className="w-full max-w-[260px]">
               <Profile3DCard
-                cutoutSrc={profileData.profileCutout || '/media/profile/badal-cutout.png'}
-                imageSrc={profileData.profileImage || '/images/nameste hi.png'}
+                cutoutSrc={'/nh.png'}
+                imageSrc={'/nh.png'}
                 name={profileData.name}
                 identityCode={profileData.identityCode}
               />
