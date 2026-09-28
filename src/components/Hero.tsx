@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { profileData } from '../data/portfolioData';
 import { DeploymentStatusBadge } from './common/DeploymentStatusBadge';
-import { Compass, Mail, ShieldCheck } from 'lucide-react';
+import { Compass } from 'lucide-react';
 
 const CAPABILITIES = [
   'Business Analytics',

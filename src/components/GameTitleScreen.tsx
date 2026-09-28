@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { profileData } from '../data/portfolioData';
-import { ChevronRight, ArrowUpRight, Compass, ShieldCheck, Sparkles } from 'lucide-react';
+import { ChevronRight, ArrowUpRight, Compass, ShieldCheck } from 'lucide-react';
 import { DeploymentStatusBadge } from './common/DeploymentStatusBadge';
 
 interface MenuItem {

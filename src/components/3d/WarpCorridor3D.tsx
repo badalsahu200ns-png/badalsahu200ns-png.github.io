@@ -12,7 +12,7 @@ const GATE_POSITIONS = [-25, -55, -85, -115];
 
 export function WarpCorridor3D({
   speed = 0.5,
-  travelProgress = 0,
+
   reducedMotion = false,
 }: WarpCorridor3DProps) {
   const starsRef = useRef<THREE.Points>(null);

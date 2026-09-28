@@ -24,7 +24,6 @@ function CameraFlightRig({
     // 1. Calculate Spacecraft position along Z based on progress
     // z goes from 0 at start to -115 at arrival
     const shipZ = -progress * 115;
-    const shipY = Math.sin(progress * Math.PI) * 0.5;
 
     // 2. Camera target calculation
     let targetCamX = 0;

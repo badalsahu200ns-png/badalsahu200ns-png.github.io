@@ -22,7 +22,7 @@ export function Spacecraft3D({
   const engineLightRef = useRef<THREE.PointLight>(null);
 
   // Smooth banking & engine pulse
-  useFrame((state, delta) => {
+  useFrame((state, _) => {
     if (!shipGroupRef.current) return;
 
     if (!reducedMotion) {

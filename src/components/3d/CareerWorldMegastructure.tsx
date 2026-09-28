@@ -28,7 +28,7 @@ export function CareerWorldMegastructure({ reducedMotion = false }: CareerWorldM
     return CAREER_PILLARS.map((p) => ({ ...p }));
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (reducedMotion) return;
 
     // Slow rotation of citadel core
