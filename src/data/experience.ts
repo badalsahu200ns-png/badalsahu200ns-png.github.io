@@ -45,8 +45,8 @@ export const experiences: ExperienceItem[] = [
     id: 'magicbricks',
     role: 'Business Manager',
     company: 'Magicbricks',
-    period: '2025',
-    location: 'India',
+    period: 'Apr 2025 – Mar 2026',
+    location: 'Bhubaneswar, Odisha',
     domain: 'PropTech & Marketplace',
     highlightMetric: '30% Business Growth',
     achievements: [
