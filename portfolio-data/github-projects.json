@@ -1,5 +1,19 @@
 [
   {
+    "name": "Healthcare-Analytics-for-Doctor-Visits",
+    "fullName": "badalsahu200ns-png/Healthcare-Analytics-for-Doctor-Visits",
+    "description": "Healthcare Analytics project analyzing doctor visit patterns using demographic, socioeconomic, health, illness, insurance, and chronic-condition data. Includes data preprocessing, exploratory data analysis, statistical analysis, correlation analysis, outlier detection, and data visualization using Python, Pandas, Matplotlib, and Seaborn.",
+    "githubUrl": "https://github.com/badalsahu200ns-png/Healthcare-Analytics-for-Doctor-Visits",
+    "homepage": null,
+    "language": "Jupyter Notebook",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "updatedAt": "2026-09-30T17:14:57Z",
+    "pushedAt": "2026-09-30T17:14:52Z",
+    "isArchived": false
+  },
+  {
     "name": "repopilot",
     "fullName": "badalsahu200ns-png/repopilot",
     "description": "Public open-source repository.",
