@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { profileData } from '../data/portfolioData';
-import { ChevronRight, ArrowUpRight, Compass, ShieldCheck } from 'lucide-react';
+import { ChevronRight, ArrowUpRight, Compass, ShieldCheck, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { DeploymentStatusBadge } from './common/DeploymentStatusBadge';
 
 interface MenuItem {
@@ -86,6 +86,21 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState<boolean>(true);
+  const [isVideoError, setIsVideoError] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
+  // Autoplay personal welcome video on mount (with muted compliance)
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch((err) => {
+        console.warn('Welcome video autoplay caught:', err);
+      });
+    }
+  }, []);
 
   // Parallax tracking on container mouse move
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -237,32 +252,96 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
             <div className="absolute top-2 left-2 z-20 font-mono text-[9px] text-slate-500 tracking-widest hidden sm:block">
               ┌ SYS.ID // 001
             </div>
-            <div className="absolute top-2 right-2 z-20 font-mono text-[9px] text-emerald-400/70 tracking-widest hidden sm:block">
-              [VERIFIED_PORTRAIT] ┐
+            <div className="absolute top-2 right-2 z-20 font-mono text-[9px] text-emerald-400/80 tracking-widest hidden sm:block">
+              [WELCOME_FEED: ACTIVE] ┐
             </div>
             <div className="absolute bottom-6 left-2 z-20 font-mono text-[9px] text-slate-500 tracking-widest hidden sm:block">
               └ LOC // INDIA
             </div>
             <div className="absolute bottom-6 right-2 z-20 font-mono text-[9px] text-cyan-400/70 tracking-widest hidden sm:block">
-              [STATUS: ACTIVE] ┘
+              [STATUS: TRANSMITTING] ┘
             </div>
 
-            {/* 3D Parallax Portrait Container */}
+            {/* 3D Parallax Video Container */}
             <div
               className="relative z-10 w-full flex items-center justify-center transition-transform duration-200 ease-out"
               style={{
                 transform: `perspective(1000px) rotateY(${mouseOffset.x * 4.5}deg) rotateX(${-mouseOffset.y * 4.5}deg) translateZ(6px)`,
               }}
             >
-              {/* Original Photograph: Kept 100% natural, seamlessly integrated into black background */}
-              <img
-                src={profileData.heroImage || '/images/nameste-hi.png'}
-                alt="Badal Kumar Sahu"
-                className="h-[360px] sm:h-[440px] lg:h-[500px] xl:h-[540px] w-auto max-w-full object-contain filter contrast-[1.02] brightness-[1.01] select-none [mask-image:linear-gradient(to_bottom,black_82%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_82%,transparent_100%)] drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)]"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/media/profile/nameste-hi.png';
-                }}
-              />
+              {/* Personal Welcome Video with seamless backdrop integration & graceful image fallback */}
+              {isVideoError ? (
+                <img
+                  src={profileData.heroImage || '/images/nameste-hi.png'}
+                  alt="Badal Kumar Sahu"
+                  className="h-[360px] sm:h-[440px] lg:h-[500px] xl:h-[540px] w-auto max-w-full object-contain filter contrast-[1.02] brightness-[1.01] select-none [mask-image:linear-gradient(to_bottom,black_82%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_82%,transparent_100%)] drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)]"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/media/profile/nameste-hi.png';
+                  }}
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  src="/video/welcome.mp4"
+                  poster={profileData.heroImage || '/images/nameste-hi.png'}
+                  autoPlay
+                  muted={isMuted}
+                  playsInline
+                  loop={false}
+                  preload="auto"
+                  onPlay={() => setIsPlaying(true)}
+                  onEnded={() => setIsPlaying(false)}
+                  onError={() => setIsVideoError(true)}
+                  className="h-[360px] sm:h-[440px] lg:h-[500px] xl:h-[540px] w-auto max-w-full object-contain rounded-2xl filter contrast-[1.03] brightness-[1.01] select-none [mask-image:linear-gradient(to_bottom,black_85%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_85%,transparent_100%)] drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)]"
+                />
+              )}
+
+              {/* Accessible Audio Toggle Button & Replay Controls */}
+              {!isVideoError && (
+                <div className="absolute bottom-6 right-2 sm:right-4 z-30 flex items-center gap-2">
+                  {!isPlaying && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (videoRef.current) {
+                          videoRef.current.currentTime = 0;
+                          videoRef.current.play();
+                          setIsPlaying(true);
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-cyan-500/40 bg-[#070b14]/85 backdrop-blur-md text-cyan-300 hover:border-cyan-400 hover:bg-cyan-500/20 font-mono text-[10px] sm:text-xs tracking-wider transition-all shadow-lg cursor-pointer"
+                      title="Replay Welcome Transmission"
+                      aria-label="Replay Welcome Transmission"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+                      <span className="hidden sm:inline">REPLAY</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (videoRef.current) {
+                        const nextMuted = !isMuted;
+                        videoRef.current.muted = nextMuted;
+                        setIsMuted(nextMuted);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-[#070b14]/85 backdrop-blur-md text-emerald-300 hover:border-emerald-400 hover:bg-emerald-500/20 font-mono text-[10px] sm:text-xs tracking-wider transition-all shadow-lg cursor-pointer"
+                    title={isMuted ? "Unmute Welcome Video Audio" : "Mute Welcome Video Audio"}
+                    aria-label={isMuted ? "Unmute Welcome Video Audio" : "Mute Welcome Video Audio"}
+                  >
+                    {isMuted ? (
+                      <VolumeX className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    )}
+                    <span className="hidden sm:inline">{isMuted ? "AUDIO OFF" : "AUDIO ON"}</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Bottom soft gradient blend into background */}
