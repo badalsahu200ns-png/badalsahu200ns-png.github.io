@@ -6,6 +6,7 @@ import { HudHeader } from './components/HudHeader';
 import { HudFooter } from './components/HudFooter';
 import { GameTitleScreen } from './components/GameTitleScreen';
 import { ResumeModal } from './components/ResumeModal';
+import { TransportationManager } from './components/transportation/TransportationManager';
 
 const ProfileView = lazy(() => import('./components/views/ProfileView').then(m => ({ default: m.ProfileView })));
 const InternshipsView = lazy(() => import('./components/views/InternshipsView').then(m => ({ default: m.InternshipsView })));
@@ -37,7 +38,12 @@ function getInitialSection(): string | null {
 
 export function App() {
   const initialSection = getInitialSection();
-  const [openingFinished, setOpeningFinished] = useState<boolean>(Boolean(initialSection));
+  const [openingFinished, setOpeningFinished] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return Boolean(initialSection) || sessionStorage.getItem('badal_opened') === 'true';
+    }
+    return Boolean(initialSection);
+  });
   const [visitorName, setVisitorName] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('badal_visitor_name') || '';
@@ -45,6 +51,7 @@ export function App() {
     return '';
   });
   const [currentSection, setCurrentSection] = useState<string | null>(initialSection);
+  const [transitDestination, setTransitDestination] = useState<string | null>(null);
   const [resumeOpen, setResumeOpen] = useState<boolean>(false);
 
   // Sync section with URL hash and browser back/forward navigation
@@ -52,9 +59,11 @@ export function App() {
     const rawHash = window.location.hash.replace('#', '').trim().toLowerCase();
     if (VALID_SECTIONS.includes(rawHash)) {
       setCurrentSection(rawHash);
+      setTransitDestination(null);
       setOpeningFinished(true); // Direct deep-link skips opening
     } else {
       setCurrentSection(null);
+      setTransitDestination(null);
     }
   }, []);
 
@@ -69,13 +78,21 @@ export function App() {
 
   const handleSelectSection = (sectionId: string) => {
     if (VALID_SECTIONS.includes(sectionId)) {
-      setCurrentSection(sectionId);
-      window.location.hash = `#${sectionId}`;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTransitDestination(sectionId);
     }
   };
 
+  const handleTransitArrival = useCallback(() => {
+    if (transitDestination) {
+      setCurrentSection(transitDestination);
+      window.location.hash = `#${transitDestination}`;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTransitDestination(null);
+    }
+  }, [transitDestination]);
+
   const handleBackToMenu = useCallback(() => {
+    setTransitDestination(null);
     setCurrentSection(null);
     if (window.location.hash) {
       history.pushState(null, '', window.location.pathname);
@@ -88,6 +105,8 @@ export function App() {
       if (e.key === 'Escape') {
         if (resumeOpen) {
           setResumeOpen(false);
+        } else if (transitDestination) {
+          handleTransitArrival();
         } else if (currentSection) {
           handleBackToMenu();
         }
@@ -95,7 +114,7 @@ export function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [resumeOpen, currentSection, handleBackToMenu]);
+  }, [resumeOpen, transitDestination, currentSection, handleTransitArrival, handleBackToMenu]);
 
   return (
     <div className="relative min-h-screen bg-[#05070a] text-white selection:bg-emerald-400/30 selection:text-emerald-300 overflow-x-hidden font-sans">
@@ -109,6 +128,11 @@ export function App() {
           onComplete={(name) => {
             setVisitorName(name);
             setOpeningFinished(true);
+            try {
+              sessionStorage.setItem('badal_opened', 'true');
+            } catch {
+              // ignore
+            }
           }}
         />
       )}
@@ -127,6 +151,14 @@ export function App() {
             onSelectSection={handleSelectSection}
             onResumeClick={() => setResumeOpen(true)}
             visitorName={visitorName}
+          />
+        )}
+
+        {/* 3D Transportation Experience (plays upon selecting a career chapter) */}
+        {transitDestination && (
+          <TransportationManager
+            destinationId={transitDestination}
+            onArrival={handleTransitArrival}
           />
         )}
 
