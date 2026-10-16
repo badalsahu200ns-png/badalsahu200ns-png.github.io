@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Badal_Kumar_Sahu_Resume</title>
+  <title>Badal_Kumar_Sahu_ATS_Resume</title>
   <style>
     @page {
       size: A4 portrait;
-      margin: 9mm 12mm 9mm 12mm;
+      margin: 10mm 12mm 10mm 12mm;
     }
     * {
       box-sizing: border-box;
@@ -17,8 +17,8 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color: #0f172a;
       background: #ffffff;
-      font-size: 9.15pt;
-      line-height: 1.34;
+      font-size: 8.75pt;
+      line-height: 1.30;
       -webkit-font-smoothing: antialiased;
     }
     a {
@@ -28,8 +28,20 @@
     a:hover {
       text-decoration: underline;
     }
-    .page {
+    
+    /* 3-Page Strict Layout Architecture */
+    .resume-page {
       width: 100%;
+      height: 275mm;
+      max-height: 275mm;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
+    }
+    .page-content {
+      flex: 1 1 auto;
     }
     .page-break {
       page-break-after: always;
@@ -37,35 +49,66 @@
       height: 0;
       margin: 0;
       padding: 0;
+      border: none;
     }
-    
-    /* Header */
+
+    /* Running Document Footer */
+    .page-footer {
+      flex-shrink: 0;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 4px;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 7.5pt;
+      color: #64748b;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Section Headers */
+    .section-title {
+      font-size: 9.6pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #0f172a;
+      border-bottom: 1.5px solid #0f172a;
+      padding-bottom: 2px;
+      margin-top: 7px;
+      margin-bottom: 5px;
+    }
+    .section-title.first {
+      margin-top: 0;
+    }
+
+    /* Header Element */
     .header {
       border-bottom: 2px solid #0f172a;
-      padding-bottom: 6px;
-      margin-bottom: 7px;
+      padding-bottom: 5px;
+      margin-bottom: 6px;
     }
     .name {
-      font-size: 20pt;
+      font-size: 21pt;
       font-weight: 800;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
       color: #0f172a;
       text-transform: uppercase;
       line-height: 1.1;
     }
     .headline {
-      font-size: 9.4pt;
+      font-size: 9.3pt;
       font-weight: 600;
       color: #0369a1;
-      margin-top: 3px;
+      margin-top: 2.5px;
     }
     .contact-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: 10px;
-      margin-top: 4px;
-      font-size: 8.5pt;
+      margin-top: 3.5px;
+      font-size: 8.2pt;
       color: #334155;
     }
     .contact-item {
@@ -77,405 +120,484 @@
       color: #94a3b8;
     }
 
-    /* Section Styles */
-    .section {
-      margin-bottom: 7px;
+    /* Skills Grid */
+    .skills-block {
+      margin-bottom: 3px;
+      font-size: 8.5pt;
+      line-height: 1.32;
     }
-    .section-title {
-      font-size: 9.8pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
+    .skills-block strong {
       color: #0f172a;
-      border-bottom: 1px solid #cbd5e1;
-      padding-bottom: 2px;
-      margin-bottom: 5px;
-      break-after: avoid;
-      page-break-after: avoid;
+    }
+    .skills-block span {
+      color: #334155;
     }
 
-    /* Summary */
-    .summary-text {
-      font-size: 8.8pt;
-      color: #1e293b;
-      line-height: 1.35;
-      text-align: justify;
+    /* Experience Items */
+    .exp-item {
+      margin-bottom: 6px;
     }
-
-    /* Experience & Roles */
-    .item {
-      margin-bottom: 5.5px;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .item-header {
+    .exp-header {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
+      font-size: 8.9pt;
       margin-bottom: 1.5px;
     }
-    .item-title-group {
-      font-size: 9.2pt;
-    }
-    .item-role {
+    .exp-role {
       font-weight: 700;
       color: #0f172a;
     }
-    .item-company {
+    .exp-company {
       font-weight: 600;
       color: #0369a1;
     }
-    .item-meta {
-      font-size: 8.2pt;
-      color: #475569;
+    .exp-meta {
+      font-size: 8pt;
       font-weight: 500;
+      color: #64748b;
       white-space: nowrap;
-      text-align: right;
     }
-    .impact-line {
-      font-size: 8.7pt;
+    .exp-impact {
+      font-size: 8.2pt;
       font-weight: 600;
       color: #0f172a;
       margin-bottom: 2px;
     }
-    ul.bullets {
+    ul.bullet-list {
       list-style-type: disc;
-      padding-left: 14px;
-      font-size: 8.6pt;
-      color: #1e293b;
+      padding-left: 15px;
+      margin-top: 1.5px;
     }
-    ul.bullets li {
-      margin-bottom: 1.5px;
-      line-height: 1.32;
+    ul.bullet-list li {
+      font-size: 8.35pt;
+      color: #334155;
+      margin-bottom: 2px;
+      line-height: 1.28;
     }
 
-    /* Skills Grid / Rows */
-    .skills-row {
-      font-size: 8.6pt;
-      margin-bottom: 3.5px;
-      line-height: 1.32;
+    /* Projects & Internships */
+    .project-item {
+      margin-bottom: 5.5px;
     }
-    .skills-label {
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 8.8pt;
+      margin-bottom: 1.5px;
+    }
+    .project-title {
       font-weight: 700;
       color: #0f172a;
-      display: inline;
     }
-    .skills-val {
-      color: #1e293b;
-      display: inline;
+    .project-tags {
+      font-size: 7.8pt;
+      color: #64748b;
+    }
+    .project-links {
+      font-size: 8pt;
+      font-weight: 500;
+      white-space: nowrap;
     }
 
-    /* Education & Certs compact */
-    .edu-item {
-      margin-bottom: 4px;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
+    /* Certifications Grid */
     .cert-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 3px 12px;
-      font-size: 8.2pt;
+      column-gap: 12px;
+      row-gap: 3.5px;
+      font-size: 8pt;
+      line-height: 1.26;
     }
     .cert-item {
-      break-inside: avoid;
-      page-break-inside: avoid;
-      line-height: 1.25;
+      color: #334155;
     }
     .cert-issuer {
       font-weight: 700;
       color: #0f172a;
     }
-    .cert-name {
-      color: #1e293b;
-    }
     .cert-id {
       color: #64748b;
-      font-size: 7.8pt;
+      font-size: 7.5pt;
     }
   </style>
 </head>
 <body>
 
-  <!-- ==================== PAGE 1 ==================== -->
-  <div class="page">
-    <div class="header">
-      <h1 class="name">Badal Kumar Sahu</h1>
-      <div class="headline">Business Analytics · Generative AI · Data Analytics · AI Products · Google Cloud</div>
-      <div class="contact-row">
-        <span class="contact-item"><strong>Location:</strong> Bhubaneswar, India</span>
-        <span class="sep">•</span>
-        <span class="contact-item"><strong>Email:</strong> <a href="mailto:badalsahu200ns@gmail.com">badalsahu200ns@gmail.com</a></span>
-        <span class="sep">•</span>
-        <span class="contact-item"><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/badalsahu200ns">linkedin.com/in/badalsahu200ns</a></span>
-        <span class="sep">•</span>
-        <span class="contact-item"><strong>GitHub:</strong> <a href="https://github.com/badalsahu200ns-png">github.com/badalsahu200ns-png</a></span>
-        <span class="sep">•</span>
-        <span class="contact-item"><strong>Portfolio:</strong> <a href="https://badalsahu200ns-png.github.io/">badalsahu200ns-png.github.io</a></span>
-      </div>
-    </div>
-
-    <!-- Professional Summary -->
-    <div class="section">
-      <div class="section-title">Professional Summary</div>
-      <p class="summary-text">
-        Results-driven Data Analyst, Generative AI Specialist, and Business Manager with 5+ years of frontline business experience spanning PropTech, Travel-tech, BFSI, and Telecom. Proven track record of scaling commercial developer portfolios by 30%, coaching and leading 20+ professionals, and sustaining 130% KPI achievement. Specializes in translating complex commercial requirements into petabyte-scale Google BigQuery analytics pipelines, automated Gemini LLM agents, RAG vector architectures, and executive BI dashboards.
-      </p>
-    </div>
-
-    <!-- Professional Experience -->
-    <div class="section">
-      <div class="section-title">Professional Experience (5+ Years)</div>
+  <!-- =========================================================================
+       PAGE 1: PROFILE, SKILLS & RECENT PROFESSIONAL EXPERIENCE
+       ========================================================================= -->
+  <div class="resume-page" id="page-1">
+    <div class="page-content">
       
-      <!-- Magicbricks -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">Business Manager</span> &mdash; <span class="item-company">Magicbricks</span>
-          </div>
-          <div class="item-meta">Apr 2025 &ndash; Mar 2026 | Bhubaneswar, Odisha</div>
+      <!-- Document Header -->
+      <header class="header">
+        <h1 class="name">BADAL KUMAR SAHU</h1>
+        <div class="headline">
+          Senior Business &amp; Data Analyst &bull; Generative AI &amp; Autonomous AI Agents &bull; Cloud Architectures (GCP/AWS)
         </div>
-        <div class="impact-line">Impact: Drove 30% business growth across real estate developer portfolios by identifying market liquidity pockets.</div>
-        <ul class="bullets">
-          <li>Identified market liquidity pockets and analyzed supply-demand elasticity across tier-1 real estate developer segments.</li>
-          <li>Managed cross-functional stakeholder alignments between digital product engineering teams and enterprise commercial clients.</li>
-          <li>Utilized property search behavioral telemetry and churn indicators to design high-conversion personalized retention campaigns.</li>
+        <div class="contact-row">
+          <span class="contact-item">Bhubaneswar, India</span>
+          <span class="sep">&bull;</span>
+          <a href="mailto:badalsahu200ns@gmail.com" class="contact-item">badalsahu200ns@gmail.com</a>
+          <span class="sep">&bull;</span>
+          <a href="https://linkedin.com/in/badalsahu200ns" target="_blank" class="contact-item">linkedin.com/in/badalsahu200ns</a>
+          <span class="sep">&bull;</span>
+          <a href="https://github.com/badalsahu200ns-png" target="_blank" class="contact-item">github.com/badalsahu200ns-png</a>
+          <span class="sep">&bull;</span>
+          <a href="https://badalsahu200ns-png.github.io/" target="_blank" class="contact-item">badalsahu200ns-png.github.io</a>
+        </div>
+      </header>
+
+      <!-- 1. Professional Summary -->
+      <div class="section-title first">Professional Summary</div>
+      <p style="font-size: 8.5pt; color: #334155; text-align: justify; margin-bottom: 6px; line-height: 1.32;">
+        Results-driven Data Analyst, Generative AI Specialist, and AI Software Developer with 5+ years of frontline business experience spanning PropTech, Travel-tech, BFSI, and Telecom. Proven track record of scaling commercial portfolios by 30%, coaching 20+ professionals, and sustaining 130% KPI achievement. Specializes in converting petabyte-scale data into automated Gemini LLM agents, RAG vector pipelines, and executive BI dashboards.
+      </p>
+
+      <!-- 2. Core Competencies & Domain Specialization -->
+      <div class="section-title">Core Competencies &amp; Domain Specialization</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; row-gap: 2.5px; font-size: 8.3pt; margin-bottom: 6px;">
+        <div>&bull; <strong style="color: #0f172a;">Business Analytics &amp; Forecasting:</strong> Trend analysis &amp; KPI metrics</div>
+        <div>&bull; <strong style="color: #0f172a;">Autonomous AI Multi-Agents:</strong> Tool calling, RAG &amp; reasoning systems</div>
+        <div>&bull; <strong style="color: #0f172a;">Petabyte Cloud Warehousing:</strong> BigQuery SQL &amp; Dataform ETL</div>
+        <div>&bull; <strong style="color: #0f172a;">Product Thinking &amp; Strategy:</strong> ROI tracking, roadmap &amp; stakeholder advisory</div>
+        <div>&bull; <strong style="color: #0f172a;">Operations Optimization:</strong> Lean process engineering &amp; Six Sigma</div>
+        <div>&bull; <strong style="color: #0f172a;">Enterprise Infrastructure:</strong> Google Cloud Platform, AWS, Docker microservices</div>
+      </div>
+
+      <!-- 3. Technical Skills Matrix -->
+      <div class="section-title">Technical Skills Matrix</div>
+      <div class="skills-block">
+        <strong>Data Analytics &amp; BI:</strong> 
+        <span>SQL (Advanced Window Functions, CTEs), Google BigQuery, Power BI, Tableau, Advanced Excel (XLOOKUP, Power Pivot), EDA, KPI Dashboards, MIS Automation, Statistical Modeling</span>
+      </div>
+      <div class="skills-block">
+        <strong>Artificial Intelligence &amp; GenAI:</strong> 
+        <span>Gemini API, Anthropic Claude, Prompt Engineering, RAG Systems, Multi-Agent Architecture, Vector Search &amp; Embeddings, Google AI Studio, LLM Orchestration</span>
+      </div>
+      <div class="skills-block">
+        <strong>Programming &amp; Software:</strong> 
+        <span>Python (Pandas, NumPy, Matplotlib, Scikit-learn), Core Java, TypeScript, React, Streamlit, FastAPI, Git, GitHub CI/CD, Salesforce CRM</span>
+      </div>
+      <div class="skills-block" style="margin-bottom: 6px;">
+        <strong>Cloud Platforms &amp; Databases:</strong> 
+        <span>Google Cloud Platform (BigQuery, Cloud Run, Cloud Storage, IAM), Amazon Web Services (EC2, S3, RDS, IAM, VPC), Docker, Distributed Systems</span>
+      </div>
+
+      <!-- 4. Professional Experience (Part 1 - Recent Roles) -->
+      <div class="section-title">Professional Experience (5+ Years Enterprise Track Record)</div>
+      
+      <!-- Role 1: Magicbricks -->
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">Business Manager</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">Magicbricks</span>
+          </div>
+          <div class="exp-meta">Apr 2025 – Mar 2026 | Bhubaneswar, Odisha</div>
+        </div>
+        <div class="exp-impact">Key Impact: Drove 30% business growth across real estate developer portfolios by identifying market liquidity pockets.</div>
+        <ul class="bullet-list">
+          <li>Identified market liquidity pockets and analyzed supply-demand elasticity across major developer segments.</li><li>Managed cross-functional stakeholder alignments between digital product teams and tier-1 enterprise clients.</li><li>Utilized property search telemetry and churn indicators to design personalized retention campaigns.</li>
         </ul>
       </div>
 
-      <!-- redBus -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">Key Account Manager</span> &mdash; <span class="item-company">redBus India Pvt Ltd</span>
+      <!-- Role 2: redBus -->
+      <div class="exp-item" style="margin-bottom: 0;">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">Key Account Manager</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">redBus India Pvt Ltd</span>
           </div>
-          <div class="item-meta">Mar 2024 &ndash; Mar 2025 | India</div>
+          <div class="exp-meta">Mar 2024 – Mar 2025 | India</div>
         </div>
-        <div class="impact-line">Impact: Achieved 130% KPI performance by optimizing inventory availability and route pricing strategies.</div>
-        <ul class="bullets">
-          <li>Led predictive demand forecasting analysis across major intercity transit corridors during seasonal high-volume demand spikes.</li>
-          <li>Negotiated high-value strategic partnerships with enterprise bus fleet operators and mobility ecosystem partners.</li>
-          <li>Optimized inventory availability, route fill rates, and dynamic route pricing models to maximize occupancy and revenue.</li>
+        <div class="exp-impact">Key Impact: Achieved 130% KPI performance by optimizing inventory availability and route pricing strategies.</div>
+        <ul class="bullet-list">
+          <li>Led demand forecasting analysis across major intercity transit corridors during seasonal demand spikes.</li><li>Negotiated high-value strategic partnerships with enterprise bus fleet operators.</li><li>Optimized inventory availability, route fill rates, and dynamic route pricing strategies.</li>
         </ul>
       </div>
 
-      <!-- Reliance PPM -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">JBA Sales Manager</span> &mdash; <span class="item-company">Reliance PPM Services Ltd</span>
-          </div>
-          <div class="item-meta">Feb 2022 &ndash; Feb 2024 | India</div>
-        </div>
-        <div class="impact-line">Impact: Built, coached, and led a high-performance team of 20+ professionals while scaling territory revenue.</div>
-        <ul class="bullets">
-          <li>Led, mentored, and coached a sales force of 20+ professionals, driving sustained market penetration and territory expansion.</li>
-          <li>Established disciplined performance tracking frameworks utilizing sales pipeline analytics and conversion rate metrics.</li>
-          <li>Expanded enterprise channel footprint and authored structured operational playbooks for rapid representative onboarding.</li>
-        </ul>
-      </div>
+    </div>
 
-      <!-- ICICI Prudential -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">Business Trainee &ndash; IndusInd Bank Partnership</span> &mdash; <span class="item-company">ICICI Prudential Life Insurance</span>
-          </div>
-          <div class="item-meta">Sep 2020 &ndash; Jan 2022 | India</div>
-        </div>
-        <div class="impact-line">Impact: Achieved 91% renewal collection improvement through structured portfolio risk engagement.</div>
-        <ul class="bullets">
-          <li>Achieved 91% renewal collection rate through structured customer engagement workflows and churn mitigation analytics.</li>
-          <li>Collaborated with IndusInd Bank retail branch leaders to drive wealth protection penetration across priority retail customer accounts.</li>
-          <li>Analyzed customer portfolio risk categories to match customized insurance and investment solutions.</li>
-        </ul>
-      </div>
-
+    <!-- Running Page 1 Footer -->
+    <div class="page-footer">
+      <span>BADAL KUMAR SAHU &bull; CURRICULUM VITAE</span>
+      <span>PAGE 1 OF 3</span>
     </div>
   </div>
 
-  <!-- Page Break -->
   <div class="page-break"></div>
 
-  <!-- ==================== PAGE 2 ==================== -->
-  <div class="page">
-    
-    <!-- Current Internships -->
-    <div class="section">
-      <div class="section-title">Current Internships &amp; Applied Analytics Programs</div>
+  <!-- =========================================================================
+       PAGE 2: PROFESSIONAL EXPERIENCE (CONT.), PROJECTS & INTERNSHIPS
+       ========================================================================= -->
+  <div class="resume-page" id="page-2">
+    <div class="page-content">
+
+      <!-- 4. Professional Experience (Part 2 - Foundational Enterprise Leadership) -->
+      <div class="section-title first">Professional Experience (Continued)</div>
+
+      <!-- Role 3: Reliance Retail -->
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">JBA Sales Manager</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">Reliance PPM Services Ltd</span>
+          </div>
+          <div class="exp-meta">Feb 2022 – Feb 2024 | India</div>
+        </div>
+        <div class="exp-impact">Key Impact: Built and managed high-performance team of 20+ professionals while scaling territory revenue.</div>
+        <ul class="bullet-list">
+          <li>Led and mentored high-performing sales force of 20+ professionals, driving sustained market penetration.</li><li>Established disciplined performance tracking frameworks using sales data and pipeline conversion metrics.</li><li>Expanded enterprise channel footprint and structured scalable onboarding playbooks.</li>
+        </ul>
+      </div>
+
+      <!-- Role 4: ICICI Prudential -->
+      <div class="exp-item" style="margin-bottom: 8px;">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">Business Trainee – IndusInd Bank Partnership</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">ICICI Prudential Life Insurance</span>
+          </div>
+          <div class="exp-meta">Sep 2020 – Jan 2022 | India</div>
+        </div>
+        <div class="exp-impact">Key Impact: Achieved 91% renewal collection improvement through structured customer engagement workflows.</div>
+        <ul class="bullet-list">
+          <li>Achieved 91% renewal collection improvement through structured customer engagement workflows.</li><li>Collaborated closely with IndusInd Bank retail branch leaders to drive wealth protection penetration.</li><li>Analyzed customer portfolio risk categories to match customized insurance solutions.</li>
+        </ul>
+      </div>
+
+      <!-- 5. Selected Featured Projects (AI, Cloud & Data Architectures) -->
+      <div class="section-title">Selected Featured Projects (AI, Cloud &amp; Analytics)</div>
       
-      <!-- AWS Cloud Computing -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">AWS Cloud Computing Intern</span> &mdash; <span class="item-company">EWB EDU TECH PRIVATE LIMITED (AICTE Portal)</span>
+      <!-- Project 1: BigQuery Data Agent -->
+      <div class="project-item">
+        <div class="project-header">
+          <div>
+            <span class="project-title">BigQuery Data Agent (Autonomous AI Multi-Agent)</span>
+            <span class="project-tags"> | Python, Gemini API, BigQuery SQL, AGY SDK, FastAPI</span>
           </div>
-          <div class="item-meta">Sep 2026 &ndash; Present | Virtual &bull; Ongoing</div>
+          <div class="project-links">
+            <a href="https://github.com/badalsahu200ns-png/bigquery-data-agent" target="_blank">GitHub</a>
+          </div>
         </div>
-        <ul class="bullets">
-          <li>Configuring and managing AWS cloud infrastructure spanning EC2 compute, S3 storage, IAM security policies, and VPC networking.</li>
-          <li>Deploying relational database instances with Amazon RDS and instrumenting serverless event pipelines with AWS Lambda &amp; CloudWatch.</li>
+        <ul class="bullet-list">
+          <li>Architected autonomous multi-agent system translating complex natural language requests into production-grade BigQuery SQL with schema discovery and automated error correction.</li>
+          <li>Engineered intelligent fallback strategies and automated validation test suites achieving 99.4% execution accuracy and sub-second metadata latency.</li>
         </ul>
       </div>
 
-      <!-- Edunet / Vodafone -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">Data Analytics Intern</span> &mdash; <span class="item-company">Edunet Foundation / Vodafone Idea Foundation</span>
+      <!-- Project 2: ReflectAI Gemini Journal -->
+      <div class="project-item">
+        <div class="project-header">
+          <div>
+            <span class="project-title">ReflectAI — Intelligent AI Reflection &amp; Sentiment Journal</span>
+            <span class="project-tags"> | Gemini 1.5 Pro, Vector Search, Python, React, Tailwind CSS</span>
           </div>
-          <div class="item-meta">Aug 2026 &ndash; Present | Remote &bull; Ongoing</div>
+          <div class="project-links">
+            <a href="https://reflectai-journal.web.app/" target="_blank">Live App</a> &bull;
+            <a href="https://github.com/badalsahu200ns-png/reflectai-gemini-reflection-journal" target="_blank">GitHub</a>
+          </div>
         </div>
-        <ul class="bullets">
-          <li>Engineered structured data pipelines, Power BI dashboards, and exploratory analytics models for telecom social impact assessment.</li>
-          <li>Applied predictive analytics on telemetry indicators to improve engagement and retention tracking across regional programs.</li>
+        <ul class="bullet-list">
+          <li>Built multimodal reflective journal integrating Gemini 1.5 Pro with vector embeddings for semantic recall across chronological user reflections.</li>
+          <li>Implemented automated cognitive trend analysis, weekly sentiment velocity mapping, and private client-side encryption.</li>
         </ul>
       </div>
 
-      <!-- Neo Skillz -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">Data Analytics Training &amp; Internship</span> &mdash; <span class="item-company">Neo Skillz</span>
+      <!-- Project 3: Coffee Shop Monitor -->
+      <div class="project-item">
+        <div class="project-header">
+          <div>
+            <span class="project-title">Coffee Shop Monitor — Full-Stack Telemetry System</span>
+            <span class="project-tags"> | Python, FastAPI, Real-time WebSockets, TypeScript, SQLite</span>
           </div>
-          <div class="item-meta">Aug 2026 &ndash; Present | Remote &bull; Ongoing</div>
+          <div class="project-links">
+            <a href="https://github.com/badalsahu200ns-png/coffee-shop-monitor" target="_blank">GitHub</a>
+          </div>
         </div>
-        <ul class="bullets">
-          <li>Spearheading modern analytics implementations with focus on end-to-end data transformation pipelines and Tableau analytical dashboards.</li>
-          <li>Pioneered automated prompt engineering workflows and RAG vector search pipelines for rapid business insight extraction.</li>
+        <ul class="bullet-list">
+          <li>Developed high-throughput operational telemetry dashboard monitoring multi-point retail queue velocity, stock thresholds, and transaction speed.</li>
+          <li>Engineered automated inventory depletion alerts, peak-hour customer flow predictive modeling, and live operational analytics charts.</li>
         </ul>
       </div>
+
+      <!-- Project 4: Seasonal Agriculture Performance Analysis -->
+      <div class="project-item" style="margin-bottom: 8px;">
+        <div class="project-header">
+          <div>
+            <span class="project-title">Seasonal Agriculture Performance Analytics</span>
+            <span class="project-tags"> | Python, Pandas, Matplotlib, Statistical Modeling, Seaborn</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/badalsahu200ns-png/Seasonal-Agriculture-Performance-Analysis" target="_blank">GitHub</a>
+          </div>
+        </div>
+        <ul class="bullet-list">
+          <li>Performed multi-decade agrarian yield modeling correlating rainfall variability, soil mineral parameters, and harvest price indices.</li>
+          <li>Constructed predictive yield variance dashboards identifying key vulnerability zones to assist institutional agricultural planning.</li>
+        </ul>
+      </div>
+
+      <!-- 6. Current Internships & Applied Practical Programs -->
+      <div class="section-title">Current Internships &amp; Applied Analytics Programs</div>
+
+      <!-- Internship 1: Edunet / VOIS -->
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">AWS Cloud Computing Intern</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">EWB EDU TECH PRIVATE LIMITED</span>
+          </div>
+          <div class="exp-meta">September 2026 — Present | Virtual &bull; Active Engagement</div>
+        </div>
+        <ul class="bullet-list">
+          <li>Configured and managed core AWS cloud infrastructure components spanning compute, storage, and networking.</li><li>Engineered secure Identity and Access Management (IAM) policies, roles, and resource access controls.</li><li>Deployed relational database instances with Amazon RDS and architected isolated virtual networks with Amazon VPC.</li><li>Explored serverless event-driven architectures with AWS Lambda and instrumented observability with Amazon CloudWatch.</li>
+        </ul>
+      </div>
+
+      <!-- Internship 2: Neo Skillz -->
+      <div class="exp-item" style="margin-bottom: 0;">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">Data Analytics Intern</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">Edunet Foundation / Vodafone Idea Foundation</span>
+          </div>
+          <div class="exp-meta">Aug 2026 – Present | Virtual &bull; Active Engagement</div>
+        </div>
+        <ul class="bullet-list">
+          <li>Engineered structured data pipelines and exploratory analytics models for telecom impact assessment.</li><li>Formulated dashboards tracking regional digital literacy initiatives and student engagement trends.</li><li>Applied predictive analysis on telemetry indicators to boost retention rates across community programs.</li>
+        </ul>
+      </div>
+
     </div>
 
-    <!-- Selected Projects -->
-    <div class="section">
-      <div class="section-title">Selected Projects (AI, Cloud &amp; Analytics)</div>
+    <!-- Running Page 2 Footer -->
+    <div class="page-footer">
+      <span>BADAL KUMAR SAHU &bull; CURRICULUM VITAE</span>
+      <span>PAGE 2 OF 3</span>
+    </div>
+  </div>
 
-      <!-- BigQuery Data Agent -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">BigQuery Data Agent &ndash; Natural Language to Enterprise Analytics</span>
-            <span style="font-size: 8pt; color: #475569;">| Google BigQuery, Cloud Run, SQL Synthesis, LLM Agents</span>
+  <div class="page-break"></div>
+
+  <!-- =========================================================================
+       PAGE 3: EDUCATION, CERTIFICATIONS & QUALIFICATIONS REGISTRY
+       ========================================================================= -->
+  <div class="resume-page" id="page-3">
+    <div class="page-content">
+
+      <!-- 7. Education & Academic Foundations -->
+      <div class="section-title first">Education &amp; Academic Qualifications</div>
+      
+      <!-- Education 1: MCA -->
+      <div style="margin-bottom: 6px;">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">Master of Computer Applications (MCA)</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">Amity University</span>
           </div>
-          <div class="item-meta"><a href="https://bq-data-agent-489073495110.asia-southeast1.run.app/dev-ui/?app=data_agent&userId=user">Live System</a> &bull; <a href="https://github.com/badalsahu200ns-png">GitHub</a></div>
+          <div class="exp-meta">Jul 2025 – Present | Pursuing</div>
         </div>
-        <ul class="bullets">
-          <li>Architected enterprise data intelligence system enabling stakeholders to query petabyte-scale BigQuery datasets using plain English.</li>
-          <li>Generates verified SQL queries, visual analytical charts, and actionable executive summaries with sub-3s query execution latency.</li>
-        </ul>
+        <div style="font-size: 8.1pt; color: #475569; margin-top: 1px;">
+          <strong>Core Curriculum:</strong> Distributed Systems, Advanced Database Management Systems, Data Structures & Algorithms, Cloud Architectures, Machine Learning & AI
+        </div>
       </div>
 
-      <!-- ReflectAI -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">ReflectAI &ndash; Gemini Cognitive Reflection Journal</span>
-            <span style="font-size: 8pt; color: #475569;">| Google AI Studio, Gemini, Cloud Run, Firestore, Streamlit</span>
+      <!-- Education 2: PGDM -->
+      <div style="margin-bottom: 6px;">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">Post Graduate Diploma in Management (PGDM) (undefined)</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">Institute of Management and Information Science, Bhubaneswar</span>
           </div>
-          <div class="item-meta"><a href="https://reflection-journal-by-badal-200ns.ai.studio/">Live System</a> &bull; <a href="https://github.com/badalsahu200ns-png/reflectai-gemini-reflection-journal">GitHub</a></div>
+          <div class="exp-meta">Completed | Completed &bull; First Class</div>
         </div>
-        <ul class="bullets">
-          <li>Built intelligent journaling application leveraging Gemini and Cloud Run to generate cognitive reflections and semantic theme clustering.</li>
-          <li>Engineered vector retrieval and real-time behavioral insights stored persistently in Google Cloud Firestore.</li>
-        </ul>
+        <div style="font-size: 8.1pt; color: #475569; margin-top: 1px;">
+          <strong>Core Curriculum:</strong> Quantitative Business Analytics, Strategic Financial Management, Market Economics, Sales & Distribution Strategy, Operational Leadership
+        </div>
       </div>
 
-      <!-- Coffee Shop Monitor & Barista AI Agent -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">Coffee Shop Monitor &amp; Barista AI Agent &ndash; Operational Telemetry</span>
-            <span style="font-size: 8pt; color: #475569;">| Google Cloud Run, FastAPI, Real-Time Telemetry</span>
+      <!-- Education 3: B.Com -->
+      <div style="margin-bottom: 8px;">
+        <div class="exp-header">
+          <div>
+            <span class="exp-role">Bachelor of Commerce (B.Com) (undefined)</span>
+            <span style="color: #94a3b8;"> &mdash; </span>
+            <span class="exp-company">J.R.N. Rajasthan Vidyapeeth University</span>
           </div>
-          <div class="item-meta"><a href="https://coffee-mgr-agent-489073495110.asia-southeast1.run.app/">Live System</a> &bull; <a href="https://github.com/badalsahu200ns-png">GitHub</a></div>
+          <div class="exp-meta">Completed | Completed &bull; Honours</div>
         </div>
-        <ul class="bullets">
-          <li>Engineered operations monitor and conversational agent tracking order queues, barista station throughput, and bottleneck anomalies.</li>
-        </ul>
+        <div style="font-size: 8.1pt; color: #475569; margin-top: 1px;">
+          <strong>Core Curriculum:</strong> Corporate Accounting, Business Statistics, Economic Theory, Quantitative Business Mathematics, Commercial Law
+        </div>
       </div>
 
-      <!-- Seasonal Agriculture Performance Analysis -->
-      <div class="item">
-        <div class="item-header">
-          <div class="item-title-group">
-            <span class="item-role">Seasonal Agriculture Performance Analysis</span>
-            <span style="font-size: 8pt; color: #475569;">| Python, Pandas, Matplotlib, Seaborn, Jupyter</span>
-          </div>
-          <div class="item-meta"><a href="https://github.com/badalsahu200ns-png/Seasonal-Agriculture-Performance-Analysis">GitHub</a></div>
+      <!-- 8. Key Certifications & Professional Credentials -->
+      <div class="section-title">Verified Industry Certifications &amp; Credentials</div>
+      
+      <div style="margin-bottom: 6px;">
+        <div style="font-size: 8.4pt; font-weight: 700; color: #0369a1; margin-bottom: 3px;">Cloud &amp; Artificial Intelligence Engineering:</div>
+        <div class="cert-grid">
+          <div class="cert-item"><span class="cert-issuer">Oracle:</span> Agentic AI Certified Foundations Associate <span class="cert-id">(ID: 330350216AAI26OFA)</span></div>
+          <div class="cert-item"><span class="cert-issuer">Google Cloud:</span> Configure Service Accounts &amp; IAM Roles <span class="cert-id">(ID: 28873618)</span></div>
+          <div class="cert-item"><span class="cert-issuer">Google Cloud:</span> The Basics of Google Cloud Compute Skill Badge</div>
+          <div class="cert-item"><span class="cert-issuer">Google Cloud:</span> Prompt Design in Vertex AI &amp; Gemini Foundations</div>
+          <div class="cert-item"><span class="cert-issuer">Anthropic:</span> AI Fluency Framework &amp; Foundations <span class="cert-id">(ID: 9hn4e7kttj9r)</span></div>
+          <div class="cert-item"><span class="cert-issuer">Anthropic:</span> Claude 101 Certification <span class="cert-id">(ID: 7yiy97wnu58o)</span></div>
         </div>
-        <ul class="bullets">
-          <li>Executed empirical data analysis across Kharif, Rabi, and Zaid seasons analyzing crop yield, production, profitability, and climate correlations.</li>
-        </ul>
       </div>
+
+      <div style="margin-bottom: 6px;">
+        <div style="font-size: 8.4pt; font-weight: 700; color: #0369a1; margin-bottom: 3px;">Data Analytics, Quality Management &amp; Security:</div>
+        <div class="cert-grid">
+          <div class="cert-item"><span class="cert-issuer">OneRoadmap:</span> Data Analyst Certification <span class="cert-id">(ID: CERT-F821520B)</span></div>
+          <div class="cert-item"><span class="cert-issuer">OneRoadmap:</span> Excel Certification <span class="cert-id">(ID: CERT-536F4B9F)</span></div>
+          <div class="cert-item"><span class="cert-issuer">Kennesaw State Univ:</span> Six Sigma Principles <span class="cert-id">(ID: 7JJSRPCE9FS9)</span></div>
+          <div class="cert-item"><span class="cert-issuer">Cisco:</span> Introduction to Cybersecurity</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 8px;">
+        <div style="font-size: 8.4pt; font-weight: 700; color: #0369a1; margin-bottom: 3px;">Business Analytics &amp; Strategic Consulting Simulations:</div>
+        <div class="cert-grid">
+          <div class="cert-item"><span class="cert-issuer">Coursera / ESSEC:</span> Marketing Analytics <span class="cert-id">(ID: E58C37P3BFQ3)</span></div>
+          <div class="cert-item"><span class="cert-issuer">Coursera / Wharton:</span> Customer Analytics <span class="cert-id">(ID: WRUELYD2V6BP)</span></div>
+          <div class="cert-item"><span class="cert-issuer">Forage / Deloitte:</span> Technology &amp; Data Analytics Simulation</div>
+          <div class="cert-item"><span class="cert-issuer">Forage / BCG:</span> Strategy Consulting Virtual Experience</div>
+        </div>
+      </div>
+
+      <!-- 9. Technical & Research Domain Interests -->
+      <div class="section-title">Technical Domain Interests &amp; Governance</div>
+      <div style="font-size: 8.35pt; color: #334155; line-height: 1.32; margin-bottom: 8px;">
+        Autonomous Multi-Agent AI Architectures &bull; Petabyte-Scale Cloud Data Pipelines &bull; Real-Time Streaming Analytics &bull; Enterprise Data Governance &bull; Responsible AI System Design &bull; Cross-Functional Analytics Advisory
+      </div>
+
+      <!-- 10. Portfolio Web Verification -->
+      <div style="padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 4px; background: #f8fafc; font-size: 8.1pt; color: #334155;">
+        <strong style="color: #0f172a;">Live Credential Verification Registry:</strong> 
+        The complete interactive repository containing 40+ verified industry credential records, project repositories, interactive live systems, and academic certifications is hosted online at: 
+        <a href="https://badalsahu200ns-png.github.io/#certifications" target="_blank" style="font-weight: 600;">https://badalsahu200ns-png.github.io/</a>
+      </div>
+
     </div>
 
-    <!-- Technical Skills -->
-    <div class="section">
-      <div class="section-title">Technical Skills &amp; Core Competencies</div>
-      <div class="skills-row">
-        <span class="skills-label">Data Analytics &amp; BI:</span>
-        <span class="skills-val">SQL, Google BigQuery, Power BI, Tableau, Advanced Excel (Pivot Tables, Lookups), Exploratory Data Analysis (EDA), KPI Dashboards, MIS Reporting, Statistical Modeling</span>
-      </div>
-      <div class="skills-row">
-        <span class="skills-label">AI &amp; Generative AI:</span>
-        <span class="skills-val">Gemini LLMs, Retrieval-Augmented Generation (RAG), Prompt Engineering, Autonomous AI Agents, Google AI Studio, LLM Integration Strategy</span>
-      </div>
-      <div class="skills-row">
-        <span class="skills-label">Programming &amp; Tools:</span>
-        <span class="skills-val">Python (Pandas, NumPy, Matplotlib), Core Java, TypeScript, React, Streamlit, FastAPI, Git, GitHub CI/CD, Salesforce CRM</span>
-      </div>
-      <div class="skills-row">
-        <span class="skills-label">Cloud &amp; Databases:</span>
-        <span class="skills-val">Google Cloud Platform (Cloud Run, BigQuery, Firestore), Amazon Web Services (EC2, S3, RDS, IAM, VPC), Distributed Systems</span>
-      </div>
+    <!-- Running Page 3 Footer -->
+    <div class="page-footer">
+      <span>BADAL KUMAR SAHU &bull; CURRICULUM VITAE</span>
+      <span>PAGE 3 OF 3</span>
     </div>
-
-    <!-- Education -->
-    <div class="section">
-      <div class="section-title">Education</div>
-      <div class="edu-item">
-        <div class="item-header">
-          <div><strong style="color: #0f172a;">Master of Computer Applications (MCA)</strong> &mdash; <span style="color: #0369a1; font-weight: 600;">Amity University</span></div>
-          <div class="item-meta">Jul 2025 &ndash; Present | Pursuing</div>
-        </div>
-        <div style="font-size: 8pt; color: #475569;">Relevant Subjects: Distributed Systems, Advanced DBMS, Data Structures &amp; Algorithms, Cloud Architectures, Machine Learning &amp; AI</div>
-      </div>
-      <div class="edu-item">
-        <div class="item-header">
-          <div><strong style="color: #0f172a;">Post Graduate Diploma in Management (PGDM)</strong> &mdash; <span style="color: #0369a1; font-weight: 600;">Institute of Management &amp; Information Science</span></div>
-          <div class="item-meta">Graduated | Bhubaneswar, India</div>
-        </div>
-        <div style="font-size: 8pt; color: #475569;">Specialization: Quantitative Business Analytics, Strategic Financial Management, Market Economics, Sales &amp; Distribution Strategy</div>
-      </div>
-      <div class="edu-item">
-        <div class="item-header">
-          <div><strong style="color: #0f172a;">Bachelor of Commerce (B.Com)</strong> &mdash; <span style="color: #0369a1; font-weight: 600;">J.R.N. Rajasthan Vidyapeeth University</span></div>
-          <div class="item-meta">Graduated | India</div>
-        </div>
-        <div style="font-size: 8pt; color: #475569;">Core: Corporate Accounting, Business Statistics, Economic Modeling, Commercial Contracts &amp; Law, Business Mathematics</div>
-      </div>
-    </div>
-
-    <!-- Key Certifications -->
-    <div class="section" style="margin-bottom: 0;">
-      <div class="section-title">Key Certifications &amp; Credentials</div>
-      <div class="cert-grid">
-        <div class="cert-item"><span class="cert-issuer">Oracle:</span> <span class="cert-name">Agentic AI Certified Foundations Associate</span> <span class="cert-id">(ID: 330350216AAI26OFA)</span></div>
-        <div class="cert-item"><span class="cert-issuer">Google Cloud:</span> <span class="cert-name">Configure Service Accounts &amp; IAM Roles</span> <span class="cert-id">(ID: 28873618)</span></div>
-        <div class="cert-item"><span class="cert-issuer">Google Cloud:</span> <span class="cert-name">The Basics of Google Cloud Compute Skill Badge</span></div>
-        <div class="cert-item"><span class="cert-issuer">Anthropic:</span> <span class="cert-name">AI Fluency Framework &amp; Foundations</span> <span class="cert-id">(ID: 9hn4e7kttj9r)</span></div>
-        <div class="cert-item"><span class="cert-issuer">Anthropic:</span> <span class="cert-name">Claude 101 Certification</span> <span class="cert-id">(ID: 7yiy97wnu58o)</span></div>
-        <div class="cert-item"><span class="cert-issuer">OneRoadmap:</span> <span class="cert-name">Data Analyst Certification</span> <span class="cert-id">(ID: CERT-F821520B)</span></div>
-        <div class="cert-item"><span class="cert-issuer">OneRoadmap:</span> <span class="cert-name">Excel Certification</span> <span class="cert-id">(ID: CERT-536F4B9F)</span></div>
-        <div class="cert-item"><span class="cert-issuer">Kennesaw State Univ:</span> <span class="cert-name">Six Sigma Principles</span> <span class="cert-id">(ID: 7JJSRPCE9FS9)</span></div>
-        <div class="cert-item"><span class="cert-issuer">Coursera:</span> <span class="cert-name">Marketing Analytics</span> <span class="cert-id">(ID: E58C37P3BFQ3)</span> &bull; <span class="cert-name">Customer Analytics</span> <span class="cert-id">(ID: WRUELYD2V6BP)</span></div>
-        <div class="cert-item"><span class="cert-issuer">Forage / Deloitte / BCG:</span> <span class="cert-name">Data Analytics &amp; Strategy Consulting Simulations</span></div>
-        <div class="cert-item"><span class="cert-issuer">Cisco:</span> <span class="cert-name">Introduction to Cybersecurity</span></div>
-        <div class="cert-item"><span class="cert-issuer">Portfolio Registry:</span> <a href="https://badalsahu200ns-png.github.io/#certifications" style="font-weight: 600;">View complete 40+ verified credentials gallery &rarr;</a></div>
-      </div>
-    </div>
-
   </div>
 
 </body>

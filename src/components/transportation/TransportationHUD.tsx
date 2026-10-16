@@ -131,16 +131,27 @@ export function TransportationHUD({
 
       </div>
 
-      {/* 2. CENTER STORY BANNER (Subtle Narrative Cue) */}
-      <div className="max-w-xl mx-auto text-center pointer-events-auto">
-        <div className="p-3 sm:p-4 rounded-2xl bg-black/80 backdrop-blur-xl border border-white/15 shadow-2xl animate-fade-in">
-          <div className="flex items-center justify-center gap-2 text-[10px] font-mono tracking-widest uppercase mb-1" style={{ color: config.primaryColor }}>
-            <Shield className="w-3.5 h-3.5" />
-            <span>TRANSIT NARRATIVE // CHAPTER {config.tabNumber}</span>
+      {/* 2. DEDICATED RIGHT-SIDE PERIMETER HUD PANEL (Non-obstructing - Vehicle in Center is 100% visible) */}
+      <div className="absolute top-20 right-4 sm:right-6 lg:right-8 z-30 max-w-xs sm:max-w-sm pointer-events-auto transition-all duration-300">
+        <div className="p-3 sm:p-3.5 rounded-xl bg-[#050914]/60 backdrop-blur-md border border-white/10 shadow-2xl animate-fade-in hover:border-white/20">
+          <div className="flex items-center justify-between gap-2 text-[10px] font-mono tracking-widest uppercase mb-1.5" style={{ color: config.primaryColor }}>
+            <span className="flex items-center gap-1.5 font-bold">
+              <Shield className="w-3.5 h-3.5" />
+              <span>CHAPTER {config.tabNumber}</span>
+            </span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded border border-white/10 bg-white/[0.04] text-slate-400">
+              {config.vehicleRole}
+            </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-200 font-mono leading-relaxed">
+
+          <p className="text-[11px] sm:text-xs text-slate-200 font-mono leading-relaxed mb-2">
             {config.story}
           </p>
+
+          <div className="pt-1.5 border-t border-white/[0.08] flex items-center justify-between font-mono text-[9px] text-slate-400">
+            <span className="text-cyan-400 font-semibold">{config.speedLabel}</span>
+            <span className="text-slate-500">// AUTONOMOUS GUIDANCE</span>
+          </div>
         </div>
       </div>
 

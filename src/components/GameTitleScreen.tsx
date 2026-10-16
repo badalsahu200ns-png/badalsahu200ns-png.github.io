@@ -92,15 +92,45 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
   const [isVideoError, setIsVideoError] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-  // Autoplay personal welcome video on mount (with muted compliance)
+  // Autoplay personal welcome video on mount (with strict muted compliance for browser autoplay policies)
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch((err) => {
-        console.warn('Welcome video autoplay caught:', err);
-      });
-    }
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.defaultMuted = true;
+    video.muted = true;
+
+    const startPlayback = () => {
+      const promise = video.play();
+      if (promise !== undefined) {
+        promise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch((err) => {
+            console.warn('Welcome video autoplay caught:', err);
+          });
+      }
+    };
+
+    startPlayback();
+
+    // Fallback: If browser policy blocked autoplay, start on first user interaction
+    const handleFirstInteraction = () => {
+      if (video.paused) {
+        startPlayback();
+      }
+      window.removeEventListener('pointerdown', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    window.addEventListener('pointerdown', handleFirstInteraction, { once: true });
+    window.addEventListener('keydown', handleFirstInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
   }, []);
 
   // Parallax tracking on container mouse move
@@ -286,15 +316,21 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
               ) : (
                 <video
                   ref={videoRef}
-                  src="/video/welcome.mp4"
+                  src={`${import.meta.env.BASE_URL}video/welcome.mp4`}
                   poster={profileData.heroImage || '/images/nameste-hi.png'}
                   autoPlay
                   muted={isMuted}
                   playsInline
-                  loop={false}
+                  loop
                   preload="auto"
                   onPlay={() => setIsPlaying(true)}
-                  onEnded={() => setIsPlaying(false)}
+                  onEnded={() => {
+                    // Loop continuous fallback
+                    if (videoRef.current) {
+                      videoRef.current.currentTime = 0;
+                      videoRef.current.play().catch(() => {});
+                    }
+                  }}
                   onError={() => setIsVideoError(true)}
                   className="h-[360px] sm:h-[440px] lg:h-[500px] xl:h-[540px] w-auto max-w-full object-contain rounded-2xl filter contrast-[1.03] brightness-[1.01] select-none [mask-image:linear-gradient(to_bottom,black_85%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_85%,transparent_100%)] drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)]"
                 />
