@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { profileData } from '../data/portfolioData';
-import { ChevronRight, ArrowUpRight, Compass, ShieldCheck, Volume2, VolumeX, RotateCcw } from 'lucide-react';
+import { ChevronRight, ArrowUpRight, Compass, ShieldCheck, Volume2, VolumeX, RotateCcw, Play } from 'lucide-react';
 import { DeploymentStatusBadge } from './common/DeploymentStatusBadge';
 import { soundEngine } from '../utils/soundEngine';
 
@@ -83,6 +83,9 @@ interface GameTitleScreenProps {
   visitorName?: string;
 }
 
+// Track whether welcome video has already played during the current browser page session
+let hasPlayedWelcomeThisSession = false;
+
 export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }: GameTitleScreenProps) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
@@ -104,16 +107,34 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
     return false; // Default sound enabled
   });
   const [isAudioBlocked, setIsAudioBlocked] = useState<boolean>(false);
+  const [isAutoplayBlocked, setIsAutoplayBlocked] = useState<boolean>(false);
   const [isVideoError, setIsVideoError] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-  // Automatically play welcome.mp4 with sound when the landing screen appears
+  // Automatically play welcome.mp4 once from beginning to end on initial appearance
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.currentTime = 0;
     video.volume = volume;
+
+    // Do not restart the video when navigating tabs or returning to the landing interface during the same session
+    if (hasPlayedWelcomeThisSession) {
+      const setToEnd = () => {
+        if (video.duration && !isNaN(video.duration)) {
+          video.currentTime = video.duration;
+        }
+      };
+      if (video.readyState >= 1) {
+        setToEnd();
+      } else {
+        video.addEventListener('loadedmetadata', setToEnd, { once: true });
+      }
+      return;
+    }
+
+    hasPlayedWelcomeThisSession = true;
+    video.currentTime = 0;
 
     if (!isMuted) {
       video.muted = false;
@@ -124,19 +145,38 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
             setIsPlaying(true);
             setIsMuted(false);
             setIsAudioBlocked(false);
+            setIsAutoplayBlocked(false);
           })
           .catch((err) => {
             console.info('Browser autoplay policy blocked unmuted video, playing muted with ENABLE SOUND prompt:', err);
-            // Autoplay blocked with sound: play muted and prompt visitor
+            // Autoplay blocked with sound: attempt muted playback
             video.muted = true;
             setIsMuted(true);
             setIsAudioBlocked(true);
-            video.play().then(() => setIsPlaying(true)).catch(() => {});
+            video.play()
+              .then(() => {
+                setIsPlaying(true);
+                setIsAutoplayBlocked(false);
+              })
+              .catch((playErr) => {
+                console.info('Browser blocked autoplay completely, showing play button:', playErr);
+                setIsPlaying(false);
+                setIsAutoplayBlocked(true);
+              });
           });
       }
     } else {
       video.muted = true;
-      video.play().then(() => setIsPlaying(true)).catch(() => {});
+      video.play()
+        .then(() => {
+          setIsPlaying(true);
+          setIsAutoplayBlocked(false);
+        })
+        .catch((playErr) => {
+          console.info('Browser blocked autoplay, showing play button:', playErr);
+          setIsPlaying(false);
+          setIsAutoplayBlocked(true);
+        });
     }
 
     return () => {
@@ -221,6 +261,7 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
     if (!video) return;
     video.currentTime = 0;
     setIsVideoError(false);
+    setIsAutoplayBlocked(false);
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise
@@ -231,6 +272,22 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
           console.warn('Replay failed:', err);
         });
     }
+  };
+
+  const handleManualPlay = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    video.muted = isMuted;
+    video.play()
+      .then(() => {
+        setIsPlaying(true);
+        setIsAutoplayBlocked(false);
+      })
+      .catch((err) => {
+        console.warn('Manual play failed:', err);
+      });
   };
 
   const handleToggleMute = (e: React.MouseEvent) => {
@@ -473,7 +530,7 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
               )}
 
               {/* 2. PROMINENT "ENABLE SOUND" OVERLAY IF BROWSER BLOCKED SOUND */}
-              {isAudioBlocked && !isVideoError && (
+              {isAudioBlocked && !isAutoplayBlocked && !isVideoError && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/45 backdrop-blur-[3px] rounded-2xl z-30 transition-all p-4">
                   <button
                     type="button"
@@ -483,6 +540,21 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   >
                     <Volume2 className="w-5 h-5 text-slate-950 animate-pulse" />
                     <span>ENABLE SOUND</span>
+                  </button>
+                </div>
+              )}
+
+              {/* 3. SMALL PLAY BUTTON IF BROWSER BLOCKED AUTOPLAY */}
+              {isAutoplayBlocked && !isPlaying && !isVideoError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/45 backdrop-blur-[2px] rounded-2xl z-30 transition-all p-4">
+                  <button
+                    type="button"
+                    onClick={handleManualPlay}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-xs font-bold tracking-wider transition-all duration-200 shadow-[0_0_20px_rgba(16,185,129,0.6)] cursor-pointer hover:scale-105 active:scale-95"
+                    aria-label="Play welcome video"
+                  >
+                    <Play className="w-4 h-4 fill-slate-950 text-slate-950" />
+                    <span>PLAY VIDEO</span>
                   </button>
                 </div>
               )}
