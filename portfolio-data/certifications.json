@@ -1,185 +1,5 @@
 [
   {
-    "id": "gcp-data-analytics",
-    "name": "Google Cloud Data Analytics Certificate",
-    "issuer": "Google Cloud",
-    "issueDate": "2026",
-    "credentialId": "GCP-DA",
-    "credentialUrl": "https://cloud.google.com/learn/certification",
-    "certificateImage": null,
-    "verificationUrl": "https://cloud.google.com/learn/certification",
-    "status": "In Progress",
-    "category": "Cloud & Data Platforms"
-  },
-  {
-    "id": "oracle-python",
-    "name": "Oracle Python Certified Foundations Associate",
-    "issuer": "Oracle",
-    "issueDate": "2026",
-    "credentialId": "1Z0-811",
-    "credentialUrl": "https://education.oracle.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://education.oracle.com/",
-    "status": "Completed",
-    "category": "Software Development"
-  },
-  {
-    "id": "oracle-agentic-ai",
-    "name": "Oracle Agentic AI Certified Foundations Associate",
-    "issuer": "Oracle",
-    "issueDate": "2026",
-    "credentialId": "ORA-AAI",
-    "credentialUrl": "https://education.oracle.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://education.oracle.com/",
-    "status": "Completed",
-    "category": "AI Strategy & Generative AI"
-  },
-  {
-    "id": "cisco-cybersecurity",
-    "name": "Cisco Introduction to Cybersecurity",
-    "issuer": "Cisco Networking Academy",
-    "issueDate": "2026",
-    "credentialId": "CSCO-SEC",
-    "credentialUrl": "https://www.netacad.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://www.netacad.com/",
-    "status": "Completed",
-    "category": "Software Development"
-  },
-  {
-    "id": "oneroadmap-da",
-    "name": "OneRoadmap Data Analyst Certification",
-    "issuer": "OneRoadmap",
-    "issueDate": "2026",
-    "credentialId": "1RM-DA",
-    "credentialUrl": null,
-    "certificateImage": null,
-    "verificationUrl": null,
-    "status": "Completed",
-    "category": "Data Analytics"
-  },
-  {
-    "id": "oneroadmap-excel",
-    "name": "OneRoadmap Excel Certification",
-    "issuer": "OneRoadmap",
-    "issueDate": "2026",
-    "credentialId": "1RM-XLS",
-    "credentialUrl": null,
-    "certificateImage": null,
-    "verificationUrl": null,
-    "status": "Completed",
-    "category": "Data Analytics"
-  },
-  {
-    "id": "tata-forage",
-    "name": "Data Analytics Job Simulation",
-    "issuer": "Tata Group / Forage",
-    "issueDate": "2026",
-    "credentialId": "FORAGE-TATA",
-    "credentialUrl": "https://www.theforage.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://www.theforage.com/",
-    "status": "Completed",
-    "category": "Data Analytics"
-  },
-  {
-    "id": "deloitte-forage",
-    "name": "Consulting Job Simulations",
-    "issuer": "Deloitte Australia / Forage",
-    "issueDate": "2026",
-    "credentialId": "FORAGE-DTT",
-    "credentialUrl": "https://www.theforage.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://www.theforage.com/",
-    "status": "Completed",
-    "category": "Business Analytics"
-  },
-  {
-    "id": "accenture-forage",
-    "name": "Consulting Job Simulation",
-    "issuer": "Accenture UK / Forage",
-    "issueDate": "2026",
-    "credentialId": "FORAGE-ACN",
-    "credentialUrl": "https://www.theforage.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://www.theforage.com/",
-    "status": "Completed",
-    "category": "Business Analytics"
-  },
-  {
-    "id": "bcg-forage",
-    "name": "Consulting Job Simulation",
-    "issuer": "BCG / Forage",
-    "issueDate": "2026",
-    "credentialId": "FORAGE-BCG",
-    "credentialUrl": "https://www.theforage.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://www.theforage.com/",
-    "status": "Completed",
-    "category": "Business Analytics"
-  },
-  {
-    "id": "pwc-forage",
-    "name": "Consulting Job Simulation",
-    "issuer": "PwC US / Forage",
-    "issueDate": "2026",
-    "credentialId": "FORAGE-PWC",
-    "credentialUrl": "https://www.theforage.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://www.theforage.com/",
-    "status": "Completed",
-    "category": "Business Analytics"
-  },
-  {
-    "id": "mastercard-forage",
-    "name": "Introduction to Artificial Intelligence",
-    "issuer": "Mastercard / Forage",
-    "issueDate": "2026",
-    "credentialId": "FORAGE-MA",
-    "credentialUrl": "https://www.theforage.com/",
-    "certificateImage": null,
-    "verificationUrl": "https://www.theforage.com/",
-    "status": "Completed",
-    "category": "AI Strategy & Generative AI"
-  },
-  {
-    "id": "customer-analytics",
-    "name": "Customer Analytics",
-    "issuer": "Coursera",
-    "issueDate": "2025",
-    "credentialId": "COURSERA-CA",
-    "credentialUrl": "https://coursera.org/",
-    "certificateImage": null,
-    "verificationUrl": "https://coursera.org/",
-    "status": "Completed",
-    "category": "Data Analytics"
-  },
-  {
-    "id": "marketing-analytics",
-    "name": "Marketing Analytics",
-    "issuer": "Coursera",
-    "issueDate": "2025",
-    "credentialId": "COURSERA-MA",
-    "credentialUrl": "https://coursera.org/",
-    "certificateImage": null,
-    "verificationUrl": "https://coursera.org/",
-    "status": "Completed",
-    "category": "Data Analytics"
-  },
-  {
-    "id": "google-digital-marketing",
-    "name": "Google Digital Marketing Certification",
-    "issuer": "Google",
-    "issueDate": "2024",
-    "credentialId": "GOOGLE-DM",
-    "credentialUrl": "https://grow.google/",
-    "certificateImage": null,
-    "verificationUrl": "https://grow.google/",
-    "status": "Completed",
-    "category": "Business Analytics"
-  },
-  {
     "id": "coursera-marketing-mix-fundamentals",
     "name": "Marketing Mix Fundamentals",
     "issuer": "Coursera",
@@ -189,7 +9,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/verify/RCX2LSTVXA67",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Marketing & Business"
   },
   {
     "id": "coursera-channel-management-retailing",
@@ -201,11 +21,11 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/verify/6HMR2FV745A3",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Marketing & Business"
   },
   {
-    "id": "google-digital-marketing-credential",
-    "name": "Google Digital marketing",
+    "id": "google-digital-marketing",
+    "name": "Google Digital Marketing",
     "issuer": "Google",
     "issueDate": "",
     "credentialId": "N7G VCG L9K",
@@ -213,7 +33,7 @@
     "certificateImage": null,
     "verificationUrl": "https://drive.google.com/file/d/1-5p998ijAAdoxcrnHfOow1HYIxoPxvcw/view?usp=drivesdk",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Marketing & Business"
   },
   {
     "id": "coursera-successful-negotiation",
@@ -225,7 +45,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/certificate/MMVS4SPCXEVT",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Marketing & Business"
   },
   {
     "id": "coursera-international-b2b-marketing",
@@ -237,11 +57,11 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/certificate/DT39HP59RMMD",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Marketing & Business"
   },
   {
-    "id": "coursera-intro-to-ai",
-    "name": "introduction to artificial intelligence",
+    "id": "coursera-intro-to-artificial-intelligence",
+    "name": "Introduction to Artificial Intelligence",
     "issuer": "Coursera",
     "issueDate": "",
     "credentialId": "SJP77PNWPW9Q",
@@ -249,7 +69,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/certificate/SJP77PNWPW9Q",
     "status": "Completed",
-    "category": "AI Strategy & Generative AI"
+    "category": "Artificial Intelligence & Generative AI"
   },
   {
     "id": "coursera-marketing-analytics",
@@ -261,7 +81,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/certificate/E58C37P3BFQ3",
     "status": "Completed",
-    "category": "Data Analytics"
+    "category": "Marketing & Business"
   },
   {
     "id": "coursera-customer-analytics",
@@ -273,10 +93,10 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/certificate/WRUELYD2V6BP",
     "status": "Completed",
-    "category": "Data Analytics"
+    "category": "Marketing & Business"
   },
   {
-    "id": "coursera-corporate-commercial-law-1",
+    "id": "coursera-corporate-commercial-law",
     "name": "Corporate & Commercial Law I: Contracts & Employment Law",
     "issuer": "Coursera",
     "issueDate": "",
@@ -285,7 +105,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/certificate/KH9RMGH5VDLX",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Law & Professional Development"
   },
   {
     "id": "ksu-six-sigma-principles",
@@ -297,7 +117,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.coursera.org/account/accomplishments/records/7JJSRPCE9FS9",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Marketing & Business"
   },
   {
     "id": "forage-bcg-strategy-consulting",
@@ -309,10 +129,10 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/SKZxezskWgmFjRvj9/ntTvo6ru6Tq3A2JPq_SKZxezskWgmFjRvj9_qiN9y9TA8ECZQH4z5_1746781175094_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
-    "id": "forage-bcg-intro-strategy-consulting",
+    "id": "forage-bcg-intro-to-strategy-consulting",
     "name": "BCG - Introduction to Strategy Consulting Job Simulation",
     "issuer": "Forage",
     "issueDate": "",
@@ -321,7 +141,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/SKZxezskWgmFjRvj9/4Rfzeut8gXmNwfxXv_SKZxezskWgmFjRvj9_qiN9y9TA8ECZQH4z5_1746780123046_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "forage-deloitte-data-analytics",
@@ -333,7 +153,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/9PBTqmSxAf6zZTseP/io9DzWKe3PTsiS6GG_9PBTqmSxAf6zZTseP_qiN9y9TA8ECZQH4z5_1746705308348_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Data Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "forage-accenture-nordics-consultant",
@@ -345,7 +165,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/xhih9yFWsf6AYfngd/KJGjQRHZ6eGquTKfF_xhih9yFWsf6AYfngd_qiN9y9TA8ECZQH4z5_1746618179168_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "forage-mastercard-advisors-consulting",
@@ -357,7 +177,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/mfxGwGDp6WkQmtmTf/DZxgGgvMB6cEtEyJg_mfxGwGDp6WkQmtmTf_qiN9y9TA8ECZQH4z5_1746701778672_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "forage-quantium-data-analytics",
@@ -369,7 +189,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/32A6DqtsbF7LbKdcq/NkaC7knWtjSbi6aYv_32A6DqtsbF7LbKdcq_qiN9y9TA8ECZQH4z5_1747307704918_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Data Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "forage-tata-data-analytics",
@@ -381,10 +201,10 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/ifobHAoMjQs9s6bKS/gMTdCXwDdLYoXZ3wG_ifobHAoMjQs9s6bKS_qiN9y9TA8ECZQH4z5_1747309629134_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Data Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
-    "id": "forage-accenture-australia-strategy",
+    "id": "forage-accenture-australia-strategy-consulting",
     "name": "Accenture Australia - Strategy Consulting Job Simulation",
     "issuer": "Forage",
     "issueDate": "",
@@ -393,7 +213,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/DMrpG9KbbePZxGfSN/MD2p8dDih7zoQ9KRC_DMrpG9KbbePZxGfSN_qiN9y9TA8ECZQH4z5_1748261921110_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "forage-deloitte-cyber",
@@ -405,7 +225,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/9PBTqmSxAf6zZTseP/E9pA6qsdbeyEkp3ti_9PBTqmSxAf6zZTseP_qiN9y9TA8ECZQH4z5_1748326408005_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Software Development"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "forage-deloitte-technology",
@@ -417,10 +237,10 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/9PBTqmSxAf6zZTseP/udmxiyHeqYQLkTPvf_9PBTqmSxAf6zZTseP_qiN9y9TA8ECZQH4z5_1748331008922_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Software Development"
+    "category": "Strategy & Consulting Simulations"
   },
   {
-    "id": "forage-pwc-management-consulting",
+    "id": "forage-pwc-us-management-consulting",
     "name": "PwC US - Management Consulting Job Simulation",
     "issuer": "Forage",
     "issueDate": "",
@@ -429,7 +249,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/CA4pBqsy4b4PdyaBP/douE8ih9jWMQ2P7sS_CA4pBqsy4b4PdyaBP_qiN9y9TA8ECZQH4z5_1748583648645_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "oneroadmap-excel-certification",
@@ -441,10 +261,10 @@
     "certificateImage": null,
     "verificationUrl": "https://oneroadmap.io/skills/excel/certificate/CERT-536F4B9F",
     "status": "Completed",
-    "category": "Data Analytics"
+    "category": "Data Analytics & Excel"
   },
   {
-    "id": "forage-accenture-uk-strategy",
+    "id": "forage-accenture-uk-strategy-consulting",
     "name": "Accenture UK - Strategy Consulting Job Simulation",
     "issuer": "Forage",
     "issueDate": "",
@@ -453,7 +273,7 @@
     "certificateImage": null,
     "verificationUrl": "https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/ovyvuqqNRQKBjNxbj/vZSN6eoncQtCPYbqz_ovyvuqqNRQKBjNxbj_qiN9y9TA8ECZQH4z5_1750156478213_completion_certificate.pdf",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Strategy & Consulting Simulations"
   },
   {
     "id": "linkedin-marketing-strategy",
@@ -465,7 +285,7 @@
     "certificateImage": null,
     "verificationUrl": "https://verify.skilljar.com/c/erjh5bxd56av",
     "status": "Completed",
-    "category": "Business Analytics"
+    "category": "Marketing & Business"
   },
   {
     "id": "oneroadmap-data-analyst-certification",
@@ -477,11 +297,11 @@
     "certificateImage": null,
     "verificationUrl": "https://oneroadmap.io/skills/da/certificate/CERT-F821520B",
     "status": "Completed",
-    "category": "Data Analytics"
+    "category": "Data Analytics & Excel"
   },
   {
     "id": "anthropic-ai-fluency-framework",
-    "name": "Certificate of Completion: Al Fluency Framework & Foundations",
+    "name": "Certificate of Completion: AI Fluency Framework & Foundations",
     "issuer": "Anthropic",
     "issueDate": "",
     "credentialId": "9hn4e7kttj9r",
@@ -489,11 +309,11 @@
     "certificateImage": null,
     "verificationUrl": "https://verify.skilljar.com/c/9hn4e7kttj9r",
     "status": "Completed",
-    "category": "AI Strategy & Generative AI"
+    "category": "Artificial Intelligence & Generative AI"
   },
   {
     "id": "anthropic-claude-101",
-    "name": "Certificate of completion: Claude 101",
+    "name": "Certificate of Completion: Claude 101",
     "issuer": "Anthropic",
     "issueDate": "",
     "credentialId": "7yiy97wnu58o",
@@ -501,11 +321,11 @@
     "certificateImage": null,
     "verificationUrl": "https://verify.skilljar.com/c/7yiy97wnu58o",
     "status": "Completed",
-    "category": "AI Strategy & Generative AI"
+    "category": "Artificial Intelligence & Generative AI"
   },
   {
     "id": "oracle-agentic-ai-certified-foundations",
-    "name": "Agentic AI Certified Foundations Associate certification",
+    "name": "Agentic AI Certified Foundations Associate Certification",
     "issuer": "Oracle",
     "issueDate": "",
     "credentialId": "330350216AAI26OFA",
@@ -513,7 +333,7 @@
     "certificateImage": null,
     "verificationUrl": "https://catalog-education.oracle.com/pls/certview/sharebadge?id=5D8ED719D0F5599C3DE94A878E45C111C68108DCE52E30D3DBEEA5879E53A087",
     "status": "Completed",
-    "category": "AI Strategy & Generative AI"
+    "category": "Artificial Intelligence & Generative AI"
   },
   {
     "id": "cisco-introduction-to-cybersecurity",
@@ -525,7 +345,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.credly.com/badges/bc2ef8fe-a4ed-4d33-b9ec-21f439b0c40c/linked_in_profile",
     "status": "Completed",
-    "category": "Software Development"
+    "category": "Software, Cybersecurity & Technology"
   },
   {
     "id": "ibm-getting-started-with-ai",
@@ -537,7 +357,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.credly.com/badges/53ed58f9-6af9-45a7-9d3c-36550404e094/linked_in_profile",
     "status": "Completed",
-    "category": "AI Strategy & Generative AI"
+    "category": "Artificial Intelligence & Generative AI"
   },
   {
     "id": "google-basics-cloud-compute-skill-badge",
@@ -549,7 +369,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.credly.com/badges/e59d82fa-ea9c-4b30-b3c0-5d0609219b2a/linked_in_profile",
     "status": "Completed",
-    "category": "Cloud & Data Platforms"
+    "category": "Cloud & Google Cloud"
   },
   {
     "id": "google-configure-service-accounts-iam",
@@ -561,7 +381,7 @@
     "certificateImage": null,
     "verificationUrl": "https://www.skills.google/public_profiles/02f3c057-9d72-48f9-9783-b84993cac717/badges/28873618?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share",
     "status": "Completed",
-    "category": "Cloud & Data Platforms"
+    "category": "Cloud & Google Cloud"
   },
   {
     "id": "google-implement-speech-language-solutions",
@@ -573,6 +393,6 @@
     "certificateImage": null,
     "verificationUrl": "https://www.skills.google/public_profiles/02f3c057-9d72-48f9-9783-b84993cac717/badges/28874660?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share",
     "status": "Completed",
-    "category": "Cloud & Data Platforms"
+    "category": "Cloud & Google Cloud"
   }
 ]
