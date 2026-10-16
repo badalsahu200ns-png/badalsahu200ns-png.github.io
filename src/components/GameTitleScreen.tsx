@@ -83,14 +83,12 @@ interface GameTitleScreenProps {
   visitorName?: string;
 }
 
-// Track whether welcome video has already played during the current browser page session
-let hasPlayedWelcomeThisSession = false;
-
 export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }: GameTitleScreenProps) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hasTriggeredMountPlay = useRef<boolean>(false);
   
   // Audio state with session storage memory
   const [volume, setVolume] = useState<number>(() => {
@@ -111,30 +109,21 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
   const [isVideoError, setIsVideoError] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-  // Automatically play welcome.mp4 once from beginning to end on initial appearance
+  // Automatically play welcome.mp4 once from beginning to end when the landing screen appears (initial entry and on return)
   useEffect(() => {
+    // Prevent duplicate triggers from component re-renders or React Strict Mode
+    if (hasTriggeredMountPlay.current) return;
+    hasTriggeredMountPlay.current = true;
+
     const video = videoRef.current;
     if (!video) return;
 
     video.volume = volume;
-
-    // Do not restart the video when navigating tabs or returning to the landing interface during the same session
-    if (hasPlayedWelcomeThisSession) {
-      const setToEnd = () => {
-        if (video.duration && !isNaN(video.duration)) {
-          video.currentTime = video.duration;
-        }
-      };
-      if (video.readyState >= 1) {
-        setToEnd();
-      } else {
-        video.addEventListener('loadedmetadata', setToEnd, { once: true });
-      }
-      return;
+    try {
+      video.currentTime = 0;
+    } catch {
+      // ignore if metadata not yet ready
     }
-
-    hasPlayedWelcomeThisSession = true;
-    video.currentTime = 0;
 
     if (!isMuted) {
       video.muted = false;
