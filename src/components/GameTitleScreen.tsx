@@ -450,7 +450,7 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   }}
                 />
               ) : (
-                /* 1. Video Frame with Compliant Fallback - loops continuously */
+                /* 1. Video Frame with Compliant Fallback - plays once per page visit */
                 <video
                   ref={videoRef}
                   src={`${import.meta.env.BASE_URL}video/welcome.mp4`}
@@ -458,15 +458,11 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   autoPlay
                   muted={isMuted}
                   playsInline
-                  loop
                   preload="auto"
                   onPlay={() => setIsPlaying(true)}
                   onEnded={() => {
-                    // Continuous loop guarantee
-                    if (videoRef.current) {
-                      videoRef.current.currentTime = 0;
-                      videoRef.current.play().catch(() => {});
-                    }
+                    // Play once per page visit: stop at final frame
+                    setIsPlaying(false);
                   }}
                   onError={() => {
                     setIsVideoError(true);
