@@ -19,7 +19,7 @@ export function TransportationHUD({
   onSkip,
 }: TransportationHUDProps) {
   const percent = Math.min(100, Math.round(progress * 100));
-  const elapsedSec = (progress * 5.0).toFixed(1);
+  const elapsedSec = (progress * 6.0).toFixed(1);
   const [isMuted, setIsMuted] = useState(() => soundEngine.getMuted());
 
   const handleToggleSound = () => {
@@ -27,16 +27,16 @@ export function TransportationHUD({
     setIsMuted(next);
   };
 
-  // 4-Phase Cinematic Timeline Description matching user prompt specifications
+  // 4-Phase 6-Second Cinematic Timeline Description (0-1.5s, 1.5-3.0s, 3.0-4.5s, 4.5-6.0s)
   let phaseName = 'PHASE 01 // 3D VEHICLE & ENVIRONMENT REVEAL';
   let phaseDesc = 'Establishing 3D spatial coordinate mesh and dynamic illumination';
-  if (progress >= 0.20 && progress < 0.50) {
+  if (progress >= 0.25 && progress < 0.50) {
     phaseName = 'PHASE 02 // VECTOR ACCELERATION & CRUISE';
     phaseDesc = 'Engaging full vector thrust and environmental parallax stream';
-  } else if (progress >= 0.50 && progress < 0.80) {
+  } else if (progress >= 0.50 && progress < 0.75) {
     phaseName = 'PHASE 03 // CINEMATIC MOMENT & DYNAMIC PATH';
     phaseDesc = 'Executing high-speed camera sweep and landmark synchronization';
-  } else if (progress >= 0.80) {
+  } else if (progress >= 0.75) {
     phaseName = 'PHASE 04 // APPROACH & DESTINATION INSERTION';
     phaseDesc = 'Decelerating into arrival gate — preparing section reveal';
   }
@@ -163,7 +163,7 @@ export function TransportationHUD({
             <span className="font-semibold" style={{ color: config.primaryColor }}>{phaseName}</span>
           </span>
           <span className="font-bold tracking-wider" style={{ color: config.primaryColor }}>
-            {elapsedSec}s / 5.0s &bull; {percent}%
+            {elapsedSec}s / 6.0s &bull; {percent}%
           </span>
         </div>
 

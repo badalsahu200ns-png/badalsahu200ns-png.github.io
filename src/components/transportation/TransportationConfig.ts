@@ -42,7 +42,7 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0, 1.1, 4.4],
     speedLabel: '420 KM/H // SKYLINE GLIDE',
     destinationNode: 'SECTOR 01: EXECUTIVE PROFILE',
-    durationMs: 5000,
+    durationMs: 6000,
   },
   internships: {
     id: 'internships',
@@ -64,7 +64,7 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0, 0.9, 3.8],
     speedLabel: '180 M/S // LAB RECONNAISSANCE',
     destinationNode: 'SECTOR 02: ACTIVE INTERNSHIPS & TRAINING',
-    durationMs: 5000,
+    durationMs: 6000,
   },
   experience: {
     id: 'experience',
@@ -86,7 +86,7 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0.4, 1.2, 4.8],
     speedLabel: '650 KM/H // MAGLEV ACCELERATION',
     destinationNode: 'SECTOR 03: COMMERCIAL ENTERPRISE MILESTONES',
-    durationMs: 5000,
+    durationMs: 6000,
   },
   projects: {
     id: 'projects',
@@ -108,7 +108,7 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0, 1.1, 4.8],
     speedLabel: '0.85 C // WARP DRIFT',
     destinationNode: 'SECTOR 04: AUTONOMOUS AI & DATA ARCHITECTURES',
-    durationMs: 5000,
+    durationMs: 6000,
   },
   education: {
     id: 'education',
@@ -130,7 +130,7 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0, 0.9, 4.2],
     speedLabel: '35 KNOTS // ABYSSAL DESCENT',
     destinationNode: 'SECTOR 05: ACADEMIC FOUNDATIONS & MCA/PGDM',
-    durationMs: 5000,
+    durationMs: 6000,
   },
   certifications: {
     id: 'certifications',
@@ -152,7 +152,7 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0, -0.3, 4.8],
     speedLabel: '20 M/S // STRATOSPHERIC CLIMB',
     destinationNode: 'SECTOR 06: GOOGLE CLOUD, ORACLE & CISCO CREDENTIALS',
-    durationMs: 5000,
+    durationMs: 6000,
   },
   'core-skills': {
     id: 'core-skills',
@@ -174,7 +174,7 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0, 1.0, 3.8],
     speedLabel: '290 KM/H // CYBER TERRAIN SPRINT',
     destinationNode: 'SECTOR 07: 8 CORE CAPABILITY CLUSTERS',
-    durationMs: 5000,
+    durationMs: 6000,
   },
   'technical-skills': {
     id: 'technical-skills',
@@ -196,7 +196,7 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0, 0.9, 4.0],
     speedLabel: '980 Gb/S // NEURAL TRANSIT',
     destinationNode: 'SECTOR 08: 3D TECHNOLOGY CONSTELLATION',
-    durationMs: 5000,
+    durationMs: 6000,
   },
   contact: {
     id: 'contact',
@@ -218,6 +218,6 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     cameraEnd: [0, 1.1, 4.6],
     speedLabel: '0.15 C // DOCKING APPROACH',
     destinationNode: 'SECTOR 09: DIRECT COLLABORATION CHANNELS',
-    durationMs: 5000,
+    durationMs: 6000,
   },
 };

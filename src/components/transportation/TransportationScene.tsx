@@ -133,28 +133,28 @@ function CinematicCameraRig({
     let arcOffsetY: number;
     let arcOffsetZ: number;
 
-    if (progress < 0.20) {
-      // Phase 1 (0–1.0s): Reveal from slight side 3/4 angle, easing into tail chase
-      const p1 = progress / 0.20; // 0 to 1
+    if (progress < 0.25) {
+      // Phase 1 (0–1.5s): Reveal from slight side 3/4 angle, easing into tail chase
+      const p1 = progress / 0.25; // 0 to 1
       arcOffsetX = (1 - p1) * 1.6;
       arcOffsetY = (1 - p1) * 0.6;
       arcOffsetZ = 1.0;
     } else if (progress < 0.50) {
-      // Phase 2 (1.0–2.5s): Acceleration run, camera pulls back and expands FOV
-      const p2 = (progress - 0.20) / 0.30;
+      // Phase 2 (1.5–3.0s): Acceleration run, camera pulls back and expands FOV
+      const p2 = (progress - 0.25) / 0.25;
       arcOffsetX = 0;
       arcOffsetY = p2 * 0.3;
       arcOffsetZ = 0.5 + p2 * 0.8;
-    } else if (progress < 0.80) {
-      // Phase 3 (2.5–4.0s): Main cinematic dynamic arc! Gentle side sweep demonstrating 3D depth
-      const p3 = (progress - 0.50) / 0.30;
+    } else if (progress < 0.75) {
+      // Phase 3 (3.0–4.5s): Main cinematic dynamic arc! Gentle side sweep demonstrating 3D depth
+      const p3 = (progress - 0.50) / 0.25;
       // Arc sweeps out to side then returns
       arcOffsetX = Math.sin(p3 * Math.PI) * 2.2;
       arcOffsetY = 0.3 + Math.sin(p3 * Math.PI) * 0.4;
       arcOffsetZ = 1.3 - p3 * 0.4;
     } else {
-      // Phase 4 (4.0–5.0s): Approach destination, decelerate & center
-      const p4 = (progress - 0.80) / 0.20;
+      // Phase 4 (4.5–6.0s): Approach destination, decelerate & center
+      const p4 = (progress - 0.75) / 0.25;
       arcOffsetX = 0;
       arcOffsetY = (1 - p4) * 0.3;
       arcOffsetZ = (1 - p4) * 0.9;
@@ -192,8 +192,8 @@ function CinematicCameraRig({
   });
 
   const vehicleZ = -progress * 35;
-  // Dynamic throttle: 0-1s ramping up, 1-4s full speed, 4-5s smooth landing deceleration
-  const throttle = progress < 0.2 ? 0.4 + (progress / 0.2) * 0.6 : progress < 0.8 ? 1.0 : 0.5 - (progress - 0.8) * 2 * 0.3;
+  // Dynamic throttle: 0-1.5s ramping up, 1.5-4.5s full speed, 4.5-6.0s smooth landing deceleration
+  const throttle = progress < 0.25 ? 0.4 + (progress / 0.25) * 0.6 : progress < 0.75 ? 1.0 : 0.5 - (progress - 0.75) * 2 * 0.3;
 
   return (
     <group position={[0, 0, vehicleZ]}>

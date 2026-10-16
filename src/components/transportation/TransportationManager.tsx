@@ -10,7 +10,7 @@ interface TransportationManagerProps {
   onArrival: () => void;
 }
 
-export const EXACT_JOURNEY_DURATION_MS = 5000; // Strictly 5,000 milliseconds (5.0s)
+export const EXACT_JOURNEY_DURATION_MS = 6000; // Strictly 6,000 milliseconds (6.0s)
 
 export function TransportationManager({ destinationId, onArrival }: TransportationManagerProps) {
   const config = TRANSPORTATION_DESTINATIONS[destinationId] || TRANSPORTATION_DESTINATIONS['profile'];
@@ -98,8 +98,8 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
       setProgress((prev) => {
         const next = Math.min(1.0, prev + progressDelta);
 
-        // Dynamic audio throttle modulation
-        const throttle = next < 0.2 ? 0.4 + (next / 0.2) * 0.6 : next < 0.8 ? (isBoostingRef.current ? 1.2 : 1.0) : 0.5;
+        // Dynamic audio throttle modulation (0-1.5s ramp, 1.5-4.5s full speed/boost, 4.5-6.0s deceleration)
+        const throttle = next < 0.25 ? 0.4 + (next / 0.25) * 0.6 : next < 0.75 ? (isBoostingRef.current ? 1.2 : 1.0) : 0.5;
         soundEngine.updateVehicleThrottle(throttle, next);
 
         if (next >= 1.0 && !isArrivingRef.current) {
