@@ -106,16 +106,19 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
   const [isAudioBlocked, setIsAudioBlocked] = useState<boolean>(false);
   const [isVideoError, setIsVideoError] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [hasEnded, setHasEnded] = useState<boolean>(false);
 
-  // Autoplay personal welcome video on mount: Attempt unmuted playback first
+  // Play welcome.mp4 once from beginning when the main portfolio landing screen first appears
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
+    // Reset playback to beginning for each new landing-screen appearance
+    video.currentTime = 0;
     video.volume = volume;
-    const shouldMute = isMuted;
+    setHasEnded(false);
 
-    if (!shouldMute) {
+    if (!isMuted) {
       video.muted = false;
       const playPromise = video.play();
       if (playPromise !== undefined) {
@@ -126,19 +129,46 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
             setIsAudioBlocked(false);
           })
           .catch((err) => {
-            console.info('Browser autoplay policy blocked unmuted video, falling back to muted autoplay:', err);
+            console.info('Browser autoplay policy blocked unmuted video, falling back to muted playback:', err);
             // Autoplay blocked with sound: play muted and prompt visitor
             video.muted = true;
             setIsMuted(true);
             setIsAudioBlocked(true);
-            video.play().then(() => setIsPlaying(true)).catch(() => {});
+            video.play().then(() => setIsPlaying(true)).catch(() => {
+              setIsPlaying(false);
+            });
           });
       }
     } else {
       video.muted = true;
-      video.play().then(() => setIsPlaying(true)).catch(() => {});
+      video.play().then(() => setIsPlaying(true)).catch(() => {
+        setIsPlaying(false);
+      });
     }
-  }, [volume, isMuted]);
+
+    return () => {
+      // Clean up on component unmount (when leaving landing screen)
+      if (video) {
+        video.pause();
+      }
+    };
+  }, []); // Run strictly once per landing-screen appearance (mount)
+
+  // Sync volume adjustments to video element without restarting playback
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.volume = volume;
+    }
+  }, [volume]);
+
+  // Sync mute state to video element without restarting playback
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = isMuted;
+    }
+  }, [isMuted]);
 
   // Handle first user interaction anywhere on page to automatically unmute if blocked
   useEffect(() => {
@@ -179,6 +209,8 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
     video.muted = false;
     video.volume = volume;
     video.play().then(() => {
+      setIsPlaying(true);
+      setHasEnded(false);
       setIsMuted(false);
       setIsAudioBlocked(false);
       try {
@@ -189,6 +221,26 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
     }).catch((err) => {
       console.warn('Audio unmute error:', err);
     });
+  };
+
+  const handleReplay = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    setHasEnded(false);
+    setIsVideoError(false);
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((err) => {
+          console.warn('Replay failed:', err);
+          setIsPlaying(false);
+        });
+    }
   };
 
   const handleToggleMute = (e: React.MouseEvent) => {
@@ -408,7 +460,7 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   }}
                 />
               ) : (
-                /* 1. Video Frame with Compliant Fallback */
+                /* 1. Video Frame with Compliant Fallback - plays once per appearance */
                 <video
                   ref={videoRef}
                   src={`${import.meta.env.BASE_URL}video/welcome.mp4`}
@@ -416,56 +468,75 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   autoPlay
                   muted={isMuted}
                   playsInline
-                  loop
                   preload="auto"
-                  onPlay={() => setIsPlaying(true)}
-                  onEnded={() => {
-                    // Continuous loop guarantee
-                    if (videoRef.current) {
-                      videoRef.current.currentTime = 0;
-                      videoRef.current.play().catch(() => {});
-                    }
+                  onPlay={() => {
+                    setIsPlaying(true);
+                    setHasEnded(false);
                   }}
-                  onError={() => setIsVideoError(true)}
+                  onEnded={() => {
+                    // Play once per landing screen appearance: stop and display REPLAY option
+                    setIsPlaying(false);
+                    setHasEnded(true);
+                  }}
+                  onError={() => {
+                    setIsVideoError(true);
+                    setIsPlaying(false);
+                  }}
                   className="h-[360px] sm:h-[440px] lg:h-[500px] xl:h-[540px] w-auto max-w-full object-contain rounded-2xl filter contrast-[1.03] brightness-[1.01] select-none [mask-image:linear-gradient(to_bottom,black_85%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_85%,transparent_100%)] drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)]"
                 />
               )}
 
-              {/* 2. PROMINENT "ENABLE SOUND & START EXPERIENCE" OVERLAY IF BROWSER BLOCKED SOUND */}
-              {isAudioBlocked && !isVideoError && (
+              {/* 2. PROMINENT "ENABLE SOUND & PLAY" OVERLAY IF BROWSER BLOCKED SOUND */}
+              {isAudioBlocked && !isVideoError && !hasEnded && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/45 backdrop-blur-[3px] rounded-2xl z-30 transition-all p-4">
                   <button
                     type="button"
                     onClick={handleEnableAudio}
-                    className="px-5 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 text-slate-950 font-mono text-xs sm:text-sm font-black tracking-widest uppercase transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:shadow-[0_0_55px_rgba(16,185,129,0.95)] flex items-center gap-2.5 animate-bounce hover:animate-none cursor-pointer transform hover:scale-105"
+                    className="px-5 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 text-slate-950 font-mono text-xs sm:text-sm font-black tracking-widest uppercase transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:shadow-[0_0_55px_rgba(16,185,129,0.95)] flex items-center gap-2.5 animate-bounce hover:animate-none cursor-pointer transform hover:scale-105 active:scale-95"
+                    aria-label="Enable sound and play welcome video"
                   >
                     <Volume2 className="w-5 h-5 text-slate-950 animate-pulse" />
-                    <span>ENABLE SOUND &amp; START EXPERIENCE</span>
+                    <span>ENABLE SOUND &amp; PLAY</span>
                   </button>
                 </div>
               )}
 
-              {/* 3. ACCESSIBLE AUDIO CONTROLS & VOLUME SLIDER HUD */}
-              {!isVideoError && (
-                <div className="absolute bottom-6 left-2 right-2 sm:left-4 sm:right-4 z-30 flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-xl bg-[#070b14]/90 backdrop-blur-md border border-white/10 shadow-xl">
-                  {/* Left: Replay transmission */}
+              {/* 3. PROMINENT "REPLAY VIDEO" OVERLAY AFTER PLAYBACK ENDS */}
+              {hasEnded && !isPlaying && !isVideoError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/55 backdrop-blur-[2px] rounded-2xl z-30 transition-all p-4">
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (videoRef.current) {
-                        videoRef.current.currentTime = 0;
-                        videoRef.current.play().catch(() => {});
-                        setIsPlaying(true);
-                      }
-                    }}
-                    className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-400 hover:bg-cyan-500/20 font-mono text-[10px] tracking-wider transition-all cursor-pointer"
-                    title="Replay Welcome Transmission"
-                    aria-label="Replay Welcome Transmission"
+                    onClick={handleReplay}
+                    className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 text-slate-950 font-mono text-xs sm:text-sm font-black tracking-widest uppercase transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:shadow-[0_0_55px_rgba(16,185,129,0.95)] flex items-center gap-2.5 cursor-pointer transform hover:scale-105 active:scale-95"
+                    aria-label="Replay Welcome Video"
                   >
-                    <RotateCcw className="w-3 h-3 text-cyan-400" />
-                    <span className="hidden sm:inline">REPLAY</span>
+                    <RotateCcw className="w-4 h-4 text-slate-950" />
+                    <span>REPLAY VIDEO</span>
                   </button>
+                </div>
+              )}
+
+              {/* 4. ACCESSIBLE AUDIO CONTROLS & VOLUME SLIDER HUD */}
+              {!isVideoError && (
+                <div className="absolute bottom-6 left-2 right-2 sm:left-4 sm:right-4 z-30 flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-xl bg-[#070b14]/90 backdrop-blur-md border border-white/10 shadow-xl">
+                  {/* Left: Replay transmission - hidden while playing, visible after playback ends or on error */}
+                  {(hasEnded || isVideoError) && !isPlaying ? (
+                    <button
+                      type="button"
+                      onClick={handleReplay}
+                      className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg border border-cyan-500/40 bg-cyan-500/15 text-cyan-300 hover:border-cyan-400 hover:bg-cyan-500/25 font-mono text-[10px] sm:text-xs tracking-wider transition-all cursor-pointer shadow-[0_0_12px_rgba(0,229,255,0.2)]"
+                      title={isVideoError ? 'Retry Playback' : 'Replay Welcome Video'}
+                      aria-label={isVideoError ? 'Retry Playback' : 'Replay Welcome Video'}
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>{isVideoError ? 'RETRY PLAY' : 'REPLAY VIDEO'}</span>
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-1.5 font-mono text-[10px] text-emerald-400/80 px-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="hidden sm:inline">TRANSMITTING</span>
+                    </div>
+                  )}
 
                   {/* Center: Volume Slider */}
                   <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-[10px] text-slate-300 px-2">
