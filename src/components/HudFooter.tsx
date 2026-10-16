@@ -33,8 +33,12 @@ export function HudFooter({ currentSection }: HudFooterProps) {
           </div>
         </div>
 
-        {/* Right: Telemetry / System ID */}
-        <div className="hidden sm:flex items-center gap-3 text-slate-500">
+        {/* Right: Telemetry, Privacy Notice & System ID */}
+        <div className="hidden sm:flex items-center gap-3 text-slate-500 text-[10px]">
+          <span className="text-slate-500 hover:text-slate-400 transition-colors cursor-default" title="Privacy-preserving anonymous session counter. Zero personal data or tracking cookies collected.">
+            PRIVACY: ANONYMOUS TELEMETRY
+          </span>
+          <span className="text-slate-700">|</span>
           <Terminal className="w-3.5 h-3.5 text-emerald-400" />
           <span>BADAL // OS_v2.0</span>
           <span className="text-slate-700">|</span>

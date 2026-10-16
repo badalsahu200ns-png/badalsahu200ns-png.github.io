@@ -49,15 +49,21 @@ export function ExecutiveHovercraft3D({
   });
 
   const hullMaterial = new THREE.MeshStandardMaterial({
-    color: '#1e293b',
+    color: '#f8fafc',
     metalness: 0.88,
-    roughness: 0.2,
+    roughness: 0.16,
+  });
+
+  const darkAccentMaterial = new THREE.MeshStandardMaterial({
+    color: '#1e293b',
+    metalness: 0.9,
+    roughness: 0.25,
   });
 
   const silverTrimMaterial = new THREE.MeshStandardMaterial({
     color: '#e2e8f0',
     metalness: 0.95,
-    roughness: 0.15,
+    roughness: 0.12,
   });
 
   const canopyMaterial = new THREE.MeshStandardMaterial({

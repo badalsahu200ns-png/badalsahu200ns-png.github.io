@@ -35,27 +35,42 @@ export function ResearchSubmarine3D({
     }
 
     // Spinning shrouded propulsion screws
-    const propSpeed = delta * (15 + throttle * 25);
+    const propSpeed = delta * (18 + throttle * 28);
     if (leftPropRef.current) leftPropRef.current.rotation.z += propSpeed;
     if (rightPropRef.current) rightPropRef.current.rotation.z -= propSpeed;
   });
 
-  const pressureHullMat = new THREE.MeshStandardMaterial({
-    color: '#0369a1',
-    metalness: 0.8,
-    roughness: 0.28,
+  // High contrast exploration yellow & white livery so it radiates against dark ocean depths
+  const yellowHullMat = new THREE.MeshStandardMaterial({
+    color: '#fbbf24',
+    metalness: 0.85,
+    roughness: 0.22,
   });
 
-  const alloyTrimMat = new THREE.MeshStandardMaterial({
-    color: '#38bdf8',
+  const orangeKeelMat = new THREE.MeshStandardMaterial({
+    color: '#ea580c',
+    metalness: 0.8,
+    roughness: 0.25,
+  });
+
+  const whiteSailMat = new THREE.MeshStandardMaterial({
+    color: '#f8fafc',
     metalness: 0.9,
-    roughness: 0.2,
+    roughness: 0.18,
+  });
+
+  const portholeGlowMat = new THREE.MeshStandardMaterial({
+    color: '#00e5ff',
+    emissive: '#00e5ff',
+    emissiveIntensity: 1.5,
+    metalness: 0.9,
+    roughness: 0.05,
   });
 
   const acrylicDomeMat = new THREE.MeshStandardMaterial({
     color: '#0284c7',
     emissive: '#38bdf8',
-    emissiveIntensity: 0.6,
+    emissiveIntensity: 0.8,
     metalness: 0.95,
     roughness: 0.05,
     transparent: true,
@@ -63,65 +78,90 @@ export function ResearchSubmarine3D({
   });
 
   const propBladeMat = new THREE.MeshStandardMaterial({
-    color: '#bae6fd',
+    color: '#e2e8f0',
     metalness: 0.95,
     roughness: 0.1,
   });
 
   return (
-    <group ref={groupRef}>
-      {/* 1. Main Pressure Hull */}
-      <mesh material={pressureHullMat} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.7, 0.7, 3.2, 24]} />
+    <group ref={groupRef} scale={[1.25, 1.25, 1.25]}>
+      {/* 1. Main Pressure Hull (Vibrant Exploration Yellow) */}
+      <mesh material={yellowHullMat} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.75, 0.75, 3.4, 24]} />
       </mesh>
 
-      {/* 2. Panoramic Acrylic Observation Dome */}
-      <mesh material={acrylicDomeMat} position={[0, 0, -1.6]} rotation={[-Math.PI / 2, 0, 0]}>
-        <sphereGeometry args={[0.7, 24, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
+      {/* Keel Guard (Safety Orange) */}
+      <mesh material={orangeKeelMat} position={[0, -0.72, 0]}>
+        <boxGeometry args={[0.25, 0.15, 3.2]} />
       </mesh>
 
-      {/* 3. Conning Tower / Sail */}
-      <mesh material={alloyTrimMat} position={[0, 0.95, -0.2]}>
-        <boxGeometry args={[0.3, 0.6, 1.2]} />
-      </mesh>
-      {/* Periscope / Sensor Mast */}
-      <mesh material={pressureHullMat} position={[0, 1.35, -0.4]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.35, 12]} />
+      {/* 2. Panoramic Acrylic Front Observation Dome */}
+      <mesh material={acrylicDomeMat} position={[0, 0, -1.7]} rotation={[-Math.PI / 2, 0, 0]}>
+        <sphereGeometry args={[0.75, 24, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
       </mesh>
 
-      {/* 4. Port and Starboard Diving Hydroplanes */}
-      <mesh material={alloyTrimMat} position={[-0.95, 0.1, -0.6]} rotation={[0, 0, -0.1]}>
-        <boxGeometry args={[0.65, 0.05, 0.45]} />
+      {/* 3. Conning Tower / Scientific Sail (Titanium White) */}
+      <mesh material={whiteSailMat} position={[0, 1.0, -0.2]}>
+        <boxGeometry args={[0.32, 0.65, 1.3]} />
       </mesh>
-      <mesh material={alloyTrimMat} position={[0.95, 0.1, -0.6]} rotation={[0, 0, 0.1]}>
-        <boxGeometry args={[0.65, 0.05, 0.45]} />
+      {/* Sensor Mast / Periscope Array */}
+      <mesh material={whiteSailMat} position={[0, 1.45, -0.4]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.38, 12]} />
+      </mesh>
+      <mesh material={portholeGlowMat} position={[0, 1.65, -0.4]}>
+        <sphereGeometry args={[0.06, 12, 12]} />
       </mesh>
 
-      {/* 5. Twin Shrouded Propulsion Screws */}
+      {/* 4. Glowing Circular Observation Portholes (3 on each side) */}
+      {[-0.6, 0, 0.6].map((zPos, i) => (
+        <group key={`portholes-${i}`}>
+          {/* Left Porthole */}
+          <mesh material={portholeGlowMat} position={[-0.76, 0.15, zPos]} rotation={[0, -Math.PI / 2, 0]}>
+            <circleGeometry args={[0.14, 16]} />
+          </mesh>
+          {/* Right Porthole */}
+          <mesh material={portholeGlowMat} position={[0.76, 0.15, zPos]} rotation={[0, Math.PI / 2, 0]}>
+            <circleGeometry args={[0.14, 16]} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* 5. Port and Starboard Diving Hydroplane Fins */}
+      <mesh material={orangeKeelMat} position={[-1.05, 0.1, -0.6]} rotation={[0, 0, -0.1]}>
+        <boxGeometry args={[0.7, 0.06, 0.5]} />
+      </mesh>
+      <mesh material={orangeKeelMat} position={[1.05, 0.1, -0.6]} rotation={[0, 0, 0.1]}>
+        <boxGeometry args={[0.7, 0.06, 0.5]} />
+      </mesh>
+
+      {/* 6. Twin Shrouded Propulsion Screws */}
       {/* Left Propulsor */}
-      <group position={[-0.55, -0.1, 1.7]}>
-        <mesh material={pressureHullMat} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.3, 0.3, 0.3, 16, 1, true]} />
+      <group position={[-0.6, -0.1, 1.8]}>
+        <mesh material={yellowHullMat} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.32, 0.32, 0.35, 16, 1, true]} />
         </mesh>
         <mesh ref={leftPropRef} material={propBladeMat}>
-          <boxGeometry args={[0.5, 0.08, 0.04]} />
+          <boxGeometry args={[0.55, 0.09, 0.04]} />
         </mesh>
       </group>
 
       {/* Right Propulsor */}
-      <group position={[0.55, -0.1, 1.7]}>
-        <mesh material={pressureHullMat} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.3, 0.3, 0.3, 16, 1, true]} />
+      <group position={[0.6, -0.1, 1.8]}>
+        <mesh material={yellowHullMat} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.32, 0.32, 0.35, 16, 1, true]} />
         </mesh>
         <mesh ref={rightPropRef} material={propBladeMat}>
-          <boxGeometry args={[0.5, 0.08, 0.04]} />
+          <boxGeometry args={[0.55, 0.09, 0.04]} />
         </mesh>
       </group>
 
-      {/* 6. High-Powered Deep Ocean Searchlights */}
-      <pointLight position={[0, -0.1, -2.4]} color="#bae6fd" intensity={5} distance={18} />
-      <pointLight position={[-0.6, 0.2, -1.8]} color="#38bdf8" intensity={3} distance={12} />
-      <pointLight position={[0.6, 0.2, -1.8]} color="#38bdf8" intensity={3} distance={12} />
+      {/* 7. High-Powered Deep Ocean Searchlights & Rim Illumination */}
+      <pointLight position={[0, -0.1, -2.6]} color="#ffffff" intensity={6} distance={20} />
+      <pointLight position={[-0.7, 0.3, -1.9]} color="#00e5ff" intensity={3.5} distance={14} />
+      <pointLight position={[0.7, 0.3, -1.9]} color="#00e5ff" intensity={3.5} distance={14} />
+      <pointLight position={[0, 1.2, 0]} color="#fbbf24" intensity={2.5} distance={8} />
     </group>
   );
 }
+
+export default ResearchSubmarine3D;

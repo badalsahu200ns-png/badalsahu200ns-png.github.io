@@ -62,7 +62,7 @@ export function TransportationHUD({
                 className="w-2 h-2 rounded-full animate-ping"
                 style={{ backgroundColor: config.primaryColor }}
               />
-              [ {config.tabNumber} ] {config.vehicleName}
+              [ {config.tabNumber} ] {config.shortBadge || config.vehicleName}
             </span>
             <span className="text-slate-400 font-mono text-xs hidden sm:inline">
               // {config.vehicleRole.toUpperCase()}

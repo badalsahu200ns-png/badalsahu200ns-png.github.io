@@ -50,27 +50,29 @@ export function SpaceExplorer3D({
   });
 
   const hullMat = new THREE.MeshStandardMaterial({
-    color: '#2a3b5c',
+    color: '#f8fafc',
     metalness: 0.9,
-    roughness: 0.18,
+    roughness: 0.16,
   });
 
   const armorMat = new THREE.MeshStandardMaterial({
-    color: '#94a3b8',
+    color: '#cbd5e1',
     metalness: 0.95,
-    roughness: 0.12,
+    roughness: 0.1,
   });
 
   const wingMat = new THREE.MeshStandardMaterial({
-    color: '#3b3379',
+    color: '#7c3aed',
+    emissive: '#6d28d9',
+    emissiveIntensity: 0.4,
     metalness: 0.85,
-    roughness: 0.22,
+    roughness: 0.2,
   });
 
   const bridgeVisorMat = new THREE.MeshStandardMaterial({
-    color: '#312e81',
-    emissive: '#818cf8',
-    emissiveIntensity: 1.2,
+    color: '#00e5ff',
+    emissive: '#00e5ff',
+    emissiveIntensity: 1.5,
     metalness: 0.95,
     roughness: 0.05,
   });

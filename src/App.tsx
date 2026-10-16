@@ -7,6 +7,7 @@ import { HudFooter } from './components/HudFooter';
 import { GameTitleScreen } from './components/GameTitleScreen';
 import { ResumeModal } from './components/ResumeModal';
 import { TransportationManager } from './components/transportation/TransportationManager';
+import { trackVisitorArrival } from './services/visitorNotification';
 
 const ProfileView = lazy(() => import('./components/views/ProfileView').then(m => ({ default: m.ProfileView })));
 const InternshipsView = lazy(() => import('./components/views/InternshipsView').then(m => ({ default: m.InternshipsView })));
@@ -39,9 +40,7 @@ function getInitialSection(): string | null {
 export function App() {
   const initialSection = getInitialSection();
   const [openingFinished, setOpeningFinished] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return Boolean(initialSection) || sessionStorage.getItem('badal_opened') === 'true';
-    }
+    // Fresh visits (no hash deep-link) MUST always present the restored Pilot Welcome entry screen first.
     return Boolean(initialSection);
   });
   const [visitorName, setVisitorName] = useState<string>(() => {
@@ -70,11 +69,13 @@ export function App() {
   useEffect(() => {
     window.addEventListener('hashchange', updateSectionFromHash);
     window.addEventListener('popstate', updateSectionFromHash);
+    // Safe anonymous session arrival notification (at most once per session)
+    trackVisitorArrival(visitorName || undefined);
     return () => {
       window.removeEventListener('hashchange', updateSectionFromHash);
       window.removeEventListener('popstate', updateSectionFromHash);
     };
-  }, [updateSectionFromHash]);
+  }, [updateSectionFromHash, visitorName]);
 
   const handleSelectSection = (sectionId: string) => {
     if (VALID_SECTIONS.includes(sectionId)) {
@@ -94,6 +95,16 @@ export function App() {
   const handleBackToMenu = useCallback(() => {
     setTransitDestination(null);
     setCurrentSection(null);
+    if (window.location.hash) {
+      history.pushState(null, '', window.location.pathname);
+    }
+  }, []);
+
+  // Re-launch the cinematic pilot welcome and entry sequence
+  const handleReplayLaunch = useCallback(() => {
+    setTransitDestination(null);
+    setCurrentSection(null);
+    setOpeningFinished(false);
     if (window.location.hash) {
       history.pushState(null, '', window.location.pathname);
     }
@@ -122,14 +133,14 @@ export function App() {
       {/* 1. Cinematic Background Video & Overlay */}
       <CinematicBackground opacity={currentSection ? 0.28 : 0.65} />
 
-      {/* 2. Opening Solar System Transition & Visitor Personalization (first load only) */}
+      {/* 2. Opening Solar System Transition & Visitor Personalization */}
       {!openingFinished && (
         <SolarSystemEntry
           onComplete={(name) => {
             setVisitorName(name);
             setOpeningFinished(true);
             try {
-              sessionStorage.setItem('badal_opened', 'true');
+              localStorage.setItem('badal_visitor_name', name);
             } catch {
               // ignore
             }
@@ -142,6 +153,7 @@ export function App() {
         currentSection={currentSection}
         onBackToMenu={handleBackToMenu}
         onResumeClick={() => setResumeOpen(true)}
+        onReplayLaunch={handleReplayLaunch}
       />
 
       {/* 4. Main Interactive Area */}

@@ -16,107 +16,193 @@ export function MaglevTrain3D({
   const groupRef = useRef<THREE.Group>(null);
   const leftSkateRef = useRef<THREE.Mesh>(null);
   const rightSkateRef = useRef<THREE.Mesh>(null);
+  const carriage2Ref = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (!groupRef.current) return;
 
     if (!reducedMotion) {
-      const targetRoll = -banking.x * 0.2;
+      const targetRoll = -banking.x * 0.22;
       const targetPitch = banking.y * 0.15;
       groupRef.current.rotation.z += (targetRoll - groupRef.current.rotation.z) * 0.08;
       groupRef.current.rotation.x += (targetPitch - groupRef.current.rotation.x) * 0.08;
 
       // Maglev high-speed sway & track levitation micro-drift
-      const trackSway = Math.sin(state.clock.elapsedTime * 12) * 0.02 * throttle;
+      const trackSway = Math.sin(state.clock.elapsedTime * 14) * 0.025 * throttle;
       groupRef.current.position.x = trackSway;
+
+      // Articulated second carriage gentle lagged sway
+      if (carriage2Ref.current) {
+        carriage2Ref.current.rotation.y = Math.sin(state.clock.elapsedTime * 8) * 0.025;
+      }
     }
 
     // Undercarriage magnetic coil pulsing
-    const pulse = 0.8 + Math.sin(state.clock.elapsedTime * 20) * 0.2;
+    const pulse = 0.85 + Math.sin(state.clock.elapsedTime * 22) * 0.15;
     if (leftSkateRef.current) leftSkateRef.current.scale.set(1, pulse, 1);
     if (rightSkateRef.current) rightSkateRef.current.scale.set(1, pulse, 1);
   });
 
-  const bodyMat = new THREE.MeshStandardMaterial({
-    color: '#223249',
-    metalness: 0.92,
+  // High-contrast, radiant white & electric blue maglev materials
+  const whiteChassisMat = new THREE.MeshStandardMaterial({
+    color: '#f8fafc',
+    metalness: 0.88,
     roughness: 0.16,
   });
 
+  const blueStripeMat = new THREE.MeshStandardMaterial({
+    color: '#1d4ed8',
+    emissive: '#2563eb',
+    emissiveIntensity: 0.4,
+    metalness: 0.9,
+    roughness: 0.15,
+  });
+
   const chromeAccentMat = new THREE.MeshStandardMaterial({
-    color: '#e2e8f0',
+    color: '#cbd5e1',
     metalness: 0.96,
-    roughness: 0.1,
+    roughness: 0.08,
   });
 
   const windowStripMat = new THREE.MeshStandardMaterial({
-    color: '#0284c7',
+    color: '#00e5ff',
     emissive: '#38bdf8',
-    emissiveIntensity: 0.8,
-    metalness: 0.9,
-    roughness: 0.1,
+    emissiveIntensity: 1.2,
+    metalness: 0.95,
+    roughness: 0.05,
+  });
+
+  const bellowsMat = new THREE.MeshStandardMaterial({
+    color: '#0f172a',
+    roughness: 0.8,
   });
 
   const magGlowMat = new THREE.MeshBasicMaterial({
     color: '#3b82f6',
     transparent: true,
-    opacity: 0.85,
+    opacity: 0.9,
     blending: THREE.AdditiveBlending,
   });
 
   return (
-    <group ref={groupRef}>
-      {/* 1. Bullet Train Main Carriage Body */}
-      <mesh material={bodyMat} position={[0, 0.4, 0]}>
-        <boxGeometry args={[1.3, 0.8, 4.4]} />
-      </mesh>
-
-      {/* 2. Aerodynamic Tapered Nose */}
-      <mesh material={bodyMat} position={[0, 0.35, -2.6]} rotation={[-0.1, 0, 0]}>
-        <boxGeometry args={[1.15, 0.65, 1.2]} />
-      </mesh>
-      <mesh material={chromeAccentMat} position={[0, 0.25, -3.3]} rotation={[-0.2, 0, 0]}>
-        <coneGeometry args={[0.55, 0.8, 16]} />
-      </mesh>
-
-      {/* 3. High-Speed Panoramic Window Strips */}
-      <mesh material={windowStripMat} position={[-0.66, 0.5, -0.2]}>
-        <planeGeometry args={[3.2, 0.22]} />
-      </mesh>
-      <mesh material={windowStripMat} position={[0.66, 0.5, -0.2]} rotation={[0, Math.PI, 0]}>
-        <planeGeometry args={[3.2, 0.22]} />
-      </mesh>
-
-      {/* 4. Roof Aerodynamic Ridge & Racing Strip */}
-      <mesh material={chromeAccentMat} position={[0, 0.82, -0.2]}>
-        <boxGeometry args={[0.25, 0.08, 4.2]} />
-      </mesh>
-
-      {/* 5. Undercarriage Magnetic Levitation Rails / Skates */}
-      <group position={[-0.55, -0.15, 0]}>
-        <mesh material={bodyMat}>
-          <boxGeometry args={[0.22, 0.25, 4.4]} />
+    <group ref={groupRef} scale={[1.2, 1.2, 1.2]}>
+      {/* ================= CARRIAGE 01: LEAD LOCOMOTIVE ================= */}
+      <group position={[0, 0, -1.2]}>
+        {/* Main Carriage Body (Titanium White) */}
+        <mesh material={whiteChassisMat} position={[0, 0.42, 0]}>
+          <boxGeometry args={[1.35, 0.82, 3.6]} />
         </mesh>
-        <mesh ref={leftSkateRef} material={magGlowMat} position={[0, -0.14, 0]}>
-          <boxGeometry args={[0.18, 0.08, 4.2]} />
+
+        {/* Lower Blue Racing Band */}
+        <mesh material={blueStripeMat} position={[0, 0.12, 0]}>
+          <boxGeometry args={[1.38, 0.14, 3.6]} />
         </mesh>
-        <pointLight position={[0, -0.25, 0]} color="#3b82f6" intensity={2} distance={3} />
+
+        {/* Aerodynamic Tapered Bullet Nose */}
+        <mesh material={whiteChassisMat} position={[0, 0.38, -2.2]} rotation={[-0.12, 0, 0]}>
+          <boxGeometry args={[1.25, 0.7, 1.3]} />
+        </mesh>
+        <mesh material={chromeAccentMat} position={[0, 0.26, -3.0]} rotation={[-0.22, 0, 0]}>
+          <coneGeometry args={[0.58, 1.1, 16]} />
+        </mesh>
+
+        {/* Cockpit Windshield Visor */}
+        <mesh material={windowStripMat} position={[0, 0.58, -2.1]} rotation={[-0.35, 0, 0]}>
+          <boxGeometry args={[1.05, 0.22, 0.6]} />
+        </mesh>
+
+        {/* High-Speed Panoramic Window Ribbons (Both Sides) */}
+        <mesh material={windowStripMat} position={[-0.69, 0.52, -0.1]}>
+          <planeGeometry args={[2.8, 0.24]} />
+        </mesh>
+        <mesh material={windowStripMat} position={[0.69, 0.52, -0.1]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[2.8, 0.24]} />
+        </mesh>
+
+        {/* Roof Aerodynamic Spine */}
+        <mesh material={chromeAccentMat} position={[0, 0.85, -0.2]}>
+          <boxGeometry args={[0.26, 0.08, 3.6]} />
+        </mesh>
+
+        {/* Undercarriage Magnetic Levitation Skates */}
+        <group position={[-0.58, -0.12, 0]}>
+          <mesh material={chromeAccentMat}>
+            <boxGeometry args={[0.22, 0.22, 3.6]} />
+          </mesh>
+          <mesh ref={leftSkateRef} material={magGlowMat} position={[0, -0.14, 0]}>
+            <boxGeometry args={[0.18, 0.08, 3.5]} />
+          </mesh>
+          <pointLight position={[0, -0.25, 0]} color="#3b82f6" intensity={3} distance={4} />
+        </group>
+
+        <group position={[0.58, -0.12, 0]}>
+          <mesh material={chromeAccentMat}>
+            <boxGeometry args={[0.22, 0.22, 3.6]} />
+          </mesh>
+          <mesh ref={rightSkateRef} material={magGlowMat} position={[0, -0.14, 0]}>
+            <boxGeometry args={[0.18, 0.08, 3.5]} />
+          </mesh>
+          <pointLight position={[0, -0.25, 0]} color="#3b82f6" intensity={3} distance={4} />
+        </group>
+
+        {/* Front Headlight Beams */}
+        <pointLight position={[0, 0.32, -3.4]} color="#ffffff" intensity={5} distance={20} />
+        <pointLight position={[-0.45, 0.22, -2.9]} color="#00e5ff" intensity={3} distance={10} />
+        <pointLight position={[0.45, 0.22, -2.9]} color="#00e5ff" intensity={3} distance={10} />
       </group>
 
-      <group position={[0.55, -0.15, 0]}>
-        <mesh material={bodyMat}>
-          <boxGeometry args={[0.22, 0.25, 4.4]} />
+      {/* ================= ARTICULATED INTER-CAR COUPLING BELLOWS ================= */}
+      <mesh material={bellowsMat} position={[0, 0.42, 1.0]}>
+        <boxGeometry args={[1.2, 0.72, 0.6]} />
+      </mesh>
+
+      {/* ================= CARRIAGE 02: SECOND PASSENGER CAR ================= */}
+      <group ref={carriage2Ref} position={[0, 0, 2.8]}>
+        {/* Main Carriage 2 Body */}
+        <mesh material={whiteChassisMat} position={[0, 0.42, 0]}>
+          <boxGeometry args={[1.35, 0.82, 3.0]} />
         </mesh>
-        <mesh ref={rightSkateRef} material={magGlowMat} position={[0, -0.14, 0]}>
-          <boxGeometry args={[0.18, 0.08, 4.2]} />
+        <mesh material={blueStripeMat} position={[0, 0.12, 0]}>
+          <boxGeometry args={[1.38, 0.14, 3.0]} />
         </mesh>
-        <pointLight position={[0, -0.25, 0]} color="#3b82f6" intensity={2} distance={3} />
+
+        {/* Windows on Carriage 2 */}
+        <mesh material={windowStripMat} position={[-0.69, 0.52, 0]}>
+          <planeGeometry args={[2.4, 0.24]} />
+        </mesh>
+        <mesh material={windowStripMat} position={[0.69, 0.52, 0]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[2.4, 0.24]} />
+        </mesh>
+
+        {/* Roof Spine */}
+        <mesh material={chromeAccentMat} position={[0, 0.85, 0]}>
+          <boxGeometry args={[0.26, 0.08, 3.0]} />
+        </mesh>
+
+        {/* Undercarriage Skates */}
+        <group position={[-0.58, -0.12, 0]}>
+          <mesh material={chromeAccentMat}>
+            <boxGeometry args={[0.22, 0.22, 3.0]} />
+          </mesh>
+          <mesh material={magGlowMat} position={[0, -0.14, 0]}>
+            <boxGeometry args={[0.18, 0.08, 2.9]} />
+          </mesh>
+        </group>
+        <group position={[0.58, -0.12, 0]}>
+          <mesh material={chromeAccentMat}>
+            <boxGeometry args={[0.22, 0.22, 3.0]} />
+          </mesh>
+          <mesh material={magGlowMat} position={[0, -0.14, 0]}>
+            <boxGeometry args={[0.18, 0.08, 2.9]} />
+          </mesh>
+        </group>
       </group>
 
-      {/* 6. Front Headlight Beams */}
-      <pointLight position={[0, 0.3, -3.6]} color="#ffffff" intensity={4} distance={15} />
-      <pointLight position={[-0.4, 0.2, -3.2]} color="#38bdf8" intensity={2} distance={8} />
-      <pointLight position={[0.4, 0.2, -3.2]} color="#38bdf8" intensity={2} distance={8} />
+      {/* Radiant illumination */}
+      <pointLight position={[0, 2.0, 0]} color="#ffffff" intensity={2.5} distance={10} />
+      <pointLight position={[0, -0.5, 0]} color="#3b82f6" intensity={3.0} distance={8} />
     </group>
   );
 }
+
+export default MaglevTrain3D;

@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { profileData } from '../data/portfolioData';
-import { ArrowLeft, FileText, Activity } from 'lucide-react';
+import { ArrowLeft, FileText, Activity, Rocket } from 'lucide-react';
 import { DeploymentStatusBadge } from './common/DeploymentStatusBadge';
 
 interface HudHeaderProps {
   currentSection: string | null;
   onBackToMenu: () => void;
   onResumeClick: () => void;
+  onReplayLaunch?: () => void;
 }
 
-export function HudHeader({ currentSection, onBackToMenu, onResumeClick }: HudHeaderProps) {
+export function HudHeader({ currentSection, onBackToMenu, onResumeClick, onReplayLaunch }: HudHeaderProps) {
   const [timeString, setTimeString] = useState('');
 
   useEffect(() => {
@@ -88,12 +89,24 @@ export function HudHeader({ currentSection, onBackToMenu, onResumeClick }: HudHe
           <span className="text-slate-300">{profileData.workMode}</span>
         </div>
 
-        {/* Right: Deployment Status & Resume Trigger */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Right: Deployment Status & Action Buttons */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <DeploymentStatusBadge align="right" />
+          
+          {onReplayLaunch && (
+            <button
+              onClick={onReplayLaunch}
+              className="group hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/[0.08] hover:bg-cyan-500/20 text-cyan-300 font-mono text-xs tracking-wider transition-all duration-200 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] cursor-pointer"
+              title="Re-launch Pilot Welcome Expedition"
+            >
+              <Rocket className="w-3.5 h-3.5 text-cyan-400 group-hover:-translate-y-0.5 transition-transform" />
+              <span>LAUNCH</span>
+            </button>
+          )}
+
           <button
             onClick={onResumeClick}
-            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/[0.08] hover:bg-emerald-500/20 text-emerald-300 font-mono text-xs tracking-wider transition-all duration-200 hover:shadow-[0_0_15px_rgba(118,255,3,0.25)]"
+            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/[0.08] hover:bg-emerald-500/20 text-emerald-300 font-mono text-xs tracking-wider transition-all duration-200 hover:shadow-[0_0_15px_rgba(118,255,3,0.25)] cursor-pointer"
           >
             <FileText className="w-3.5 h-3.5 text-emerald-400" />
             <span>RESUME</span>

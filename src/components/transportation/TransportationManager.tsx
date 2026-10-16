@@ -18,7 +18,12 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
   const [progress, setProgress] = useState(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const [isBoosting, setIsBoosting] = useState(false);
+  const isBoostingRef = useRef(false);
   const [isArriving, setIsArriving] = useState(false);
+
+  useEffect(() => {
+    isBoostingRef.current = isBoosting;
+  }, [isBoosting]);
 
   const animFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -80,23 +85,24 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
 
     const duration = EXACT_JOURNEY_DURATION_MS;
 
+    let lastTime = performance.now();
+
     const loop = (now: number) => {
-      if (startTimeRef.current === null) {
-        startTimeRef.current = now;
-      }
-      
-      const elapsed = now - startTimeRef.current;
-      const rawProgress = Math.min(1.0, elapsed / duration);
+      const delta = now - lastTime;
+      lastTime = now;
 
-      // Smooth cinematic easeInOut curve
-      setProgress(rawProgress);
+      // Accelerated rate if boost is held
+      const boostMultiplier = isBoostingRef.current ? 2.4 : 1.0;
+      const progressDelta = (delta / EXACT_JOURNEY_DURATION_MS) * boostMultiplier;
 
-      // Dynamic audio throttle modulation
-      const throttle = rawProgress < 0.2 ? 0.4 + (rawProgress / 0.2) * 0.6 : rawProgress < 0.8 ? 1.0 : 0.5;
-      soundEngine.updateVehicleThrottle(throttle, rawProgress);
+      setProgress((prev) => {
+        const next = Math.min(1.0, prev + progressDelta);
 
-      if (rawProgress >= 1.0) {
-        if (!isArrivingRef.current) {
+        // Dynamic audio throttle modulation
+        const throttle = next < 0.2 ? 0.4 + (next / 0.2) * 0.6 : next < 0.8 ? (isBoostingRef.current ? 1.2 : 1.0) : 0.5;
+        soundEngine.updateVehicleThrottle(throttle, next);
+
+        if (next >= 1.0 && !isArrivingRef.current) {
           isArrivingRef.current = true;
           setIsArriving(true);
           soundEngine.playArrivalChime(destinationId);
@@ -104,8 +110,8 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
             onArrival();
           }, 350);
         }
-        return;
-      }
+        return next;
+      });
 
       if (!isArrivingRef.current) {
         animFrameRef.current = requestAnimationFrame(loop);

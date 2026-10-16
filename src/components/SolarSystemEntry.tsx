@@ -5,6 +5,7 @@ import { WebGLErrorBoundary } from './common/WebGLErrorBoundary';
 import { GithubIcon } from './icons/GithubIcon';
 import { LinkedinIcon } from './icons/LinkedinIcon';
 import { soundEngine } from '../utils/soundEngine';
+import { trackVisitorArrival } from '../services/visitorNotification';
 
 interface SolarSystemEntryProps {
   onComplete: (visitorName: string) => void;
@@ -68,19 +69,17 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
   };
 
   const handleAuthorize = useCallback(() => {
-    const sanitized = sanitizePilotName(inputVal);
-    if (!sanitized) {
-      setValidationError('PILOT IDENTIFICATION REQUIRED');
-      return;
-    }
+    const rawSanitized = sanitizePilotName(inputVal);
+    const finalName = rawSanitized || 'PILOT';
     setValidationError(null);
-    setVisitorName(sanitized);
+    setVisitorName(finalName);
     try {
-      localStorage.setItem(STORAGE_KEY, sanitized);
-      sessionStorage.setItem(STORAGE_KEY, sanitized);
+      localStorage.setItem(STORAGE_KEY, finalName);
+      sessionStorage.setItem(STORAGE_KEY, finalName);
     } catch {
       // ignore
     }
+    trackVisitorArrival(finalName);
     soundEngine.playConfirm();
     setStage('checklist');
   }, [inputVal]);
@@ -103,6 +102,7 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
     } catch {
       // ignore
     }
+    trackVisitorArrival(finalName);
     soundEngine.playConfirm();
     onComplete(finalName);
   }, [visitorName, inputVal, onComplete]);
@@ -354,12 +354,16 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
               </div>
 
               {/* Title & Brand */}
-              <h1 className="text-2xl sm:text-3xl font-display font-extrabold uppercase tracking-tight text-white mb-1">
-                IDENTIFY YOURSELF
+              <h1 className="text-3xl sm:text-4xl font-display font-black uppercase tracking-tight text-white mb-1 drop-shadow-[0_0_25px_rgba(255,255,255,0.25)]">
+                WELCOME, PILOT
               </h1>
               
-              <div className="flex items-center gap-2 font-mono text-xs text-cyan-400/80 mb-4">
-                <Terminal className="w-3.5 h-3.5" />
+              <div className="text-sm sm:text-base font-display font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-300 uppercase tracking-widest mb-3">
+                ENTER CAREER WORLD
+              </div>
+
+              <div className="flex items-center gap-2 font-mono text-xs text-cyan-400/90 mb-4">
+                <Rocket className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
                 <span>DESTINATION: BADAL // 001 CAREER WORLD</span>
               </div>
 
@@ -371,7 +375,7 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
               <div className="mb-4">
                 <label
                   htmlFor="pilot-name"
-                  className="block font-mono text-[11px] uppercase tracking-wider text-slate-400 mb-2"
+                  className="block font-mono text-[11px] uppercase tracking-wider text-slate-300 mb-2 font-semibold"
                 >
                   Enter Pilot Call Sign / Name:
                 </label>
@@ -384,9 +388,9 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
                       setInputVal(e.target.value);
                       if (validationError) setValidationError(null);
                     }}
-                    placeholder="Enter your name"
+                    placeholder="Enter your name (e.g. Maverick, Commander, Alex)"
                     maxLength={24}
-                    className="w-full px-4 py-3.5 rounded-lg border border-emerald-500/40 bg-black/75 text-white font-mono text-sm placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all uppercase tracking-wider"
+                    className="w-full px-4 py-3.5 rounded-xl border border-emerald-500/40 bg-black/80 text-white font-mono text-sm placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all uppercase tracking-wider"
                     autoFocus
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10px] text-slate-500 pointer-events-none">
@@ -407,15 +411,16 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
               <div className="flex flex-col gap-3 mt-2">
                 <button
                   onClick={handleAuthorize}
-                  className="w-full py-3.5 px-6 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-[0_0_25px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 group hover:shadow-[0_0_35px_rgba(16,185,129,0.6)]"
+                  className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-mono text-sm font-black tracking-widest uppercase transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.45)] flex items-center justify-center gap-2 group hover:shadow-[0_0_45px_rgba(16,185,129,0.7)] cursor-pointer"
                 >
-                  <span>AUTHORIZE PILOT</span>
+                  <Rocket className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
+                  <span>ENTER MY WORLD &gt;</span>
                   <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </button>
 
                 <button
                   onClick={handleSkip}
-                  className="w-full py-2.5 px-4 rounded-lg border border-white/10 hover:border-white/30 text-slate-400 hover:text-white font-mono text-xs tracking-wider transition-colors"
+                  className="w-full py-2.5 px-4 rounded-lg border border-white/10 hover:border-white/30 text-slate-400 hover:text-white font-mono text-xs tracking-wider transition-colors cursor-pointer"
                 >
                   DIRECT ORBITAL INSERTION (SKIP)
                 </button>
@@ -590,7 +595,7 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
             {/* 1. Large Prominent Personalized Welcome */}
             <div className="mb-1">
               <h2 className="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold uppercase tracking-tight text-white drop-shadow-[0_0_35px_rgba(255,255,255,0.25)]">
-                WELCOME {visitorName.toUpperCase()}
+                WELCOME, PILOT {visitorName.toUpperCase()}
               </h2>
             </div>
 

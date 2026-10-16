@@ -30,8 +30,8 @@ export function ExpeditionBike3D({
       groupRef.current.rotation.x += (targetPitch - groupRef.current.rotation.x) * 0.12;
       groupRef.current.rotation.y += (targetYaw - groupRef.current.rotation.y) * 0.12;
 
-      // Terrain vibration
-      const vib = Math.sin(state.clock.elapsedTime * 50) * 0.015 * throttle;
+      // Terrain engine vibration
+      const vib = Math.sin(state.clock.elapsedTime * 45) * 0.015 * throttle;
       groupRef.current.position.y = vib;
     }
 
@@ -41,10 +41,17 @@ export function ExpeditionBike3D({
     if (rearWheelRef.current) rearWheelRef.current.rotation.x += wheelRot;
   });
 
+  // Materials: High contrast, off-road cyber styling
   const frameMat = new THREE.MeshStandardMaterial({
-    color: '#1e293b',
+    color: '#0f172a',
     metalness: 0.9,
     roughness: 0.2,
+  });
+
+  const chromeForkMat = new THREE.MeshStandardMaterial({
+    color: '#f8fafc',
+    metalness: 0.96,
+    roughness: 0.1,
   });
 
   const neonGreenMat = new THREE.MeshBasicMaterial({
@@ -54,70 +61,128 @@ export function ExpeditionBike3D({
     blending: THREE.AdditiveBlending,
   });
 
-  const tireMat = new THREE.MeshStandardMaterial({
-    color: '#020617',
-    roughness: 0.8,
-    metalness: 0.2,
-  });
-
-  const visorMat = new THREE.MeshStandardMaterial({
-    color: '#059669',
-    emissive: '#10b981',
+  const cyanAccentMat = new THREE.MeshStandardMaterial({
+    color: '#00e5ff',
+    emissive: '#00e5ff',
     emissiveIntensity: 1.2,
     metalness: 0.9,
     roughness: 0.1,
   });
 
+  const tireMat = new THREE.MeshStandardMaterial({
+    color: '#020617',
+    roughness: 0.85,
+    metalness: 0.15,
+  });
+
+  const seatMat = new THREE.MeshStandardMaterial({
+    color: '#1e293b',
+    roughness: 0.9,
+  });
+
   return (
-    <group ref={groupRef}>
-      {/* 1. Low-slung Cyber Chassis Body */}
-      <mesh material={frameMat} position={[0, 0.45, 0]}>
-        <boxGeometry args={[0.55, 0.45, 2.4]} />
+    <group ref={groupRef} scale={[1.35, 1.35, 1.35]}>
+      {/* 1. Main Cyber Chassis & Engine Block */}
+      <mesh material={frameMat} position={[0, 0.48, 0]}>
+        <boxGeometry args={[0.55, 0.45, 2.0]} />
       </mesh>
 
-      {/* 2. Aerodynamic Cockpit Fairing & Windshield */}
-      <mesh material={visorMat} position={[0, 0.72, -0.6]} rotation={[-0.4, 0, 0]}>
-        <boxGeometry args={[0.42, 0.28, 0.7]} />
+      {/* Cyber Fuel Tank / Power Core */}
+      <mesh material={chromeForkMat} position={[0, 0.8, -0.3]}>
+        <boxGeometry args={[0.48, 0.32, 1.0]} />
+      </mesh>
+      {/* Neon Green Tank Graphic Stripes */}
+      <mesh material={neonGreenMat} position={[-0.25, 0.8, -0.3]}>
+        <boxGeometry args={[0.02, 0.12, 0.85]} />
+      </mesh>
+      <mesh material={neonGreenMat} position={[0.25, 0.8, -0.3]}>
+        <boxGeometry args={[0.02, 0.12, 0.85]} />
       </mesh>
 
-      {/* 3. Lateral Cyber Panels & Radiator Accents */}
-      <mesh material={neonGreenMat} position={[-0.3, 0.45, 0]}>
-        <boxGeometry args={[0.04, 0.15, 1.8]} />
-      </mesh>
-      <mesh material={neonGreenMat} position={[0.3, 0.45, 0]}>
-        <boxGeometry args={[0.04, 0.15, 1.8]} />
+      {/* Ergonomic Pilot Saddle */}
+      <mesh material={seatMat} position={[0, 0.72, 0.5]}>
+        <boxGeometry args={[0.42, 0.14, 0.75]} />
       </mesh>
 
-      {/* 4. Front Hubless Heavy Wheel */}
-      <group position={[0, 0.4, -1.3]}>
+      {/* 2. Front Fork Suspension & Handlebars */}
+      {/* Left & Right Fork Stanchions */}
+      <mesh material={chromeForkMat} position={[-0.22, 0.55, -0.95]} rotation={[0.35, 0, 0]}>
+        <cylinderGeometry args={[0.035, 0.035, 1.2, 12]} />
+      </mesh>
+      <mesh material={chromeForkMat} position={[0.22, 0.55, -0.95]} rotation={[0.35, 0, 0]}>
+        <cylinderGeometry args={[0.035, 0.035, 1.2, 12]} />
+      </mesh>
+
+      {/* Wide Off-road Handlebars with Grips */}
+      <group position={[0, 1.05, -0.8]}>
+        <mesh material={chromeForkMat}>
+          <boxGeometry args={[1.05, 0.04, 0.04]} />
+        </mesh>
+        {/* Left & Right Grips */}
+        <mesh material={seatMat} position={[-0.48, 0, 0]}>
+          <cylinderGeometry args={[0.03, 0.03, 0.16, 8]} rotation={[0, 0, Math.PI / 2]} />
+        </mesh>
+        <mesh material={seatMat} position={[0.48, 0, 0]}>
+          <cylinderGeometry args={[0.03, 0.03, 0.16, 8]} rotation={[0, 0, Math.PI / 2]} />
+        </mesh>
+      </group>
+
+      {/* 3. Aerodynamic Front Windscreen / Mask */}
+      <mesh material={cyanAccentMat} position={[0, 0.88, -0.92]} rotation={[-0.4, 0, 0]}>
+        <boxGeometry args={[0.36, 0.32, 0.3]} />
+      </mesh>
+
+      {/* 4. Rear Swingarm Suspension Structure */}
+      <mesh material={chromeForkMat} position={[-0.2, 0.42, 0.8]} rotation={[-0.15, 0, 0]}>
+        <boxGeometry args={[0.05, 0.08, 1.1]} />
+      </mesh>
+      <mesh material={chromeForkMat} position={[0.2, 0.42, 0.8]} rotation={[-0.15, 0, 0]}>
+        <boxGeometry args={[0.05, 0.08, 1.1]} />
+      </mesh>
+
+      {/* 5. Front Heavy Spoked Wheel with Neon Rim */}
+      <group position={[0, 0.45, -1.35]}>
         <group ref={frontWheelRef}>
-          {/* Tire Ring */}
+          {/* Chunky Off-road Tire */}
           <mesh material={tireMat} rotation={[0, Math.PI / 2, 0]}>
-            <torusGeometry args={[0.42, 0.14, 16, 24]} />
+            <torusGeometry args={[0.46, 0.16, 16, 24]} />
           </mesh>
-          {/* Neon Rim Strip */}
+          {/* Radiant Neon Green Rim Strip */}
           <mesh material={neonGreenMat} rotation={[0, Math.PI / 2, 0]}>
-            <torusGeometry args={[0.34, 0.04, 12, 24]} />
+            <torusGeometry args={[0.36, 0.045, 12, 24]} />
+          </mesh>
+          {/* Wheel Hub & Spokes */}
+          <mesh material={chromeForkMat} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.12, 0.12, 0.28, 12]} />
           </mesh>
         </group>
       </group>
 
-      {/* 5. Rear Hubless Drive Wheel */}
-      <group position={[0, 0.45, 1.3]}>
+      {/* 6. Rear High-Torque Wide Drive Wheel */}
+      <group position={[0, 0.48, 1.35]}>
         <group ref={rearWheelRef}>
           {/* Wide Rear Tire */}
           <mesh material={tireMat} rotation={[0, Math.PI / 2, 0]}>
-            <torusGeometry args={[0.46, 0.18, 16, 24]} />
+            <torusGeometry args={[0.5, 0.2, 16, 24]} />
           </mesh>
+          {/* Radiant Neon Green Rim Strip */}
           <mesh material={neonGreenMat} rotation={[0, Math.PI / 2, 0]}>
-            <torusGeometry args={[0.38, 0.05, 12, 24]} />
+            <torusGeometry args={[0.4, 0.055, 12, 24]} />
+          </mesh>
+          {/* Wheel Hub */}
+          <mesh material={chromeForkMat} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.14, 0.14, 0.36, 12]} />
           </mesh>
         </group>
       </group>
 
-      {/* 6. Powerful Cyber Headlight Beam */}
-      <pointLight position={[0, 0.5, -2.0]} color="#10b981" intensity={5} distance={15} />
-      <pointLight position={[0, 0.3, 1.8]} color="#10b981" intensity={3} distance={5} />
+      {/* 7. Dual Cyber Headlight Beams */}
+      <pointLight position={[0, 0.75, -1.6]} color="#ffffff" intensity={5} distance={18} />
+      <pointLight position={[0, 0.6, -1.4]} color="#10b981" intensity={3} distance={10} />
+      {/* Rear Tail Light */}
+      <pointLight position={[0, 0.65, 1.4]} color="#ef4444" intensity={2} distance={5} />
     </group>
   );
 }
+
+export default ExpeditionBike3D;

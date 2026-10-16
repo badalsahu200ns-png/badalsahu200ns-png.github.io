@@ -88,50 +88,144 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState<boolean>(true);
+  
+  // Audio state with session storage memory
+  const [volume, setVolume] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('badal_welcome_volume');
+      return stored ? parseFloat(stored) : 0.85;
+    }
+    return 0.85;
+  });
+  const [isMuted, setIsMuted] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('badal_welcome_muted') === 'true';
+    }
+    return false; // Default sound enabled
+  });
+  const [isAudioBlocked, setIsAudioBlocked] = useState<boolean>(false);
   const [isVideoError, setIsVideoError] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-  // Autoplay personal welcome video on mount (with strict muted compliance for browser autoplay policies)
+  // Autoplay personal welcome video on mount: Attempt unmuted playback first
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.defaultMuted = true;
-    video.muted = true;
+    video.volume = volume;
+    const shouldMute = isMuted;
 
-    const startPlayback = () => {
-      const promise = video.play();
-      if (promise !== undefined) {
-        promise
+    if (!shouldMute) {
+      video.muted = false;
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
           .then(() => {
             setIsPlaying(true);
+            setIsMuted(false);
+            setIsAudioBlocked(false);
           })
           .catch((err) => {
-            console.warn('Welcome video autoplay caught:', err);
+            console.info('Browser autoplay policy blocked unmuted video, falling back to muted autoplay:', err);
+            // Autoplay blocked with sound: play muted and prompt visitor
+            video.muted = true;
+            setIsMuted(true);
+            setIsAudioBlocked(true);
+            video.play().then(() => setIsPlaying(true)).catch(() => {});
           });
       }
-    };
+    } else {
+      video.muted = true;
+      video.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  }, [volume, isMuted]);
 
-    startPlayback();
+  // Handle first user interaction anywhere on page to automatically unmute if blocked
+  useEffect(() => {
+    if (!isAudioBlocked) return;
 
-    // Fallback: If browser policy blocked autoplay, start on first user interaction
-    const handleFirstInteraction = () => {
-      if (video.paused) {
-        startPlayback();
+    const handleFirstTap = () => {
+      const video = videoRef.current;
+      if (video && isAudioBlocked) {
+        video.muted = false;
+        video.volume = volume;
+        video.play().then(() => {
+          setIsMuted(false);
+          setIsAudioBlocked(false);
+          try {
+            sessionStorage.setItem('badal_welcome_muted', 'false');
+          } catch {
+            // ignore
+          }
+        }).catch(() => {});
       }
-      window.removeEventListener('pointerdown', handleFirstInteraction);
-      window.removeEventListener('keydown', handleFirstInteraction);
+      window.removeEventListener('pointerdown', handleFirstTap);
+      window.removeEventListener('keydown', handleFirstTap);
     };
 
-    window.addEventListener('pointerdown', handleFirstInteraction, { once: true });
-    window.addEventListener('keydown', handleFirstInteraction, { once: true });
+    window.addEventListener('pointerdown', handleFirstTap, { once: true });
+    window.addEventListener('keydown', handleFirstTap, { once: true });
 
     return () => {
-      window.removeEventListener('pointerdown', handleFirstInteraction);
-      window.removeEventListener('keydown', handleFirstInteraction);
+      window.removeEventListener('pointerdown', handleFirstTap);
+      window.removeEventListener('keydown', handleFirstTap);
     };
-  }, []);
+  }, [isAudioBlocked, volume]);
+
+  const handleEnableAudio = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = false;
+    video.volume = volume;
+    video.play().then(() => {
+      setIsMuted(false);
+      setIsAudioBlocked(false);
+      try {
+        sessionStorage.setItem('badal_welcome_muted', 'false');
+      } catch {
+        // ignore
+      }
+    }).catch((err) => {
+      console.warn('Audio unmute error:', err);
+    });
+  };
+
+  const handleToggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    const nextMuted = !isMuted;
+    video.muted = nextMuted;
+    setIsMuted(nextMuted);
+    setIsAudioBlocked(false);
+    try {
+      sessionStorage.setItem('badal_welcome_muted', nextMuted ? 'true' : 'false');
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVol = parseFloat(e.target.value);
+    setVolume(newVol);
+    const video = videoRef.current;
+    if (video) {
+      video.volume = newVol;
+      if (newVol > 0 && video.muted) {
+        video.muted = false;
+        setIsMuted(false);
+      } else if (newVol === 0) {
+        video.muted = true;
+        setIsMuted(true);
+      }
+    }
+    try {
+      sessionStorage.setItem('badal_welcome_volume', newVol.toString());
+    } catch {
+      // ignore
+    }
+  };
 
   // Parallax tracking on container mouse move
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -314,6 +408,7 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   }}
                 />
               ) : (
+                /* 1. Video Frame with Compliant Fallback */
                 <video
                   ref={videoRef}
                   src={`${import.meta.env.BASE_URL}video/welcome.mp4`}
@@ -325,7 +420,7 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   preload="auto"
                   onPlay={() => setIsPlaying(true)}
                   onEnded={() => {
-                    // Loop continuous fallback
+                    // Continuous loop guarantee
                     if (videoRef.current) {
                       videoRef.current.currentTime = 0;
                       videoRef.current.play().catch(() => {});
@@ -336,49 +431,79 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                 />
               )}
 
-              {/* Accessible Audio Toggle Button & Replay Controls */}
-              {!isVideoError && (
-                <div className="absolute bottom-6 right-2 sm:right-4 z-30 flex items-center gap-2">
-                  {!isPlaying && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (videoRef.current) {
-                          videoRef.current.currentTime = 0;
-                          videoRef.current.play();
-                          setIsPlaying(true);
-                        }
-                      }}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-cyan-500/40 bg-[#070b14]/85 backdrop-blur-md text-cyan-300 hover:border-cyan-400 hover:bg-cyan-500/20 font-mono text-[10px] sm:text-xs tracking-wider transition-all shadow-lg cursor-pointer"
-                      title="Replay Welcome Transmission"
-                      aria-label="Replay Welcome Transmission"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
-                      <span className="hidden sm:inline">REPLAY</span>
-                    </button>
-                  )}
+              {/* 2. PROMINENT "ENABLE SOUND & START EXPERIENCE" OVERLAY IF BROWSER BLOCKED SOUND */}
+              {isAudioBlocked && !isVideoError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/45 backdrop-blur-[3px] rounded-2xl z-30 transition-all p-4">
+                  <button
+                    type="button"
+                    onClick={handleEnableAudio}
+                    className="px-5 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 text-slate-950 font-mono text-xs sm:text-sm font-black tracking-widest uppercase transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:shadow-[0_0_55px_rgba(16,185,129,0.95)] flex items-center gap-2.5 animate-bounce hover:animate-none cursor-pointer transform hover:scale-105"
+                  >
+                    <Volume2 className="w-5 h-5 text-slate-950 animate-pulse" />
+                    <span>ENABLE SOUND &amp; START EXPERIENCE</span>
+                  </button>
+                </div>
+              )}
 
+              {/* 3. ACCESSIBLE AUDIO CONTROLS & VOLUME SLIDER HUD */}
+              {!isVideoError && (
+                <div className="absolute bottom-6 left-2 right-2 sm:left-4 sm:right-4 z-30 flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-xl bg-[#070b14]/90 backdrop-blur-md border border-white/10 shadow-xl">
+                  {/* Left: Replay transmission */}
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (videoRef.current) {
-                        const nextMuted = !isMuted;
-                        videoRef.current.muted = nextMuted;
-                        setIsMuted(nextMuted);
+                        videoRef.current.currentTime = 0;
+                        videoRef.current.play().catch(() => {});
+                        setIsPlaying(true);
                       }
                     }}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-[#070b14]/85 backdrop-blur-md text-emerald-300 hover:border-emerald-400 hover:bg-emerald-500/20 font-mono text-[10px] sm:text-xs tracking-wider transition-all shadow-lg cursor-pointer"
-                    title={isMuted ? "Unmute Welcome Video Audio" : "Mute Welcome Video Audio"}
-                    aria-label={isMuted ? "Unmute Welcome Video Audio" : "Mute Welcome Video Audio"}
+                    className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-400 hover:bg-cyan-500/20 font-mono text-[10px] tracking-wider transition-all cursor-pointer"
+                    title="Replay Welcome Transmission"
+                    aria-label="Replay Welcome Transmission"
+                  >
+                    <RotateCcw className="w-3 h-3 text-cyan-400" />
+                    <span className="hidden sm:inline">REPLAY</span>
+                  </button>
+
+                  {/* Center: Volume Slider */}
+                  <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-[10px] text-slate-300 px-2">
+                    <span className="text-slate-400 hidden md:inline">VOL:</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={isMuted ? 0 : volume}
+                      onChange={handleVolumeChange}
+                      className="w-14 sm:w-20 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+                      title={`Volume: ${Math.round((isMuted ? 0 : volume) * 100)}%`}
+                      aria-label="Welcome video volume"
+                    />
+                    <span className="text-emerald-400 font-bold min-w-[30px] text-right">
+                      {Math.round((isMuted ? 0 : volume) * 100)}%
+                    </span>
+                  </div>
+
+                  {/* Right: Sound On / Off Toggle */}
+                  <button
+                    type="button"
+                    onClick={handleToggleMute}
+                    className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg border font-mono text-[10px] sm:text-xs tracking-wider transition-all cursor-pointer ${
+                      !isMuted
+                        ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                        : 'border-white/15 bg-white/[0.04] text-slate-400 hover:text-white'
+                    }`}
+                    title={isMuted ? 'Unmute Video Audio' : 'Mute Video Audio'}
+                    aria-label={isMuted ? 'Unmute Video Audio' : 'Mute Video Audio'}
                   >
                     {isMuted ? (
-                      <VolumeX className="w-3.5 h-3.5 text-emerald-400" />
+                      <VolumeX className="w-3.5 h-3.5 text-slate-400" />
                     ) : (
                       <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
                     )}
-                    <span className="hidden sm:inline">{isMuted ? "AUDIO OFF" : "AUDIO ON"}</span>
+                    <span>{isMuted ? 'SOUND OFF' : 'SOUND ON'}</span>
                   </button>
                 </div>
               )}
