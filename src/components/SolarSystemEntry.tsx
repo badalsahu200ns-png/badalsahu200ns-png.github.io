@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronRight, FastForward, Shield, Radio, Terminal, AlertCircle } from 'lucide-react';
+import { ChevronRight, FastForward, Shield, Radio, Terminal, AlertCircle, Volume2, VolumeX, RotateCcw, CheckCircle2, Rocket } from 'lucide-react';
 import { CinematicSpaceflightScene } from './3d/CinematicSpaceflightScene';
 import { WebGLErrorBoundary } from './common/WebGLErrorBoundary';
 import { GithubIcon } from './icons/GithubIcon';
 import { LinkedinIcon } from './icons/LinkedinIcon';
+import { soundEngine } from '../utils/soundEngine';
 
 interface SolarSystemEntryProps {
   onComplete: (visitorName: string) => void;
@@ -32,8 +33,8 @@ function sanitizePilotName(input: string): string {
 }
 
 export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
-  // Stages: auth -> identified -> travel -> arrival
-  const [stage, setStage] = useState<'auth' | 'identified' | 'travel' | 'arrival'>('auth');
+  // Stages: auth -> checklist -> countdown -> travel -> arrival
+  const [stage, setStage] = useState<'auth' | 'checklist' | 'countdown' | 'travel' | 'arrival'>('auth');
   const [visitorName, setVisitorName] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY) || '';
@@ -47,6 +48,8 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
     return '';
   });
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [countdownVal, setCountdownVal] = useState<number>(3);
+  const [isMuted, setIsMuted] = useState<boolean>(() => soundEngine.getMuted());
 
   const [flightProgress, setFlightProgress] = useState<number>(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
@@ -59,7 +62,12 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
 
-  const handleAuthorize = () => {
+  const handleToggleSound = () => {
+    const next = soundEngine.toggleMute();
+    setIsMuted(next);
+  };
+
+  const handleAuthorize = useCallback(() => {
     const sanitized = sanitizePilotName(inputVal);
     if (!sanitized) {
       setValidationError('PILOT IDENTIFICATION REQUIRED');
@@ -73,7 +81,17 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
     } catch {
       // ignore
     }
-    setStage('identified');
+    soundEngine.playConfirm();
+    setStage('checklist');
+  }, [inputVal]);
+
+  // Replay launch sequence
+  const handleReplay = () => {
+    setFlightProgress(0);
+    setCountdownVal(3);
+    startTimeRef.current = null;
+    soundEngine.playClick();
+    setStage('checklist');
   };
 
   // Skip or immediately advance
@@ -85,18 +103,41 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
     } catch {
       // ignore
     }
+    soundEngine.playConfirm();
     onComplete(finalName);
   }, [visitorName, inputVal, onComplete]);
 
-  // Transition from 'identified' to 'travel' after brief confirmation
+  // Transition from 'checklist' to 'countdown' after system checklist inspection
   useEffect(() => {
-    if (stage === 'identified') {
+    if (stage === 'checklist') {
       const timer = setTimeout(() => {
-        setStage('travel');
-      }, 1400);
+        setCountdownVal(3);
+        setStage('countdown');
+      }, 2200);
       return () => clearTimeout(timer);
     }
   }, [stage]);
+
+  // Countdown timer logic (3 -> 2 -> 1 -> IGNITION -> travel)
+  useEffect(() => {
+    if (stage !== 'countdown') return;
+
+    soundEngine.playCountdownBeep(countdownVal === 1);
+
+    if (countdownVal > 0) {
+      const timer = setTimeout(() => {
+        setCountdownVal((prev) => prev - 1);
+      }, 850);
+      return () => clearTimeout(timer);
+    } else {
+      // countdownVal is 0 (IGNITION)
+      soundEngine.playLaunchIgnition();
+      const launchTimer = setTimeout(() => {
+        setStage('travel');
+      }, 700);
+      return () => clearTimeout(launchTimer);
+    }
+  }, [stage, countdownVal]);
 
   // Global key listener for Enter and Escape
   useEffect(() => {
@@ -106,8 +147,9 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
       } else if (e.key === 'Enter') {
         if (stage === 'auth') {
           handleAuthorize();
-        } else if (stage === 'identified') {
-          setStage('travel');
+        } else if (stage === 'checklist') {
+          setCountdownVal(3);
+          setStage('countdown');
         } else if (stage === 'arrival') {
           onComplete(visitorName || 'PILOT');
         }
@@ -115,7 +157,7 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [stage, inputVal, visitorName, handleSkip, onComplete]);
+  }, [stage, inputVal, visitorName, handleSkip, handleAuthorize, onComplete]);
 
   // Track mouse coordinates for 3D camera & ship banking
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -179,8 +221,19 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
 
   const telemetry = getPhaseTelemetry();
 
-  // Progress for the 3D scene: idle at 0.04 during auth/identified, then tracks flightProgress
-  const sceneProgress = stage === 'auth' || stage === 'identified' ? 0.04 : flightProgress;
+  // Progress for the 3D scene:
+  // - auth: docked on launch pad (0.02)
+  // - checklist: systems priming on gantry (0.04)
+  // - countdown: pre-ignition (0.06) or ignition roar (0.09)
+  // - travel / arrival: dynamic flightProgress (up to 1.0)
+  const sceneProgress =
+    stage === 'auth'
+      ? 0.02
+      : stage === 'checklist'
+      ? 0.04
+      : stage === 'countdown'
+      ? (countdownVal === 0 ? 0.09 : 0.06)
+      : flightProgress;
 
   return (
     <div
@@ -227,7 +280,26 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
         </div>
 
         {/* Right: Controls & Skip Action */}
-        <div className="flex items-center gap-3 pointer-events-auto">
+        <div className="flex items-center gap-2.5 sm:gap-3 pointer-events-auto">
+          {/* Sound Toggle Button */}
+          <button
+            onClick={handleToggleSound}
+            className={`px-3 py-1.5 rounded-lg border font-mono text-xs tracking-wider transition-all flex items-center gap-1.5 backdrop-blur-md cursor-pointer ${
+              !isMuted
+                ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300'
+                : 'border-white/15 bg-white/[0.04] text-slate-400 hover:text-white'
+            }`}
+            title={isMuted ? 'Turn Sound ON' : 'Turn Sound OFF'}
+            aria-label={isMuted ? 'Turn Sound ON' : 'Turn Sound OFF'}
+          >
+            {isMuted ? (
+              <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+            ) : (
+              <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            )}
+            <span className="hidden sm:inline">{isMuted ? 'SOUND OFF' : 'SOUND ON'}</span>
+          </button>
+
           {stage === 'travel' && (
             <button
               onMouseDown={() => setIsWarpBoosting(true)}
@@ -247,7 +319,7 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
 
           <button
             onClick={handleSkip}
-            className="px-3.5 py-1.5 rounded-lg border border-white/20 bg-white/[0.04] hover:border-emerald-400/60 hover:bg-white/[0.08] text-slate-300 hover:text-white font-mono text-xs tracking-wider transition-all flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-lg border border-white/20 bg-white/[0.04] hover:border-emerald-400/60 hover:bg-white/[0.08] text-slate-300 hover:text-white font-mono text-xs tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
             title="Skip directly to portfolio"
           >
             <span>SKIP (ESC)</span>
@@ -358,34 +430,115 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
         </div>
       )}
 
-      {/* 4. STEP 02: PILOT IDENTIFIED (Cinematic HUD Confirmation) */}
-      {stage === 'identified' && (
+      {/* 4. STEP 02: PRE-LAUNCH SYSTEMS VERIFICATION CHECKLIST */}
+      {stage === 'checklist' && (
         <div className="relative z-40 min-h-screen flex items-center justify-center p-4">
-          <div className="max-w-md w-full p-6 sm:p-8 rounded-2xl border border-emerald-400/50 bg-[#070b14]/95 backdrop-blur-2xl shadow-[0_0_50px_rgba(16,185,129,0.25)] relative overflow-hidden animate-fade-in">
+          <div className="max-w-md w-full p-6 sm:p-8 rounded-2xl border border-cyan-500/40 bg-[#070b14]/95 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,229,255,0.25)] relative overflow-hidden animate-fade-in">
             
-            <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs tracking-widest uppercase mb-4">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              PILOT IDENTIFIED
+            {/* Mission Console Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+              <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs tracking-widest uppercase">
+                <Rocket className="w-4 h-4 text-cyan-400 animate-pulse" />
+                <span>MISSION CONSOLE // PRE-LAUNCH</span>
+              </div>
+              <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 rounded">
+                SYSTEMS OK
+              </span>
             </div>
 
-            <div className="font-mono text-xs text-slate-300 space-y-2 mb-6 bg-black/60 p-4 rounded-xl border border-white/10">
-              <div className="flex justify-between">
-                <span className="text-slate-400">PILOT</span>
-                <span className="text-white font-bold tracking-wider">{visitorName.toUpperCase()}</span>
+            {/* Pilot Credentials Display */}
+            <div className="font-mono text-xs text-slate-300 space-y-2 mb-5 bg-black/70 p-4 rounded-xl border border-white/10">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">PILOT CALLSIGN</span>
+                <span className="text-emerald-400 font-bold tracking-wider text-sm">{visitorName.toUpperCase()}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">DESTINATION</span>
-                <span className="text-emerald-400 font-bold">BADAL // 001</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">EXPEDITION</span>
+                <span className="text-white font-semibold">BADAL // 001 CAREER WORLD</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">STATUS</span>
-                <span className="text-cyan-400 font-semibold">VERIFIED</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">DEPARTURE</span>
+                <span className="text-cyan-400 font-semibold">ORBITAL LAUNCHPAD ALPHA</span>
               </div>
             </div>
 
-            <div className="text-center font-mono text-xs text-emerald-300 animate-pulse">
-              INITIATING ORBITAL TRAVEL SEQUENCE...
+            {/* Verification Checklist */}
+            <div className="space-y-2 mb-6 font-mono text-xs">
+              <div className="text-[11px] text-slate-400 uppercase tracking-wider mb-2">
+                Automated Systems Checklist:
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  Rocket Ion Propulsion Coils
+                </span>
+                <span className="text-emerald-400 text-[10px] font-bold">PRIMED</span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  Orbital Gateway Trajectory
+                </span>
+                <span className="text-emerald-400 text-[10px] font-bold">LOCKED</span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  Atmospheric Heat Shielding
+                </span>
+                <span className="text-emerald-400 text-[10px] font-bold">NOMINAL</span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  Launch Platform Clamps
+                </span>
+                <span className="text-cyan-400 text-[10px] font-bold animate-pulse">RELEASING</span>
+              </div>
             </div>
+
+            {/* Manual Advance Button */}
+            <button
+              onClick={() => {
+                setCountdownVal(3);
+                setStage('countdown');
+              }}
+              className="w-full py-3 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(0,229,255,0.4)] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>COMMENCE COUNTDOWN &gt;</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 5. STEP 03: ANIMATED COUNTDOWN */}
+      {stage === 'countdown' && (
+        <div className="relative z-40 min-h-screen flex items-center justify-center p-4">
+          <div className="text-center flex flex-col items-center">
+            <div className="font-mono text-xs text-cyan-400 tracking-widest uppercase mb-4 animate-pulse">
+              [ LAUNCH SEQUENCE ENGAGED ]
+            </div>
+
+            {/* Huge Glowing Countdown Digits */}
+            <div className="my-2">
+              {countdownVal > 0 ? (
+                <div className="text-7xl sm:text-9xl font-display font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-300 to-cyan-500 drop-shadow-[0_0_60px_rgba(0,229,255,0.8)] animate-scale-in">
+                  {countdownVal}
+                </div>
+              ) : (
+                <div className="text-5xl sm:text-7xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-amber-300 to-red-500 drop-shadow-[0_0_70px_rgba(16,185,129,0.9)] animate-pulse">
+                  IGNITION!
+                </div>
+              )}
+            </div>
+
+            <div className="font-mono text-xs sm:text-sm text-slate-300 mt-4 tracking-widest">
+              T-MINUS 00:0{countdownVal} &bull; PILOT {visitorName.toUpperCase()}
+            </div>
+
+            <p className="font-mono text-[11px] text-slate-500 mt-2">
+              {countdownVal > 0 ? 'IGNITING MAIN THRUSTERS...' : 'ROCKET CLAMPS RELEASED &bull; LIFTOFF!'}
+            </p>
           </div>
         </div>
       )}
@@ -489,14 +642,25 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
               </div>
             </div>
 
-            {/* 6. Primary Action Button: Enter Career World */}
-            <button
-              onClick={() => onComplete(visitorName || 'PILOT')}
-              className="px-8 sm:px-10 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-sm sm:text-base font-bold tracking-widest uppercase transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.55)] hover:shadow-[0_0_55px_rgba(16,185,129,0.85)] flex items-center gap-3 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
-            >
-              <span>ENTER CAREER WORLD &gt;</span>
-              <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </button>
+            {/* 6. Action Buttons: Enter Career World & Replay Launch */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
+              <button
+                onClick={() => onComplete(visitorName || 'PILOT')}
+                className="w-full sm:w-auto px-8 sm:px-10 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-sm sm:text-base font-bold tracking-widest uppercase transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.55)] hover:shadow-[0_0_55px_rgba(16,185,129,0.85)] flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
+              >
+                <span>ENTER CAREER WORLD &gt;</span>
+                <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </button>
+
+              <button
+                onClick={handleReplay}
+                className="w-full sm:w-auto px-5 py-4 rounded-xl border border-white/20 bg-white/[0.05] hover:bg-white/[0.1] hover:border-cyan-400/60 text-slate-300 hover:text-white font-mono text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                title="Replay launch sequence"
+              >
+                <RotateCcw className="w-4 h-4 text-cyan-400" />
+                <span>REPLAY LAUNCH</span>
+              </button>
+            </div>
 
             {/* 7. Journey Message */}
             <p className="text-xs sm:text-sm text-slate-300/90 font-mono text-center max-w-xl mx-auto mt-4 mb-4 leading-relaxed tracking-wide">

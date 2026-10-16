@@ -14,12 +14,10 @@ export function ScoutDrone3D({
   reducedMotion = false,
 }: VehicleProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const rotorRefs = [
-    useRef<THREE.Group>(null),
-    useRef<THREE.Group>(null),
-    useRef<THREE.Group>(null),
-    useRef<THREE.Group>(null),
-  ];
+  const rotor0Ref = useRef<THREE.Group>(null);
+  const rotor1Ref = useRef<THREE.Group>(null);
+  const rotor2Ref = useRef<THREE.Group>(null);
+  const rotor3Ref = useRef<THREE.Group>(null);
   const scanBeamRef = useRef<THREE.Mesh>(null);
 
   useFrame((state, delta) => {
@@ -41,11 +39,10 @@ export function ScoutDrone3D({
 
     // High speed spinning rotors
     const rotorSpeed = delta * (28 + throttle * 30);
-    rotorRefs.forEach((r, idx) => {
-      if (r.current) {
-        r.current.rotation.y += idx % 2 === 0 ? rotorSpeed : -rotorSpeed;
-      }
-    });
+    if (rotor0Ref.current) rotor0Ref.current.rotation.y += rotorSpeed;
+    if (rotor1Ref.current) rotor1Ref.current.rotation.y -= rotorSpeed;
+    if (rotor2Ref.current) rotor2Ref.current.rotation.y += rotorSpeed;
+    if (rotor3Ref.current) rotor3Ref.current.rotation.y -= rotorSpeed;
 
     // Scanner beam pulse
     if (scanBeamRef.current) {
@@ -117,7 +114,7 @@ export function ScoutDrone3D({
         <mesh material={carbonFrameMat} rotation={[0, -0.4, 0]}>
           <boxGeometry args={[0.1, 0.06, 0.6]} />
         </mesh>
-        <group ref={rotorRefs[0]} position={[0, 0.08, 0]}>
+        <group ref={rotor0Ref} position={[0, 0.08, 0]}>
           <mesh material={carbonFrameMat}>
             <cylinderGeometry args={[0.08, 0.08, 0.08, 12]} />
           </mesh>
@@ -132,7 +129,7 @@ export function ScoutDrone3D({
         <mesh material={carbonFrameMat} rotation={[0, 0.4, 0]}>
           <boxGeometry args={[0.1, 0.06, 0.6]} />
         </mesh>
-        <group ref={rotorRefs[1]} position={[0, 0.08, 0]}>
+        <group ref={rotor1Ref} position={[0, 0.08, 0]}>
           <mesh material={carbonFrameMat}>
             <cylinderGeometry args={[0.08, 0.08, 0.08, 12]} />
           </mesh>
@@ -147,7 +144,7 @@ export function ScoutDrone3D({
         <mesh material={carbonFrameMat} rotation={[0, 0.4, 0]}>
           <boxGeometry args={[0.1, 0.06, 0.6]} />
         </mesh>
-        <group ref={rotorRefs[2]} position={[0, 0.08, 0]}>
+        <group ref={rotor2Ref} position={[0, 0.08, 0]}>
           <mesh material={carbonFrameMat}>
             <cylinderGeometry args={[0.08, 0.08, 0.08, 12]} />
           </mesh>
@@ -162,7 +159,7 @@ export function ScoutDrone3D({
         <mesh material={carbonFrameMat} rotation={[0, -0.4, 0]}>
           <boxGeometry args={[0.1, 0.06, 0.6]} />
         </mesh>
-        <group ref={rotorRefs[3]} position={[0, 0.08, 0]}>
+        <group ref={rotor3Ref} position={[0, 0.08, 0]}>
           <mesh material={carbonFrameMat}>
             <cylinderGeometry args={[0.08, 0.08, 0.08, 12]} />
           </mesh>

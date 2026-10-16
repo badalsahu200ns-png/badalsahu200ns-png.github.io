@@ -129,10 +129,9 @@ function CinematicCameraRig({
     const vehicleZ = -progress * travelDistance;
 
     // 4-Phase Camera Trajectory Offset
-    let arcOffsetX = 0;
-    let arcOffsetY = 0;
-    let arcOffsetZ = 0;
-    let targetFov = 48;
+    let arcOffsetX: number;
+    let arcOffsetY: number;
+    let arcOffsetZ: number;
 
     if (progress < 0.20) {
       // Phase 1 (0–1.0s): Reveal from slight side 3/4 angle, easing into tail chase
@@ -140,14 +139,12 @@ function CinematicCameraRig({
       arcOffsetX = (1 - p1) * 1.6;
       arcOffsetY = (1 - p1) * 0.6;
       arcOffsetZ = 1.0;
-      targetFov = 48;
     } else if (progress < 0.50) {
       // Phase 2 (1.0–2.5s): Acceleration run, camera pulls back and expands FOV
       const p2 = (progress - 0.20) / 0.30;
       arcOffsetX = 0;
       arcOffsetY = p2 * 0.3;
       arcOffsetZ = 0.5 + p2 * 0.8;
-      targetFov = 48 + p2 * 8; // expands up to 56
     } else if (progress < 0.80) {
       // Phase 3 (2.5–4.0s): Main cinematic dynamic arc! Gentle side sweep demonstrating 3D depth
       const p3 = (progress - 0.50) / 0.30;
@@ -155,14 +152,12 @@ function CinematicCameraRig({
       arcOffsetX = Math.sin(p3 * Math.PI) * 2.2;
       arcOffsetY = 0.3 + Math.sin(p3 * Math.PI) * 0.4;
       arcOffsetZ = 1.3 - p3 * 0.4;
-      targetFov = 56 - p3 * 4;
     } else {
       // Phase 4 (4.0–5.0s): Approach destination, decelerate & center
       const p4 = (progress - 0.80) / 0.20;
       arcOffsetX = 0;
       arcOffsetY = (1 - p4) * 0.3;
       arcOffsetZ = (1 - p4) * 0.9;
-      targetFov = 52 - p4 * 4;
     }
 
     const startPos = new THREE.Vector3(...config.cameraStart);
@@ -194,11 +189,6 @@ function CinematicCameraRig({
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentLookAt.current);
-
-    // Dynamic FOV easing
-    const perspCamera = camera as THREE.PerspectiveCamera;
-    perspCamera.fov += (targetFov - perspCamera.fov) * Math.min(1, delta * 3.0);
-    perspCamera.updateProjectionMatrix();
   });
 
   const vehicleZ = -progress * 35;

@@ -17,7 +17,7 @@ export function MaglevTrain3D({
   const leftSkateRef = useRef<THREE.Mesh>(null);
   const rightSkateRef = useRef<THREE.Mesh>(null);
 
-  useFrame((state, _) => {
+  useFrame((state) => {
     if (!groupRef.current) return;
 
     if (!reducedMotion) {

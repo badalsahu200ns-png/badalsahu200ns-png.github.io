@@ -25,9 +25,12 @@ export function InnovationLabEnvironment3D({ travelProgress, reducedMotion = fal
     const count = 350;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 16;
-      positions[i * 3 + 1] = -1.5 + Math.random() * 7;
-      positions[i * 3 + 2] = -Math.random() * 140;
+      const f1 = (Math.sin(i * 12.9898) * 43758.5453) % 1;
+      const f2 = (Math.sin(i * 78.233) * 43758.5453) % 1;
+      const f3 = (Math.sin(i * 45.164) * 43758.5453) % 1;
+      positions[i * 3] = (Math.abs(f1) - 0.5) * 16;
+      positions[i * 3 + 1] = -1.5 + Math.abs(f2) * 7;
+      positions[i * 3 + 2] = -Math.abs(f3) * 140;
     }
     return positions;
   }, []);

@@ -3,6 +3,7 @@ import { TRANSPORTATION_DESTINATIONS } from './TransportationConfig';
 import { TransportationScene } from './TransportationScene';
 import { TransportationHUD } from './TransportationHUD';
 import { WebGLErrorBoundary } from '../common/WebGLErrorBoundary';
+import { soundEngine } from '../../utils/soundEngine';
 
 interface TransportationManagerProps {
   destinationId: string;
@@ -31,6 +32,7 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
     if (isArrivingRef.current) return;
     isArrivingRef.current = true;
     setIsArriving(true);
+    soundEngine.playArrivalChime(destinationId);
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
@@ -38,7 +40,7 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
     setTimeout(() => {
       onArrival();
     }, 200);
-  }, [onArrival]);
+  }, [destinationId, onArrival]);
 
   // Global ESC key to skip
   useEffect(() => {
@@ -61,23 +63,19 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
     setMouseOffset({ x, y });
   };
 
-  // Safe reset when destination changes (clean up previous animation & start fresh)
+  // Safe animation loop for transportation journey
   useEffect(() => {
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
-    setProgress(0);
-    setIsArriving(false);
-    isArrivingRef.current = false;
-    setIsBoosting(false);
-    startTimeRef.current = null;
+    soundEngine.startVehicleAudio(destinationId);
 
     if (prefersReducedMotion) {
       const reducedTimer = setTimeout(() => {
+        soundEngine.playArrivalChime(destinationId);
         onArrival();
       }, 1000);
-      return () => clearTimeout(reducedTimer);
+      return () => {
+        clearTimeout(reducedTimer);
+        soundEngine.stopVehicleAudio();
+      };
     }
 
     const duration = EXACT_JOURNEY_DURATION_MS;
@@ -91,16 +89,17 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
       const rawProgress = Math.min(1.0, elapsed / duration);
 
       // Smooth cinematic easeInOut curve
-      // Phase 1 (0-1s, raw 0-0.2): Slow build up
-      // Phase 2 (1-2.5s, raw 0.2-0.5): Acceleration
-      // Phase 3 (2.5-4s, raw 0.5-0.8): Cruise / dynamic arc
-      // Phase 4 (4-5s, raw 0.8-1.0): Deceleration & smooth docking
       setProgress(rawProgress);
+
+      // Dynamic audio throttle modulation
+      const throttle = rawProgress < 0.2 ? 0.4 + (rawProgress / 0.2) * 0.6 : rawProgress < 0.8 ? 1.0 : 0.5;
+      soundEngine.updateVehicleThrottle(throttle, rawProgress);
 
       if (rawProgress >= 1.0) {
         if (!isArrivingRef.current) {
           isArrivingRef.current = true;
           setIsArriving(true);
+          soundEngine.playArrivalChime(destinationId);
           setTimeout(() => {
             onArrival();
           }, 350);
@@ -120,6 +119,7 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
         cancelAnimationFrame(animFrameRef.current);
         animFrameRef.current = null;
       }
+      soundEngine.stopVehicleAudio();
     };
   }, [destinationId, onArrival, prefersReducedMotion]);
 

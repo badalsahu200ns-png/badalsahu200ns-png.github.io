@@ -9,14 +9,14 @@ interface VehicleProps {
 }
 
 export function HighAltitudeBalloon3D({
-  throttle: _throttle = 0.75,
+  throttle = 0.75,
   banking = { x: 0, y: 0 },
   reducedMotion = false,
 }: VehicleProps) {
   const groupRef = useRef<THREE.Group>(null);
   const gondolaRef = useRef<THREE.Group>(null);
 
-  useFrame((state, _) => {
+  useFrame((state) => {
     if (!groupRef.current) return;
 
     if (!reducedMotion) {
@@ -27,7 +27,7 @@ export function HighAltitudeBalloon3D({
       groupRef.current.rotation.x += (targetPitch - groupRef.current.rotation.x) * 0.05;
 
       // Gentle buoyant stratospheric bobbing
-      const bob = Math.sin(state.clock.elapsedTime * 1.8) * 0.08;
+      const bob = Math.sin(state.clock.elapsedTime * 1.8) * 0.08 * throttle;
       groupRef.current.position.y = bob;
 
       // Gondola subtle pendulum sway

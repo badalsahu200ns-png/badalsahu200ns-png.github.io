@@ -1,5 +1,7 @@
-import { FastForward, Radio, Shield, Navigation, Gauge } from 'lucide-react';
+import { useState } from 'react';
+import { FastForward, Radio, Navigation, Volume2, VolumeX, Shield, Gauge } from 'lucide-react';
 import type { DestinationConfig } from './TransportationConfig';
+import { soundEngine } from '../../utils/soundEngine';
 
 interface TransportationHUDProps {
   config: DestinationConfig;
@@ -18,6 +20,12 @@ export function TransportationHUD({
 }: TransportationHUDProps) {
   const percent = Math.min(100, Math.round(progress * 100));
   const elapsedSec = (progress * 5.0).toFixed(1);
+  const [isMuted, setIsMuted] = useState(() => soundEngine.getMuted());
+
+  const handleToggleSound = () => {
+    const next = soundEngine.toggleMute();
+    setIsMuted(next);
+  };
 
   // 4-Phase Cinematic Timeline Description matching user prompt specifications
   let phaseName = 'PHASE 01 // 3D VEHICLE & ENVIRONMENT REVEAL';
@@ -71,8 +79,26 @@ export function TransportationHUD({
           </div>
         </div>
 
-        {/* Right: Controls (Boost & Skip) */}
-        <div className="flex items-center gap-3">
+        {/* Right: Controls (Sound, Boost & Skip) */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <button
+            onClick={handleToggleSound}
+            className={`px-3 py-2 rounded-xl border font-mono text-xs tracking-wider transition-all flex items-center gap-1.5 backdrop-blur-md shadow-lg cursor-pointer ${
+              !isMuted
+                ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300'
+                : 'border-white/15 bg-black/60 text-slate-400 hover:text-white'
+            }`}
+            title={isMuted ? 'Turn Sound ON' : 'Turn Sound OFF'}
+            aria-label={isMuted ? 'Turn Sound ON' : 'Turn Sound OFF'}
+          >
+            {isMuted ? (
+              <VolumeX className="w-4 h-4 text-slate-400" />
+            ) : (
+              <Volume2 className="w-4 h-4 text-emerald-400 animate-pulse" />
+            )}
+            <span className="hidden md:inline">{isMuted ? 'SOUND OFF' : 'SOUND ON'}</span>
+          </button>
+
           <button
             onMouseDown={() => onSetBoosting(true)}
             onMouseUp={() => onSetBoosting(false)}

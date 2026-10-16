@@ -47,11 +47,14 @@ export function MaglevTunnelEnvironment3D({ travelProgress, reducedMotion = fals
     const count = 400;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 2.8 + Math.random() * 2.5;
+      const f1 = Math.abs((Math.sin(i * 12.9898) * 43758.5453) % 1);
+      const f2 = Math.abs((Math.sin(i * 78.233) * 43758.5453) % 1);
+      const f3 = Math.abs((Math.sin(i * 45.164) * 43758.5453) % 1);
+      const angle = f1 * Math.PI * 2;
+      const radius = 2.8 + f2 * 2.5;
       positions[i * 3] = Math.cos(angle) * radius;
       positions[i * 3 + 1] = Math.sin(angle) * radius + 0.6;
-      positions[i * 3 + 2] = -Math.random() * 150;
+      positions[i * 3 + 2] = -f3 * 150;
     }
     return positions;
   }, []);

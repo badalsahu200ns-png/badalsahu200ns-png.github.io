@@ -25,9 +25,12 @@ export function OceanDepthEnvironment3D({ travelProgress, reducedMotion = false 
     const count = 450;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 28;
-      positions[i * 3 + 1] = -4 + Math.random() * 12;
-      positions[i * 3 + 2] = -Math.random() * 140;
+      const f1 = (Math.sin(i * 12.9898) * 43758.5453) % 1;
+      const f2 = (Math.sin(i * 78.233) * 43758.5453) % 1;
+      const f3 = (Math.sin(i * 45.164) * 43758.5453) % 1;
+      positions[i * 3] = (Math.abs(f1) - 0.5) * 28;
+      positions[i * 3 + 1] = -4 + Math.abs(f2) * 12;
+      positions[i * 3 + 2] = -Math.abs(f3) * 140;
     }
     return positions;
   }, []);
@@ -37,9 +40,12 @@ export function OceanDepthEnvironment3D({ travelProgress, reducedMotion = false 
     const count = 250;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 18;
-      positions[i * 3 + 1] = -3.8 + Math.random() * 8;
-      positions[i * 3 + 2] = -Math.random() * 130;
+      const f1 = (Math.sin(i * 93.123) * 43758.5453) % 1;
+      const f2 = (Math.sin(i * 27.842) * 43758.5453) % 1;
+      const f3 = (Math.sin(i * 61.918) * 43758.5453) % 1;
+      positions[i * 3] = (Math.abs(f1) - 0.5) * 18;
+      positions[i * 3 + 1] = -3.8 + Math.abs(f2) * 8;
+      positions[i * 3 + 2] = -Math.abs(f3) * 130;
     }
     return positions;
   }, []);

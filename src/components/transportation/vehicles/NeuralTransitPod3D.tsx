@@ -9,7 +9,7 @@ interface VehicleProps {
 }
 
 export function NeuralTransitPod3D({
-  throttle: _throttle = 0.85,
+  throttle = 0.85,
   banking = { x: 0, y: 0 },
   reducedMotion = false,
 }: VehicleProps) {
@@ -35,9 +35,10 @@ export function NeuralTransitPod3D({
       groupRef.current.position.y = hover;
     }
 
-    // Rotating synaptic magnetic guide rings
-    if (ringRef1.current) ringRef1.current.rotation.z += delta * 3;
-    if (ringRef2.current) ringRef2.current.rotation.z -= delta * 3;
+    // Rotating synaptic magnetic guide rings modulated by throttle
+    const ringSpeed = delta * (2.0 + throttle * 2.5);
+    if (ringRef1.current) ringRef1.current.rotation.z += ringSpeed;
+    if (ringRef2.current) ringRef2.current.rotation.z -= ringSpeed;
 
     // Pulsing neural core
     if (coreRef.current) {

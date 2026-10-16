@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { profileData } from '../data/portfolioData';
 import { ChevronRight, ArrowUpRight, Compass, ShieldCheck, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { DeploymentStatusBadge } from './common/DeploymentStatusBadge';
+import { soundEngine } from '../utils/soundEngine';
 
 interface MenuItem {
   id: string;
@@ -120,12 +121,15 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
+        soundEngine.playHover();
         setSelectedIndex((prev) => (prev + 1) % MENU_ITEMS.length);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
+        soundEngine.playHover();
         setSelectedIndex((prev) => (prev - 1 + MENU_ITEMS.length) % MENU_ITEMS.length);
       } else if (e.key === 'Enter') {
         e.preventDefault();
+        soundEngine.playClick();
         onSelectSection(MENU_ITEMS[selectedIndex].id);
       }
     };
@@ -375,9 +379,13 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                     key={item.id}
                     onClick={() => {
                       setSelectedIndex(index);
+                      soundEngine.playClick();
                       onSelectSection(item.id);
                     }}
-                    onMouseEnter={() => setSelectedIndex(index)}
+                    onMouseEnter={() => {
+                      setSelectedIndex(index);
+                      soundEngine.playHover();
+                    }}
                     className={`group relative w-full text-left p-2.5 sm:p-3 rounded-xl border transition-all duration-200 flex items-center justify-between outline-none ${
                       isSelected
                         ? 'border-emerald-400 bg-emerald-500/15 text-white shadow-[0_0_20px_rgba(118,255,3,0.15)] translate-x-1'

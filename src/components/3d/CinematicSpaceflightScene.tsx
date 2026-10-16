@@ -71,12 +71,6 @@ function CameraFlightRig({
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentLookAt.current);
-
-    // Dynamic FOV: stretches during warp speed for visceral speed sensation
-    const perspCamera = camera as THREE.PerspectiveCamera;
-    const targetFOV = progress > 0.25 && progress < 0.75 ? 64 : 50;
-    perspCamera.fov += (targetFOV - perspCamera.fov) * delta * 2.5;
-    perspCamera.updateProjectionMatrix();
   });
 
   // Calculate current ship position

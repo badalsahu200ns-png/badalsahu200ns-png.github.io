@@ -27,9 +27,12 @@ export function OrbitalDockEnvironment3D({ travelProgress, reducedMotion = false
     const count = 750;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 80;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
-      positions[i * 3 + 2] = -Math.random() * 160;
+      const f1 = (Math.sin(i * 12.9898) * 43758.5453) % 1;
+      const f2 = (Math.sin(i * 78.233) * 43758.5453) % 1;
+      const f3 = (Math.sin(i * 45.164) * 43758.5453) % 1;
+      positions[i * 3] = (Math.abs(f1) - 0.5) * 80;
+      positions[i * 3 + 1] = (Math.abs(f2) - 0.5) * 50;
+      positions[i * 3 + 2] = -Math.abs(f3) * 160;
     }
     return positions;
   }, []);

@@ -10,9 +10,15 @@ interface WarpCorridor3DProps {
 
 const GATE_POSITIONS = [-25, -55, -85, -115];
 
+function seededRandom(seed: number) {
+  let t = seed + 0x6d2b79f5;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
 export function WarpCorridor3D({
   speed = 0.5,
-
   reducedMotion = false,
 }: WarpCorridor3DProps) {
   const starsRef = useRef<THREE.Points>(null);
@@ -27,11 +33,11 @@ export function WarpCorridor3D({
     for (let i = 0; i < count; i++) {
       const idx = i * 3;
       // Spread in a cylindrical corridor around flight path
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 6 + Math.random() * 32;
+      const angle = seededRandom(i * 3 + 1) * Math.PI * 2;
+      const radius = 6 + seededRandom(i * 3 + 2) * 32;
       pos[idx] = Math.cos(angle) * radius;
       pos[idx + 1] = Math.sin(angle) * radius;
-      const z = -Math.random() * 180 + 10;
+      const z = -seededRandom(i * 3 + 3) * 180 + 10;
       pos[idx + 2] = z;
       origZ[i] = z;
     }

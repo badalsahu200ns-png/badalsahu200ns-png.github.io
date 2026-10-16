@@ -56,9 +56,12 @@ export function SkylineEnvironment3D({ travelProgress, reducedMotion = false }: 
     const count = 350;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 22;
-      positions[i * 3 + 1] = -0.5 + Math.random() * 8;
-      positions[i * 3 + 2] = -Math.random() * 200;
+      const f1 = (Math.sin(i * 12.9898) * 43758.5453) % 1;
+      const f2 = (Math.sin(i * 78.233) * 43758.5453) % 1;
+      const f3 = (Math.sin(i * 45.164) * 43758.5453) % 1;
+      positions[i * 3] = (Math.abs(f1) - 0.5) * 22;
+      positions[i * 3 + 1] = -0.5 + Math.abs(f2) * 8;
+      positions[i * 3 + 2] = -Math.abs(f3) * 200;
     }
     return positions;
   }, []);
