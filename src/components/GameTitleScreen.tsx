@@ -106,17 +106,14 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
   const [isAudioBlocked, setIsAudioBlocked] = useState<boolean>(false);
   const [isVideoError, setIsVideoError] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [hasEnded, setHasEnded] = useState<boolean>(false);
 
-  // Play welcome.mp4 once from beginning when the main portfolio landing screen first appears
+  // Automatically play welcome.mp4 with sound when the landing screen appears
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Reset playback to beginning for each new landing-screen appearance
     video.currentTime = 0;
     video.volume = volume;
-    setHasEnded(false);
 
     if (!isMuted) {
       video.muted = false;
@@ -129,30 +126,26 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
             setIsAudioBlocked(false);
           })
           .catch((err) => {
-            console.info('Browser autoplay policy blocked unmuted video, falling back to muted playback:', err);
+            console.info('Browser autoplay policy blocked unmuted video, playing muted with ENABLE SOUND prompt:', err);
             // Autoplay blocked with sound: play muted and prompt visitor
             video.muted = true;
             setIsMuted(true);
             setIsAudioBlocked(true);
-            video.play().then(() => setIsPlaying(true)).catch(() => {
-              setIsPlaying(false);
-            });
+            video.play().then(() => setIsPlaying(true)).catch(() => {});
           });
       }
     } else {
       video.muted = true;
-      video.play().then(() => setIsPlaying(true)).catch(() => {
-        setIsPlaying(false);
-      });
+      video.play().then(() => setIsPlaying(true)).catch(() => {});
     }
 
     return () => {
-      // Clean up on component unmount (when leaving landing screen)
+      // Clean up on component unmount
       if (video) {
         video.pause();
       }
     };
-  }, []); // Run strictly once per landing-screen appearance (mount)
+  }, []); // Run on landing screen appearance
 
   // Sync volume adjustments to video element without restarting playback
   useEffect(() => {
@@ -210,7 +203,6 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
     video.volume = volume;
     video.play().then(() => {
       setIsPlaying(true);
-      setHasEnded(false);
       setIsMuted(false);
       setIsAudioBlocked(false);
       try {
@@ -228,7 +220,6 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
     const video = videoRef.current;
     if (!video) return;
     video.currentTime = 0;
-    setHasEnded(false);
     setIsVideoError(false);
     const playPromise = video.play();
     if (playPromise !== undefined) {
@@ -238,7 +229,6 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
         })
         .catch((err) => {
           console.warn('Replay failed:', err);
-          setIsPlaying(false);
         });
     }
   };
@@ -435,10 +425,10 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
             <div className="absolute top-2 right-2 z-20 font-mono text-[9px] text-emerald-400/80 tracking-widest hidden sm:block">
               [WELCOME_FEED: ACTIVE] ┐
             </div>
-            <div className="absolute bottom-6 left-2 z-20 font-mono text-[9px] text-slate-500 tracking-widest hidden sm:block">
+            <div className="absolute bottom-1 left-2 z-20 font-mono text-[9px] text-slate-500 tracking-widest hidden sm:block">
               └ LOC // INDIA
             </div>
-            <div className="absolute bottom-6 right-2 z-20 font-mono text-[9px] text-cyan-400/70 tracking-widest hidden sm:block">
+            <div className="absolute bottom-1 right-2 z-20 font-mono text-[9px] text-cyan-400/70 tracking-widest hidden sm:block">
               [STATUS: TRANSMITTING] ┘
             </div>
 
@@ -460,7 +450,7 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   }}
                 />
               ) : (
-                /* 1. Video Frame with Compliant Fallback - plays once per appearance */
+                /* 1. Video Frame with Compliant Fallback - loops continuously */
                 <video
                   ref={videoRef}
                   src={`${import.meta.env.BASE_URL}video/welcome.mp4`}
@@ -468,15 +458,15 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   autoPlay
                   muted={isMuted}
                   playsInline
+                  loop
                   preload="auto"
-                  onPlay={() => {
-                    setIsPlaying(true);
-                    setHasEnded(false);
-                  }}
+                  onPlay={() => setIsPlaying(true)}
                   onEnded={() => {
-                    // Play once per landing screen appearance: stop and display REPLAY option
-                    setIsPlaying(false);
-                    setHasEnded(true);
+                    // Continuous loop guarantee
+                    if (videoRef.current) {
+                      videoRef.current.currentTime = 0;
+                      videoRef.current.play().catch(() => {});
+                    }
                   }}
                   onError={() => {
                     setIsVideoError(true);
@@ -486,61 +476,39 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                 />
               )}
 
-              {/* 2. PROMINENT "ENABLE SOUND & PLAY" OVERLAY IF BROWSER BLOCKED SOUND */}
-              {isAudioBlocked && !isVideoError && !hasEnded && (
+              {/* 2. PROMINENT "ENABLE SOUND" OVERLAY IF BROWSER BLOCKED SOUND */}
+              {isAudioBlocked && !isVideoError && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/45 backdrop-blur-[3px] rounded-2xl z-30 transition-all p-4">
                   <button
                     type="button"
                     onClick={handleEnableAudio}
                     className="px-5 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 text-slate-950 font-mono text-xs sm:text-sm font-black tracking-widest uppercase transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:shadow-[0_0_55px_rgba(16,185,129,0.95)] flex items-center gap-2.5 animate-bounce hover:animate-none cursor-pointer transform hover:scale-105 active:scale-95"
-                    aria-label="Enable sound and play welcome video"
+                    aria-label="Enable sound"
                   >
                     <Volume2 className="w-5 h-5 text-slate-950 animate-pulse" />
-                    <span>ENABLE SOUND &amp; PLAY</span>
+                    <span>ENABLE SOUND</span>
                   </button>
                 </div>
               )}
 
-              {/* 3. PROMINENT "REPLAY VIDEO" OVERLAY AFTER PLAYBACK ENDS */}
-              {hasEnded && !isPlaying && !isVideoError && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/55 backdrop-blur-[2px] rounded-2xl z-30 transition-all p-4">
+              {/* 3. VIDEO CONTROLS: ↻ REPLAY VIDEO ON BOTTOM-LEFT, SOUND ON/OFF ON BOTTOM-RIGHT */}
+              {!isVideoError && (
+                <div className="absolute bottom-6 left-2 right-2 sm:left-4 sm:right-4 z-30 flex items-center justify-between gap-3 p-1.5 sm:p-2 rounded-xl bg-[#070b14]/90 backdrop-blur-md border border-white/10 shadow-xl">
+                  {/* Bottom-left: ↻ REPLAY VIDEO */}
                   <button
                     type="button"
                     onClick={handleReplay}
-                    className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 text-slate-950 font-mono text-xs sm:text-sm font-black tracking-widest uppercase transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:shadow-[0_0_55px_rgba(16,185,129,0.95)] flex items-center gap-2.5 cursor-pointer transform hover:scale-105 active:scale-95"
+                    className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/15 text-cyan-300 hover:border-cyan-400 hover:bg-cyan-500/25 font-mono text-xs font-semibold tracking-wider transition-all cursor-pointer shadow-[0_0_12px_rgba(0,229,255,0.2)] focus:outline-none focus:ring-1 focus:ring-cyan-400"
+                    title="Restart Welcome Video from beginning"
                     aria-label="Replay Welcome Video"
                   >
-                    <RotateCcw className="w-4 h-4 text-slate-950" />
-                    <span>REPLAY VIDEO</span>
+                    <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>↻ REPLAY VIDEO</span>
                   </button>
-                </div>
-              )}
 
-              {/* 4. ACCESSIBLE AUDIO CONTROLS & VOLUME SLIDER HUD */}
-              {!isVideoError && (
-                <div className="absolute bottom-6 left-2 right-2 sm:left-4 sm:right-4 z-30 flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-xl bg-[#070b14]/90 backdrop-blur-md border border-white/10 shadow-xl">
-                  {/* Left: Replay transmission - hidden while playing, visible after playback ends or on error */}
-                  {(hasEnded || isVideoError) && !isPlaying ? (
-                    <button
-                      type="button"
-                      onClick={handleReplay}
-                      className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg border border-cyan-500/40 bg-cyan-500/15 text-cyan-300 hover:border-cyan-400 hover:bg-cyan-500/25 font-mono text-[10px] sm:text-xs tracking-wider transition-all cursor-pointer shadow-[0_0_12px_rgba(0,229,255,0.2)]"
-                      title={isVideoError ? 'Retry Playback' : 'Replay Welcome Video'}
-                      aria-label={isVideoError ? 'Retry Playback' : 'Replay Welcome Video'}
-                    >
-                      <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>{isVideoError ? 'RETRY PLAY' : 'REPLAY VIDEO'}</span>
-                    </button>
-                  ) : (
-                    <div className="flex items-center gap-1.5 font-mono text-[10px] text-emerald-400/80 px-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="hidden sm:inline">TRANSMITTING</span>
-                    </div>
-                  )}
-
-                  {/* Center: Volume Slider */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-[10px] text-slate-300 px-2">
-                    <span className="text-slate-400 hidden md:inline">VOL:</span>
+                  {/* Center Volume Slider */}
+                  <div className="hidden sm:flex items-center gap-1.5 font-mono text-[10px] text-slate-300 px-2">
+                    <span className="text-slate-400">VOL:</span>
                     <input
                       type="range"
                       min="0"
@@ -557,11 +525,11 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                     </span>
                   </div>
 
-                  {/* Right: Sound On / Off Toggle */}
+                  {/* Bottom-right: SOUND ON / SOUND OFF */}
                   <button
                     type="button"
                     onClick={handleToggleMute}
-                    className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg border font-mono text-[10px] sm:text-xs tracking-wider transition-all cursor-pointer ${
+                    className={`inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg border font-mono text-xs font-semibold tracking-wider transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-400 ${
                       !isMuted
                         ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
                         : 'border-white/15 bg-white/[0.04] text-slate-400 hover:text-white'
