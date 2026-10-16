@@ -81,14 +81,15 @@ interface GameTitleScreenProps {
   onSelectSection: (sectionId: string) => void;
   onResumeClick: () => void;
   visitorName?: string;
+  isActive?: boolean;
 }
 
-export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }: GameTitleScreenProps) {
+export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName, isActive = true }: GameTitleScreenProps) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const hasTriggeredMountPlay = useRef<boolean>(false);
+  const prevActiveRef = useRef<boolean>(false);
   
   // Audio state with session storage memory
   const [volume, setVolume] = useState<number>(() => {
@@ -109,16 +110,33 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
   const [isVideoError, setIsVideoError] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-  // Automatically play welcome.mp4 once from beginning to end when the landing screen appears (initial entry and on return)
+  // Automatically play welcome.mp4 once when the landing screen becomes active (not while on the initial entry screen)
   useEffect(() => {
-    // Prevent duplicate triggers from component re-renders or React Strict Mode
-    if (hasTriggeredMountPlay.current) return;
-    hasTriggeredMountPlay.current = true;
-
     const video = videoRef.current;
     if (!video) return;
 
     video.volume = volume;
+
+    // If the landing screen is NOT active (e.g. visitor is on the initial welcome/entry screen), keep the video paused
+    if (!isActive) {
+      prevActiveRef.current = false;
+      try {
+        video.pause();
+        video.currentTime = 0;
+      } catch {
+        // ignore
+      }
+      setIsPlaying(false);
+      return;
+    }
+
+    // Landing screen IS active: trigger playback only once per entry/return cycle
+    if (prevActiveRef.current) {
+      // Already active in this visit: do not restart video due to re-renders or state changes
+      return;
+    }
+    prevActiveRef.current = true;
+
     try {
       video.currentTime = 0;
     } catch {
@@ -169,12 +187,12 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
     }
 
     return () => {
-      // Clean up on component unmount
+      // Clean up on component unmount or deactivation
       if (video) {
         video.pause();
       }
     };
-  }, []); // Run on landing screen appearance
+  }, [isActive]); // Triggers when landing screen becomes active
 
   // Sync volume adjustments to video element without restarting playback
   useEffect(() => {
@@ -501,7 +519,6 @@ export function GameTitleScreen({ onSelectSection, onResumeClick, visitorName }:
                   ref={videoRef}
                   src={`${import.meta.env.BASE_URL}video/welcome.mp4`}
                   poster={profileData.heroImage || '/images/nameste-hi.png'}
-                  autoPlay
                   muted={isMuted}
                   playsInline
                   preload="auto"

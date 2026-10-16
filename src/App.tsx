@@ -163,6 +163,7 @@ export function App() {
             onSelectSection={handleSelectSection}
             onResumeClick={() => setResumeOpen(true)}
             visitorName={visitorName}
+            isActive={openingFinished && !currentSection && !transitDestination}
           />
         )}
 
