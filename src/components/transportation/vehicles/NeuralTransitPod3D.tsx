@@ -109,8 +109,8 @@ export function NeuralTransitPod3D({
       </mesh>
 
       {/* 2. Transparent Futuristic Canopy Bubble (Revealing interior) */}
-      <mesh material={crystalGlassMat} position={[0, 0.15, 0]}>
-        <cylinderGeometry args={[0.62, 0.62, 2.6, 24]} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh material={crystalGlassMat} position={[0, 0.15, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.62, 0.62, 2.6, 24]} />
       </mesh>
       {/* Front Spherical Glass Nose */}
       <mesh material={crystalGlassMat} position={[0, 0.15, -1.3]} rotation={[-Math.PI / 2, 0, 0]}>

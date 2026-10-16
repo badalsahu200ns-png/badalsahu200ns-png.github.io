@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronRight, FastForward, Shield, Radio, Terminal, AlertCircle, Volume2, VolumeX, RotateCcw, CheckCircle2, Rocket } from 'lucide-react';
+import { ChevronRight, FastForward, Shield, Radio, AlertCircle, Volume2, VolumeX, RotateCcw, CheckCircle2, Rocket } from 'lucide-react';
 import { CinematicSpaceflightScene } from './3d/CinematicSpaceflightScene';
 import { WebGLErrorBoundary } from './common/WebGLErrorBoundary';
 import { GithubIcon } from './icons/GithubIcon';

@@ -54,12 +54,6 @@ export function ExecutiveHovercraft3D({
     roughness: 0.16,
   });
 
-  const darkAccentMaterial = new THREE.MeshStandardMaterial({
-    color: '#1e293b',
-    metalness: 0.9,
-    roughness: 0.25,
-  });
-
   const silverTrimMaterial = new THREE.MeshStandardMaterial({
     color: '#e2e8f0',
     metalness: 0.95,

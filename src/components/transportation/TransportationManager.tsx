@@ -26,7 +26,6 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
   }, [isBoosting]);
 
   const animFrameRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number | null>(null);
   const isArrivingRef = useRef(false);
 
   const prefersReducedMotion = typeof window !== 'undefined'
@@ -82,8 +81,6 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
         soundEngine.stopVehicleAudio();
       };
     }
-
-    const duration = EXACT_JOURNEY_DURATION_MS;
 
     let lastTime = performance.now();
 

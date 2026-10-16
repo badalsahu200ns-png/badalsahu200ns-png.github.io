@@ -119,11 +119,11 @@ export function ExpeditionBike3D({
           <boxGeometry args={[1.05, 0.04, 0.04]} />
         </mesh>
         {/* Left & Right Grips */}
-        <mesh material={seatMat} position={[-0.48, 0, 0]}>
-          <cylinderGeometry args={[0.03, 0.03, 0.16, 8]} rotation={[0, 0, Math.PI / 2]} />
+        <mesh material={seatMat} position={[-0.48, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.03, 0.03, 0.16, 8]} />
         </mesh>
-        <mesh material={seatMat} position={[0.48, 0, 0]}>
-          <cylinderGeometry args={[0.03, 0.03, 0.16, 8]} rotation={[0, 0, Math.PI / 2]} />
+        <mesh material={seatMat} position={[0.48, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.03, 0.03, 0.16, 8]} />
         </mesh>
       </group>
 

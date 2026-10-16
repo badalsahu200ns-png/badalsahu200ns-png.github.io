@@ -307,8 +307,8 @@ export function ScoutDrone3D({
           <sphereGeometry args={[0.16, 16, 16]} />
         </mesh>
         {/* Cyan Optical Lens Eye */}
-        <mesh material={cameraLensMat} position={[0, -0.14, -0.14]}>
-          <cylinderGeometry args={[0.08, 0.08, 0.05, 16]} rotation={[Math.PI / 2, 0, 0]} />
+        <mesh material={cameraLensMat} position={[0, -0.14, -0.14]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 0.05, 16]} />
         </mesh>
         {/* Glowing Forward Spotlight Beacon */}
         <pointLight position={[0, -0.14, -0.3]} color="#00e5ff" intensity={3.5} distance={12} />
