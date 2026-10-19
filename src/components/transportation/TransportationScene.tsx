@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { DestinationConfig } from './TransportationConfig';
@@ -123,6 +123,12 @@ function CinematicCameraRig({
   const currentPos = useRef(new THREE.Vector3(...config.cameraStart));
   const currentLookAt = useRef(new THREE.Vector3(0, 0, -10));
 
+  const headlightTarget = useMemo(() => {
+    const t = new THREE.Object3D();
+    t.position.set(0, -0.4, -35);
+    return t;
+  }, []);
+
   useFrame((_, delta) => {
     // Total forward travel displacement
     const travelDistance = 35;
@@ -197,7 +203,22 @@ function CinematicCameraRig({
 
   return (
     <group position={[0, 0, vehicleZ]}>
-      {/* 3-Point Light Rig attached directly to Vehicle so it is always radiantly illuminated */}
+      {/* Target for vehicle forward spotlights */}
+      <primitive object={headlightTarget} />
+
+      {/* 1. Forward High-Power Projector Headlight / Searchlight Rig */}
+      <spotLight
+        position={[0, 0.4, -1.8]}
+        target={headlightTarget}
+        intensity={config.id === 'education' ? 8.5 : config.id === 'experience' ? 7.5 : 5.5}
+        angle={Math.PI / 4.6}
+        penumbra={0.7}
+        distance={65}
+        color={config.id === 'education' ? '#38bdf8' : config.id === 'core-skills' ? '#fef08a' : '#ffffff'}
+        castShadow
+      />
+
+      {/* 2. 3-Point Vessel Radiance Light Rig */}
       <pointLight position={[0, 3.5, -3.5]} intensity={3.5} distance={18} color="#ffffff" />
       <pointLight position={[-3.5, 1.5, 0]} intensity={2.2} distance={14} color={config.primaryColor} />
       <pointLight position={[3.5, 2.0, 3.0]} intensity={2.6} distance={14} color={config.accentColor || '#ffffff'} />
@@ -219,11 +240,33 @@ export function TransportationScene({
   mouseOffset,
   reducedMotion = false,
 }: TransportationSceneProps) {
+  // Mode-tailored environmental lighting profiles
+  const isSpace = config.id === 'projects' || config.id === 'contact';
+  const isOcean = config.id === 'education';
+  const isSunrise = config.id === 'certifications';
+  const isCanyon = config.id === 'core-skills';
+
+  const ambientIntensity = isSpace ? 0.55 : isOcean ? 1.4 : 1.1;
+  const sunIntensity = isSpace ? 3.6 : isOcean ? 1.2 : 2.6;
+  const sunColor = isSunrise ? '#fef08a' : isCanyon ? '#fed7aa' : isOcean ? '#38bdf8' : '#ffffff';
+  const sunPosition: [number, number, number] = isSunrise
+    ? [-35, 18, -35]
+    : isOcean
+    ? [0, 45, -15]
+    : [20, 35, 25];
+
   return (
     <div className="absolute inset-0 w-full h-full" style={{ backgroundColor: config.backgroundColor }}>
       <Canvas
+        shadows
         camera={{ position: config.cameraStart, fov: 48 }}
-        gl={{ powerPreference: 'high-performance', antialias: true, alpha: false }}
+        gl={{
+          powerPreference: 'high-performance',
+          antialias: true,
+          alpha: false,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.15,
+        }}
         dpr={[1, 1.75]}
       >
         {/* Set explicit canvas clear color to prevent pitch-black clear */}
@@ -233,10 +276,18 @@ export function TransportationScene({
         <fog attach="fog" args={[config.fogColor, config.fogNear, config.fogFar]} />
 
         {/* Global Multi-Source Environmental Lighting Rig */}
-        <ambientLight intensity={1.2} color={config.primaryColor} />
-        <hemisphereLight groundColor={config.backgroundColor} color="#ffffff" intensity={0.9} />
-        <directionalLight position={[20, 35, 25]} intensity={2.6} color="#ffffff" />
-        <directionalLight position={[-20, -10, -20]} intensity={1.5} color={config.accentColor || config.primaryColor} />
+        <ambientLight intensity={ambientIntensity} color={config.primaryColor} />
+        <hemisphereLight groundColor={config.backgroundColor} color="#ffffff" intensity={isSpace ? 0.4 : 0.85} />
+        <directionalLight
+          position={sunPosition}
+          intensity={sunIntensity}
+          color={sunColor}
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+          shadow-bias={-0.0001}
+        />
+        <directionalLight position={[-20, -10, -20]} intensity={isSpace ? 0.6 : 1.4} color={config.accentColor || config.primaryColor} />
 
         {/* 1. Camera Flight, 3-Point Light Rig & 3D Vehicle */}
         <CinematicCameraRig

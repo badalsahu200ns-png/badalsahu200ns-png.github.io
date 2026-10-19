@@ -11,27 +11,43 @@ interface UniverseEnvProps {
 export function ProjectUniverseEnvironment3D({ travelProgress, reducedMotion = false }: UniverseEnvProps) {
   const groupRef = useRef<THREE.Group>(null);
   const starsRef = useRef<THREE.Points>(null);
-  const nebulaRef = useRef<THREE.Group>(null);
+  const asteroidsRef = useRef<THREE.Group>(null);
 
   // 4 explorable project planetary destinations
   const projectPlanets = useMemo(() => [
-    { name: 'AUTONOMOUS AI AGENTS', desc: 'Gemini Multi-Agent System & Workflows', pos: [-7, 2.5, -28] as [number, number, number], color: '#8b5cf6', radius: 2.2 },
-    { name: 'ENTERPRISE GEMINI RAG', desc: 'Vector Search & Knowledge Graph Engine', pos: [8, -1.5, -58] as [number, number, number], color: '#00e5ff', radius: 2.5 },
-    { name: 'PETABYTE BIGQUERY ENGINE', desc: 'GCP Analytics, Dataform & Pipelines', pos: [-8, 3.5, -88] as [number, number, number], color: '#38bdf8', radius: 2.3 },
-    { name: 'VISION INTELLIGENCE', desc: 'Real-time Multimodal Video & Image AI', pos: [6, 1.5, -118] as [number, number, number], color: '#10b981', radius: 2.6 },
+    { name: 'AUTONOMOUS AI AGENTS', desc: 'Gemini Multi-Agent System & Workflows', pos: [-9, 3.5, -28] as [number, number, number], color: '#8b5cf6', radius: 2.4 },
+    { name: 'ENTERPRISE GEMINI RAG', desc: 'Vector Search & Knowledge Graph Engine', pos: [10, -2.5, -60] as [number, number, number], color: '#00e5ff', radius: 2.8 },
+    { name: 'PETABYTE BIGQUERY ENGINE', desc: 'GCP Analytics, Dataform & Pipelines', pos: [-10, 4.5, -92] as [number, number, number], color: '#38bdf8', radius: 2.5 },
+    { name: 'VISION INTELLIGENCE', desc: 'Real-time Multimodal Video & Image AI', pos: [8, 2.5, -124] as [number, number, number], color: '#10b981', radius: 2.9 },
   ], []);
+
+  // 3D Asteroid field tumbling in space
+  const asteroids = useMemo(() => {
+    const list: Array<{ pos: [number, number, number]; scale: number; rotSpeed: [number, number, number] }> = [];
+    for (let i = 0; i < 28; i++) {
+      const x = (i % 2 === 0 ? -1 : 1) * (14 + ((i * 5) % 18));
+      const y = -12 + ((i * 7) % 24);
+      const z = -i * 6 - 8;
+      list.push({
+        pos: [x, y, z],
+        scale: 0.8 + ((i * 3) % 4) * 0.4,
+        rotSpeed: [(i % 3) * 0.01 + 0.005, (i % 4) * 0.01 + 0.005, (i % 2) * 0.01],
+      });
+    }
+    return list;
+  }, []);
 
   // Multi-tier starfield
   const stars = useMemo(() => {
-    const count = 900;
+    const count = 1200;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       const f1 = (Math.sin(i * 12.9898) * 43758.5453) % 1;
       const f2 = (Math.sin(i * 78.233) * 43758.5453) % 1;
       const f3 = (Math.sin(i * 45.164) * 43758.5453) % 1;
-      positions[i * 3] = (Math.abs(f1) - 0.5) * 80;
-      positions[i * 3 + 1] = (Math.abs(f2) - 0.5) * 50;
-      positions[i * 3 + 2] = -Math.abs(f3) * 180;
+      positions[i * 3] = (Math.abs(f1) - 0.5) * 110;
+      positions[i * 3 + 1] = (Math.abs(f2) - 0.5) * 80;
+      positions[i * 3 + 2] = -Math.abs(f3) * 200;
     }
     return positions;
   }, []);
@@ -41,127 +57,115 @@ export function ProjectUniverseEnvironment3D({ travelProgress, reducedMotion = f
       if (starsRef.current) {
         const positions = starsRef.current.geometry.attributes.position.array as Float32Array;
         for (let i = 0; i < positions.length / 3; i++) {
-          positions[i * 3 + 2] += delta * 28;
+          positions[i * 3 + 2] += delta * 24;
           if (positions[i * 3 + 2] > 10) {
-            positions[i * 3 + 2] = -180;
+            positions[i * 3 + 2] = -200;
           }
         }
         starsRef.current.geometry.attributes.position.needsUpdate = true;
       }
-      if (nebulaRef.current) {
-        nebulaRef.current.rotation.z += delta * 0.02;
+
+      if (asteroidsRef.current) {
+        asteroidsRef.current.children.forEach((child, idx) => {
+          const a = asteroids[idx];
+          if (a) {
+            child.rotation.x += a.rotSpeed[0];
+            child.rotation.y += a.rotSpeed[1];
+          }
+        });
       }
     }
+  });
+
+  const asteroidMat = new THREE.MeshStandardMaterial({
+    color: '#334155',
+    roughness: 0.95,
+    metalness: 0.3,
   });
 
   const zShift = travelProgress * 125;
 
   return (
     <group ref={groupRef} position={[0, 0, zShift]}>
-      {/* 1. Multi-Layered Luminous Nebula Backdrop Planes */}
-      <group ref={nebulaRef} position={[0, 0, -140]}>
-        <mesh position={[0, 0, -10]}>
-          <planeGeometry args={[160, 100]} />
-          <meshBasicMaterial color="#311042" opacity={0.65} transparent />
+      {/* 1. Deep Celestial Starfield */}
+      <points ref={starsRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[stars, 3]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.32} color="#ffffff" transparent opacity={0.9} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* 2. Distant Deep Space Gas Giant with Planetary Rings */}
+      <group position={[35, 18, -160]}>
+        <mesh>
+          <sphereGeometry args={[14, 32, 32]} />
+          <meshStandardMaterial color="#3b82f6" emissive="#1e40af" emissiveIntensity={0.25} roughness={0.7} />
         </mesh>
-        <mesh position={[-20, 10, 0]}>
-          <planeGeometry args={[100, 70]} />
-          <meshBasicMaterial color="#1e1b4b" opacity={0.5} transparent />
-        </mesh>
-        <mesh position={[25, -10, 5]}>
-          <planeGeometry args={[90, 60]} />
-          <meshBasicMaterial color="#0c4a6e" opacity={0.45} transparent />
+        {/* Giant Ring */}
+        <mesh rotation={[Math.PI / 3, 0.2, 0]}>
+          <ringGeometry args={[17, 26, 48]} />
+          <meshBasicMaterial color="#60a5fa" transparent opacity={0.45} side={THREE.DoubleSide} />
         </mesh>
       </group>
 
-      {/* 2. High-Density Starfield */}
-      <points ref={starsRef}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[stars, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={0.3}
-          color="#ffffff"
-          transparent
-          opacity={0.9}
-          blending={THREE.AdditiveBlending}
-        />
-      </points>
+      {/* 3. Real 3D Tumbling Asteroids */}
+      <group ref={asteroidsRef}>
+        {asteroids.map((a, idx) => (
+          <mesh
+            key={`ast-${idx}`}
+            position={a.pos}
+            scale={[a.scale, a.scale * 0.8, a.scale * 1.2]}
+            material={asteroidMat}
+            castShadow
+            receiveShadow
+          >
+            <dodecahedronGeometry args={[1.5, 1]} />
+          </mesh>
+        ))}
+      </group>
 
-      {/* 3. Project Planetary Orbs & Orbit Rings */}
+      {/* 4. Project Planetary Orbs & Orbit Systems */}
       {projectPlanets.map((p, idx) => (
         <group key={idx} position={p.pos}>
-          {/* Planet Sphere */}
-          <mesh>
-            <sphereGeometry args={[p.radius, 28, 28]} />
+          {/* Main Planet Sphere */}
+          <mesh castShadow receiveShadow>
+            <sphereGeometry args={[p.radius, 32, 32]} />
             <meshStandardMaterial
               color={p.color}
               emissive={p.color}
-              emissiveIntensity={0.5}
-              roughness={0.35}
-              metalness={0.7}
+              emissiveIntensity={0.4}
+              roughness={0.4}
+              metalness={0.6}
             />
           </mesh>
 
-          {/* Planetary Luminous Ring */}
+          {/* Planetary Orbital Ring */}
           <mesh rotation={[Math.PI / 3, 0, 0]}>
-            <ringGeometry args={[p.radius * 1.35, p.radius * 1.9, 36]} />
+            <ringGeometry args={[p.radius * 1.3, p.radius * 1.85, 36]} />
             <meshBasicMaterial color={p.color} opacity={0.6} transparent side={THREE.DoubleSide} />
           </mesh>
 
-          {/* Holographic Project Name Tag */}
-          <group position={[0, p.radius + 1.4, 0]}>
-            <Text
-              fontSize={0.46}
-              color={p.color}
-              anchorX="center"
-              anchorY="middle"
-            >
+          {/* Holographic Project Nameplate */}
+          <group position={[0, p.radius + 1.5, 0]}>
+            <Text fontSize={0.52} color={p.color} anchorX="center" anchorY="middle">
               {p.name}
             </Text>
-            <Text
-              position={[0, -0.45, 0]}
-              fontSize={0.26}
-              color="#e2e8f0"
-              anchorX="center"
-              anchorY="middle"
-            >
+            <Text position={[0, -0.48, 0]} fontSize={0.28} color="#f8fafc" anchorX="center" anchorY="middle">
               {p.desc}
             </Text>
           </group>
 
-          <pointLight position={[0, 0, 0]} color={p.color} intensity={6} distance={25} />
+          <pointLight position={[0, 0, 0]} color={p.color} intensity={6} distance={28} />
         </group>
       ))}
 
-      {/* 4. Interconnecting Luminous Cosmic Data Streams between planets */}
-      <lineSegments>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[
-              new Float32Array([
-                -7, 2.5, -28, 8, -1.5, -58,
-                8, -1.5, -58, -8, 3.5, -88,
-                -8, 3.5, -88, 6, 1.5, -118,
-              ]),
-              3,
-            ]}
-          />
-        </bufferGeometry>
-        <lineBasicMaterial color="#00e5ff" opacity={0.75} transparent />
-      </lineSegments>
-
-      {/* 5. Destination Deep-Space Docking Gateway */}
-      <group position={[0, 0, -145]}>
+      {/* 5. Interstellar Gateway Nexus at Terminus */}
+      <group position={[0, 0, -150]}>
         <mesh>
-          <torusGeometry args={[7.5, 0.45, 16, 48]} />
-          <meshStandardMaterial color="#8b5cf6" emissive="#6d28d9" emissiveIntensity={0.9} />
+          <torusGeometry args={[8.5, 0.5, 16, 48]} />
+          <meshStandardMaterial color="#8b5cf6" emissive="#6d28d9" emissiveIntensity={0.85} />
         </mesh>
-        <pointLight position={[0, 0, 0]} color="#8b5cf6" intensity={10} distance={50} />
+        <pointLight position={[0, 0, 0]} color="#8b5cf6" intensity={12} distance={55} />
       </group>
     </group>
   );

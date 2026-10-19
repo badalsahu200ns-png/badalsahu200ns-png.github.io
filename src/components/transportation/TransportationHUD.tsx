@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FastForward, Radio, Navigation, Volume2, VolumeX, Shield, Gauge } from 'lucide-react';
-import type { DestinationConfig } from './TransportationConfig';
+import { type DestinationConfig, TRANSPORTATION_MODE_LIST } from './TransportationConfig';
 import { soundEngine } from '../../utils/soundEngine';
 
 interface TransportationHUDProps {
@@ -9,6 +9,7 @@ interface TransportationHUDProps {
   isBoosting: boolean;
   onSetBoosting: (boosting: boolean) => void;
   onSkip: () => void;
+  onSelectMode?: (destinationId: string) => void;
 }
 
 export function TransportationHUD({
@@ -17,14 +18,26 @@ export function TransportationHUD({
   isBoosting,
   onSetBoosting,
   onSkip,
+  onSelectMode,
 }: TransportationHUDProps) {
   const percent = Math.min(100, Math.round(progress * 100));
   const elapsedSec = (progress * 6.0).toFixed(1);
   const [isMuted, setIsMuted] = useState(() => soundEngine.getMuted());
+  const [volume, setVolume] = useState(() => Math.round(soundEngine.getMasterVolume() * 100));
 
   const handleToggleSound = () => {
     const next = soundEngine.toggleMute();
     setIsMuted(next);
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value, 10);
+    setVolume(val);
+    soundEngine.setMasterVolume(val / 100);
+    if (val > 0 && isMuted) {
+      soundEngine.setMuted(false);
+      setIsMuted(false);
+    }
   };
 
   // 4-Phase 6-Second Cinematic Timeline Description (0-1.5s, 1.5-3.0s, 3.0-4.5s, 4.5-6.0s)
@@ -42,98 +55,138 @@ export function TransportationHUD({
   }
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-30 select-none flex flex-col justify-between p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="absolute inset-0 pointer-events-none z-30 select-none flex flex-col justify-between p-3 sm:p-5 lg:p-6 font-sans">
       
       {/* 1. TOP HEADER HUD */}
-      <div className="flex items-center justify-between gap-4 pointer-events-auto">
-        
-        {/* Left: Vessel & Destination Telemetry */}
-        <div className="flex flex-col gap-1.5">
-          <div className="inline-flex items-center gap-2">
-            <span
-              className="px-2.5 py-1 rounded border font-mono text-xs font-bold tracking-wider flex items-center gap-1.5 shadow-lg backdrop-blur-md"
-              style={{
-                borderColor: `${config.primaryColor}80`,
-                backgroundColor: `${config.primaryColor}20`,
-                color: config.primaryColor,
-              }}
-            >
+      <div className="flex flex-col gap-2.5 pointer-events-auto">
+        <div className="flex items-center justify-between gap-4">
+          
+          {/* Left: Vessel & Destination Telemetry */}
+          <div className="flex flex-col gap-1">
+            <div className="inline-flex items-center gap-2">
               <span
-                className="w-2 h-2 rounded-full animate-ping"
-                style={{ backgroundColor: config.primaryColor }}
+                className="px-2.5 py-1 rounded border font-mono text-xs font-bold tracking-wider flex items-center gap-1.5 shadow-lg backdrop-blur-md"
+                style={{
+                  borderColor: `${config.primaryColor}80`,
+                  backgroundColor: `${config.primaryColor}20`,
+                  color: config.primaryColor,
+                }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full animate-ping"
+                  style={{ backgroundColor: config.primaryColor }}
+                />
+                [ {config.tabNumber} ] {config.shortBadge || config.vehicleName}
+              </span>
+              <span className="text-slate-400 font-mono text-xs hidden sm:inline">
+                // {config.vehicleRole.toUpperCase()}
+              </span>
+            </div>
+
+            <div className="font-mono text-[11px] text-slate-300 flex items-center gap-2">
+              <Navigation className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="font-semibold" style={{ color: config.primaryColor }}>
+                {config.destinationNode}
+              </span>
+              <span className="text-slate-600 hidden md:inline">|</span>
+              <span className="text-slate-400 hidden md:inline">{config.speedLabel}</span>
+            </div>
+          </div>
+
+          {/* Right: Controls (Sound, Boost & Skip) */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="flex items-center gap-1.5 p-1 rounded-xl border border-white/15 bg-black/60 backdrop-blur-md shadow-lg">
+              <button
+                onClick={handleToggleSound}
+                className={`px-2 py-1.5 rounded-lg border font-mono text-xs tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  !isMuted
+                    ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300'
+                    : 'border-white/10 bg-white/5 text-slate-400 hover:text-white'
+                }`}
+                title={isMuted ? 'Turn Sound ON' : 'Turn Sound OFF'}
+                aria-label={isMuted ? 'Turn Sound ON' : 'Turn Sound OFF'}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                ) : (
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                )}
+                <span className="hidden lg:inline">{isMuted ? 'MUTED' : `${volume}%`}</span>
+              </button>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={isMuted ? 0 : volume}
+                onChange={handleVolumeChange}
+                className="w-14 sm:w-18 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-400 mx-1"
+                title={`Master Volume: ${volume}%`}
+                aria-label="Master Volume Slider"
               />
-              [ {config.tabNumber} ] {config.shortBadge || config.vehicleName}
-            </span>
-            <span className="text-slate-400 font-mono text-xs hidden sm:inline">
-              // {config.vehicleRole.toUpperCase()}
-            </span>
-          </div>
+            </div>
 
-          <div className="font-mono text-[11px] text-slate-300 flex items-center gap-2">
-            <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="font-semibold" style={{ color: config.primaryColor }}>
-              {config.destinationNode}
-            </span>
-            <span className="text-slate-600 hidden md:inline">|</span>
-            <span className="text-slate-400 hidden md:inline">{config.speedLabel}</span>
+            <button
+              onMouseDown={() => onSetBoosting(true)}
+              onMouseUp={() => onSetBoosting(false)}
+              onMouseLeave={() => onSetBoosting(false)}
+              onTouchStart={() => onSetBoosting(true)}
+              onTouchEnd={() => onSetBoosting(false)}
+              className={`px-3 py-1.5 rounded-xl border font-mono text-xs tracking-wider transition-all flex items-center gap-1.5 backdrop-blur-md shadow-lg ${
+                isBoosting
+                  ? 'border-cyan-400 bg-cyan-500/30 text-cyan-300 shadow-[0_0_25px_rgba(0,229,255,0.4)] scale-105'
+                  : 'border-white/15 bg-black/60 text-slate-300 hover:border-white/30 hover:bg-black/80'
+              }`}
+              title="Press and hold to accelerate transportation"
+            >
+              <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
+              <span className="font-semibold hidden sm:inline">{isBoosting ? 'BOOST ON' : 'BOOST'}</span>
+            </button>
+
+            <button
+              onClick={onSkip}
+              className="px-3.5 py-1.5 rounded-xl border border-white/20 bg-black/60 hover:border-white/40 hover:bg-black/80 text-white font-mono text-xs tracking-wider transition-all flex items-center gap-1.5 backdrop-blur-md shadow-lg group cursor-pointer"
+              title="Skip transition sequence"
+            >
+              <span>SKIP</span>
+              <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-[10px] text-slate-400 border border-white/15 hidden md:inline">
+                ESC
+              </kbd>
+              <FastForward className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
           </div>
         </div>
 
-        {/* Right: Controls (Sound, Boost & Skip) */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <button
-            onClick={handleToggleSound}
-            className={`px-3 py-2 rounded-xl border font-mono text-xs tracking-wider transition-all flex items-center gap-1.5 backdrop-blur-md shadow-lg cursor-pointer ${
-              !isMuted
-                ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300'
-                : 'border-white/15 bg-black/60 text-slate-400 hover:text-white'
-            }`}
-            title={isMuted ? 'Turn Sound ON' : 'Turn Sound OFF'}
-            aria-label={isMuted ? 'Turn Sound ON' : 'Turn Sound OFF'}
-          >
-            {isMuted ? (
-              <VolumeX className="w-4 h-4 text-slate-400" />
-            ) : (
-              <Volume2 className="w-4 h-4 text-emerald-400 animate-pulse" />
-            )}
-            <span className="hidden md:inline">{isMuted ? 'SOUND OFF' : 'SOUND ON'}</span>
-          </button>
-
-          <button
-            onMouseDown={() => onSetBoosting(true)}
-            onMouseUp={() => onSetBoosting(false)}
-            onMouseLeave={() => onSetBoosting(false)}
-            onTouchStart={() => onSetBoosting(true)}
-            onTouchEnd={() => onSetBoosting(false)}
-            className={`px-3.5 py-2 rounded-xl border font-mono text-xs tracking-wider transition-all flex items-center gap-2 backdrop-blur-md shadow-lg ${
-              isBoosting
-                ? 'border-cyan-400 bg-cyan-500/30 text-cyan-300 shadow-[0_0_25px_rgba(0,229,255,0.4)] scale-105'
-                : 'border-white/15 bg-black/60 text-slate-300 hover:border-white/30 hover:bg-black/80'
-            }`}
-            title="Press and hold to accelerate transportation"
-          >
-            <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
-            <span className="font-semibold">{isBoosting ? 'THRUST BOOST ON' : 'HOLD TO BOOST'}</span>
-          </button>
-
-          <button
-            onClick={onSkip}
-            className="px-4 py-2 rounded-xl border border-white/20 bg-black/60 hover:border-white/40 hover:bg-black/80 text-white font-mono text-xs tracking-wider transition-all flex items-center gap-2 backdrop-blur-md shadow-lg group cursor-pointer"
-            title="Skip transition sequence"
-          >
-            <span>SKIP TRANSIT</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-[10px] text-slate-400 border border-white/15">
-              ESC
-            </kbd>
-            <FastForward className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
-
+        {/* 9-Mode Fast Switcher Bar (Directly test and jump between all 9 authentic transportation experiences) */}
+        {onSelectMode && (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest whitespace-nowrap mr-1 hidden sm:inline">
+              MODES:
+            </span>
+            {TRANSPORTATION_MODE_LIST.map((mode) => {
+              const isActive = mode.id === config.id;
+              return (
+                <button
+                  key={mode.id}
+                  onClick={() => onSelectMode(mode.id)}
+                  className={`px-2 py-1 rounded-lg border font-mono text-[10px] whitespace-nowrap transition-all cursor-pointer backdrop-blur-md flex items-center gap-1 ${
+                    isActive
+                      ? 'border-cyan-400 bg-cyan-500/30 text-cyan-200 font-bold shadow-[0_0_12px_rgba(0,229,255,0.3)]'
+                      : 'border-white/10 bg-black/50 text-slate-400 hover:text-white hover:border-white/30 hover:bg-black/70'
+                  }`}
+                  title={`Switch to Mode ${mode.tab}: ${mode.label} (Key ${mode.tab.replace(/^0/, '')})`}
+                >
+                  <span className="opacity-60">[{mode.tab}]</span>
+                  <span>{mode.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 2. DEDICATED RIGHT-SIDE PERIMETER HUD PANEL (Non-obstructing - Vehicle in Center is 100% visible) */}
-      <div className="absolute top-20 right-4 sm:right-6 lg:right-8 z-30 max-w-xs sm:max-w-sm pointer-events-auto transition-all duration-300">
-        <div className="p-3 sm:p-3.5 rounded-xl bg-[#050914]/60 backdrop-blur-md border border-white/10 shadow-2xl animate-fade-in hover:border-white/20">
+      <div className="absolute top-28 right-4 sm:right-6 lg:right-8 z-30 max-w-xs sm:max-w-sm pointer-events-auto transition-all duration-300">
+        <div className="p-3 sm:p-3.5 rounded-xl bg-[#050914]/70 backdrop-blur-md border border-white/10 shadow-2xl animate-fade-in hover:border-white/20">
           <div className="flex items-center justify-between gap-2 text-[10px] font-mono tracking-widest uppercase mb-1.5" style={{ color: config.primaryColor }}>
             <span className="flex items-center gap-1.5 font-bold">
               <Shield className="w-3.5 h-3.5" />

@@ -1,6 +1,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getAsphaltRoadTexture } from '../textures/pbrTextures';
 
 interface SkylineEnvProps {
   travelProgress: number; // 0 to 1
@@ -11,57 +12,65 @@ export function SkylineEnvironment3D({ travelProgress, reducedMotion = false }: 
   const cityGroupRef = useRef<THREE.Group>(null);
   const trafficRef = useRef<THREE.Points>(null);
 
-  // Procedural skyline buildings
+  const roadTexture = useMemo(() => getAsphaltRoadTexture(), []);
+
+  // Detailed skyscrapers with realistic varied heights and architectural crowns
   const buildings = useMemo(() => {
     const list: Array<{
       pos: [number, number, number];
       size: [number, number, number];
       color: string;
-      neonColor: string;
+      spireHeight: number;
     }> = [];
 
-    // Left and right avenue columns of skyscrapers
-    for (let i = 0; i < 44; i++) {
+    for (let i = 0; i < 40; i++) {
       const z = -i * 5.5 - 6;
-      const height1 = 12 + ((i * 7) % 20);
-      const height2 = 14 + ((i * 11) % 22);
-      const width1 = 3.0 + ((i * 3) % 2);
-      const width2 = 3.0 + ((i * 5) % 2);
+      const height1 = 14 + ((i * 7) % 24);
+      const height2 = 16 + ((i * 11) % 22);
+      const width1 = 4.0 + ((i * 3) % 2);
+      const width2 = 4.0 + ((i * 5) % 2);
 
-      const sideX1 = -(6.5 + ((i * 2) % 3));
-      const sideX2 = 6.5 + ((i * 2) % 3);
-
-      const neon = i % 3 === 0 ? '#00e5ff' : i % 3 === 1 ? '#10b981' : '#38bdf8';
+      const sideX1 = -(14 + ((i * 2) % 4));
+      const sideX2 = 14 + ((i * 2) % 4);
 
       list.push({
-        pos: [sideX1, height1 / 2 - 3, z],
-        size: [width1, height1, 4.5],
-        color: '#131e34',
-        neonColor: neon,
+        pos: [sideX1, height1 / 2 - 2, z],
+        size: [width1, height1, 5.0],
+        color: i % 2 === 0 ? '#111827' : '#0f172a',
+        spireHeight: (i * 3) % 5 === 0 ? 3.5 : 1.2,
       });
 
       list.push({
-        pos: [sideX2, height2 / 2 - 3, z],
-        size: [width2, height2, 4.5],
-        color: '#16223b',
-        neonColor: neon,
+        pos: [sideX2, height2 / 2 - 2, z],
+        size: [width2, height2, 5.0],
+        color: i % 2 === 0 ? '#131e34' : '#0e1626',
+        spireHeight: (i * 5) % 4 === 0 ? 4.0 : 1.5,
       });
     }
 
     return list;
   }, []);
 
-  // Traffic / aerial light ribbons
+  // Highway street lamp posts along the road margins
+  const streetLamps = useMemo(() => {
+    const list: number[] = [];
+    for (let z = -5; z > -180; z -= 18) {
+      list.push(z);
+    }
+    return list;
+  }, []);
+
+  // Distant aerial vehicle light streaks
   const trafficParticles = useMemo(() => {
-    const count = 350;
+    const count = 300;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       const f1 = (Math.sin(i * 12.9898) * 43758.5453) % 1;
       const f2 = (Math.sin(i * 78.233) * 43758.5453) % 1;
       const f3 = (Math.sin(i * 45.164) * 43758.5453) % 1;
-      positions[i * 3] = (Math.abs(f1) - 0.5) * 22;
-      positions[i * 3 + 1] = -0.5 + Math.abs(f2) * 8;
-      positions[i * 3 + 2] = -Math.abs(f3) * 200;
+      positions[i * 3] = (Math.abs(f1) - 0.5) * 45;
+      positions[i * 3 + 1] = 4 + Math.abs(f2) * 12;
+      positions[i * 3 + 2] = -Math.abs(f3) * 180;
     }
     return positions;
   }, []);
@@ -70,9 +79,9 @@ export function SkylineEnvironment3D({ travelProgress, reducedMotion = false }: 
     if (!reducedMotion && trafficRef.current) {
       const positions = trafficRef.current.geometry.attributes.position.array as Float32Array;
       for (let i = 0; i < positions.length / 3; i++) {
-        positions[i * 3 + 2] += delta * 30;
+        positions[i * 3 + 2] += delta * 25;
         if (positions[i * 3 + 2] > 10) {
-          positions[i * 3 + 2] = -200;
+          positions[i * 3 + 2] = -180;
         }
       }
       trafficRef.current.geometry.attributes.position.needsUpdate = true;
@@ -80,102 +89,144 @@ export function SkylineEnvironment3D({ travelProgress, reducedMotion = false }: 
   });
 
   const buildingMat = new THREE.MeshStandardMaterial({
-    color: '#172544',
+    color: '#0f172a',
     metalness: 0.85,
     roughness: 0.25,
   });
 
   const windowGlowMat = new THREE.MeshBasicMaterial({
-    color: '#00e5ff',
+    color: '#38bdf8',
     transparent: true,
-    opacity: 0.55,
+    opacity: 0.45,
   });
 
-  const destinationRingMat = new THREE.MeshBasicMaterial({
-    color: '#00e5ff',
-    transparent: true,
-    opacity: 0.9,
-    blending: THREE.AdditiveBlending,
+  const guardrailMat = new THREE.MeshStandardMaterial({
+    color: '#94a3b8',
+    metalness: 0.95,
+    roughness: 0.15,
   });
 
-  // Calculate building movement as flight progresses
-  const zShift = travelProgress * 95;
+  const curbMat = new THREE.MeshStandardMaterial({
+    color: '#334155',
+    roughness: 0.8,
+  });
+
+  const zShift = travelProgress * 110;
 
   return (
     <group ref={cityGroupRef} position={[0, 0, zShift]}>
-      {/* 1. Distant Glowing Horizon Sky Plane */}
-      <mesh position={[0, 15, -160]}>
-        <planeGeometry args={[220, 90]} />
-        <meshBasicMaterial color="#0a254c" transparent opacity={0.8} />
+      {/* 1. Distant Dusk Metropolis Sky Backdrop */}
+      <mesh position={[0, 20, -170]}>
+        <planeGeometry args={[260, 110]} />
+        <meshBasicMaterial color="#081426" />
       </mesh>
 
-      {/* 2. Illuminated Ground Highway Grid with moving light ribbons */}
-      <mesh position={[0, -2.8, -80]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[40, 200]} />
-        <meshStandardMaterial color="#0c172a" roughness={0.7} metalness={0.6} />
-      </mesh>
-      <gridHelper args={[40, 40, '#00e5ff', '#1e293b']} position={[0, -2.75, -80]} />
-
-      {/* 3. Luminous Central Highway Divider Lights */}
-      <mesh position={[0, -2.7, -80]}>
-        <boxGeometry args={[0.3, 0.05, 200]} />
-        <meshBasicMaterial color="#00e5ff" opacity={0.75} transparent />
+      {/* 2. REALISTIC ASPHALT EXPRESSWAY ROAD WITH MARKINGS */}
+      <mesh position={[0, -2.0, -85]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[20, 190]} />
+        <meshStandardMaterial
+          map={roadTexture}
+          roughness={0.75}
+          metalness={0.15}
+        />
       </mesh>
 
-      {/* 4. Skyscrapers */}
+      {/* 3. CONCRETE CURBS & CRASH BARRIER GUARDRAILS */}
+      {/* Left Curb & Guardrail */}
+      <group position={[-10.2, -1.9, -85]}>
+        <mesh material={curbMat} position={[0, 0.08, 0]}>
+          <boxGeometry args={[0.5, 0.16, 190]} />
+        </mesh>
+        <mesh material={guardrailMat} position={[0, 0.45, 0]}>
+          <boxGeometry args={[0.08, 0.25, 190]} />
+        </mesh>
+      </group>
+      {/* Right Curb & Guardrail */}
+      <group position={[10.2, -1.9, -85]}>
+        <mesh material={curbMat} position={[0, 0.08, 0]}>
+          <boxGeometry args={[0.5, 0.16, 190]} />
+        </mesh>
+        <mesh material={guardrailMat} position={[0, 0.45, 0]}>
+          <boxGeometry args={[0.08, 0.25, 190]} />
+        </mesh>
+      </group>
+
+      {/* 4. OVERHEAD HIGHWAY DIRECTIONAL GANTRY ARMS & STREET LAMPS */}
+      {streetLamps.map((z, idx) => (
+        <group key={idx} position={[0, 0, z]}>
+          {/* Left Street Lamp Post */}
+          <group position={[-11, -1.9, 0]}>
+            <mesh material={guardrailMat} position={[0, 3.2, 0]}>
+              <cylinderGeometry args={[0.08, 0.12, 6.4, 12]} />
+            </mesh>
+            <mesh material={guardrailMat} position={[1.2, 6.3, 0]} rotation={[0, 0, -Math.PI / 3]}>
+              <cylinderGeometry args={[0.06, 0.06, 2.5, 12]} />
+            </mesh>
+            {/* Lamp Luminaire Head */}
+            <mesh position={[2.2, 6.9, 0]}>
+              <boxGeometry args={[0.8, 0.15, 0.4]} />
+              <meshBasicMaterial color="#fef08a" />
+            </mesh>
+            <pointLight position={[2.2, 6.7, 0]} color="#fef08a" intensity={2.5} distance={16} />
+          </group>
+
+          {/* Right Street Lamp Post */}
+          <group position={[11, -1.9, 0]}>
+            <mesh material={guardrailMat} position={[0, 3.2, 0]}>
+              <cylinderGeometry args={[0.08, 0.12, 6.4, 12]} />
+            </mesh>
+            <mesh material={guardrailMat} position={[-1.2, 6.3, 0]} rotation={[0, 0, Math.PI / 3]}>
+              <cylinderGeometry args={[0.06, 0.06, 2.5, 12]} />
+            </mesh>
+            <mesh position={[-2.2, 6.9, 0]}>
+              <boxGeometry args={[0.8, 0.15, 0.4]} />
+              <meshBasicMaterial color="#fef08a" />
+            </mesh>
+            <pointLight position={[-2.2, 6.7, 0]} color="#fef08a" intensity={2.5} distance={16} />
+          </group>
+        </group>
+      ))}
+
+      {/* 5. ARCHITECTURAL METROPOLITAN TOWERS WITH WINDOW MATRICES */}
       {buildings.map((b, idx) => (
         <group key={idx} position={b.pos}>
-          {/* Main Tower Box */}
-          <mesh material={buildingMat}>
+          {/* Main Tower Body */}
+          <mesh material={buildingMat} castShadow receiveShadow>
             <boxGeometry args={b.size} />
           </mesh>
-          {/* Top Neon Spire / Rooftop Beacon */}
-          <mesh position={[0, b.size[1] / 2 + 0.8, 0]}>
-            <cylinderGeometry args={[0.08, 0.08, 1.6, 8]} />
-            <meshBasicMaterial color={b.neonColor} />
-          </mesh>
-          {/* Window Matrix Ribbon */}
+          {/* Architectural Window Facade Bands */}
           <mesh position={[0, 0, b.size[2] / 2 + 0.02]} material={windowGlowMat}>
-            <planeGeometry args={[b.size[0] * 0.75, b.size[1] * 0.8]} />
+            <planeGeometry args={[b.size[0] * 0.85, b.size[1] * 0.85]} />
+          </mesh>
+          {/* Rooftop Antenna Spire */}
+          <mesh position={[0, b.size[1] / 2 + b.spireHeight / 2, 0]}>
+            <cylinderGeometry args={[0.04, 0.1, b.spireHeight, 8]} />
+            <meshBasicMaterial color="#ef4444" />
           </mesh>
         </group>
       ))}
 
-      {/* 5. Airborne Traffic Light Ribbons */}
+      {/* 6. AERIAL SKYWAY TRAFFIC PARTICLES */}
       <points ref={trafficRef}>
         <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[trafficParticles, 3]}
-          />
+          <bufferAttribute attach="attributes-position" args={[trafficParticles, 3]} />
         </bufferGeometry>
         <pointsMaterial
-          size={0.28}
+          size={0.25}
           color="#38bdf8"
           transparent
-          opacity={0.85}
+          opacity={0.8}
           blending={THREE.AdditiveBlending}
         />
       </points>
 
-      {/* 6. Destination: Executive Command Center Skyport at end of avenue */}
-      <group position={[0, 2.5, -110]}>
-        {/* Skyport Platform */}
-        <mesh position={[0, -0.2, 0]}>
-          <cylinderGeometry args={[8, 9, 1.0, 32]} />
+      {/* 7. DESTINATION: COMMAND SKYPORT PLATFORM AT HIGHWAY TERMINUS */}
+      <group position={[0, 1.8, -135]}>
+        <mesh position={[0, -0.4, 0]} receiveShadow>
+          <cylinderGeometry args={[10, 11, 1.2, 32]} />
           <meshStandardMaterial color="#1e293b" metalness={0.9} roughness={0.2} />
         </mesh>
-
-        {/* Luminous Approach Rings */}
-        <mesh position={[0, 1.5, 6]} material={destinationRingMat}>
-          <torusGeometry args={[3.4, 0.09, 16, 32]} />
-        </mesh>
-        <mesh position={[0, 1.5, 0]} material={destinationRingMat}>
-          <torusGeometry args={[4.0, 0.09, 16, 32]} />
-        </mesh>
-
-        {/* Command Center Beacon Light */}
-        <pointLight position={[0, 4, 0]} color="#00e5ff" intensity={8} distance={60} />
+        <pointLight position={[0, 3, 0]} color="#00e5ff" intensity={8} distance={60} />
       </group>
     </group>
   );

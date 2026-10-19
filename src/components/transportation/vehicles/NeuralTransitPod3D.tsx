@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getSciFiHullPlatesTexture, getBrushedMetalTexture } from '../textures/pbrTextures';
 
 interface VehicleProps {
   throttle?: number;
@@ -18,6 +19,9 @@ export function NeuralTransitPod3D({
   const ringRef1 = useRef<THREE.Mesh>(null);
   const ringRef2 = useRef<THREE.Mesh>(null);
   const consoleRef = useRef<THREE.Mesh>(null);
+
+  const hullPlatesMap = useMemo(() => getSciFiHullPlatesTexture(), []);
+  const brushedMetalMap = useMemo(() => getBrushedMetalTexture(), []);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -53,17 +57,19 @@ export function NeuralTransitPod3D({
     }
   });
 
-  const podChassisMat = new THREE.MeshStandardMaterial({
+  const podChassisMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#1e1b4b',
+    map: hullPlatesMap,
     metalness: 0.9,
     roughness: 0.18,
-  });
+  }), [hullPlatesMap]);
 
-  const chromeTrimMat = new THREE.MeshStandardMaterial({
+  const chromeTrimMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#e2e8f0',
+    map: brushedMetalMap,
     metalness: 0.95,
     roughness: 0.1,
-  });
+  }), [brushedMetalMap]);
 
   // Ultra-clear transparent glass canopy
   const crystalGlassMat = new THREE.MeshPhysicalMaterial({
@@ -101,10 +107,10 @@ export function NeuralTransitPod3D({
   return (
     <group ref={groupRef} scale={[1.25, 1.25, 1.25]}>
       {/* 1. Lower Aerodynamic Keel Chassis */}
-      <mesh material={podChassisMat} position={[0, -0.3, 0]}>
+      <mesh material={podChassisMat} position={[0, -0.3, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.1, 0.25, 3.0]} />
       </mesh>
-      <mesh material={chromeTrimMat} position={[0, -0.35, 0]}>
+      <mesh material={chromeTrimMat} position={[0, -0.35, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.3, 0.08, 3.2]} />
       </mesh>
 
@@ -117,18 +123,18 @@ export function NeuralTransitPod3D({
         <sphereGeometry args={[0.62, 24, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
       </mesh>
       {/* Rear Tapered Cap */}
-      <mesh material={podChassisMat} position={[0, 0.15, 1.3]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh material={podChassisMat} position={[0, 0.15, 1.3]} rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
         <sphereGeometry args={[0.62, 24, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
       </mesh>
 
       {/* 3. VISIBLE INTERIOR: Passenger Seats & Holographic Console */}
       <group position={[0, -0.1, 0]}>
         {/* Forward Pilot/Passenger Seat */}
-        <mesh material={seatMat} position={[0, 0.08, -0.4]}>
+        <mesh material={seatMat} position={[0, 0.08, -0.4]} castShadow receiveShadow>
           <boxGeometry args={[0.45, 0.35, 0.4]} />
         </mesh>
         {/* Rear Passenger Seat */}
-        <mesh material={seatMat} position={[0, 0.08, 0.4]}>
+        <mesh material={seatMat} position={[0, 0.08, 0.4]} castShadow receiveShadow>
           <boxGeometry args={[0.45, 0.35, 0.4]} />
         </mesh>
         {/* Glowing Holographic Terminal HUD Console */}

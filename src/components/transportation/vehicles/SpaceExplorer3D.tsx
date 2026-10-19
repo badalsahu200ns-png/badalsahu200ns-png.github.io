@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getSciFiHullPlatesTexture, getBrushedMetalTexture } from '../textures/pbrTextures';
 
 interface VehicleProps {
   throttle?: number;
@@ -17,6 +18,9 @@ export function SpaceExplorer3D({
   const dishRef = useRef<THREE.Group>(null);
   const leftExhaustRef = useRef<THREE.Mesh>(null);
   const rightExhaustRef = useRef<THREE.Mesh>(null);
+
+  const hullPlatesMap = useMemo(() => getSciFiHullPlatesTexture(), []);
+  const brushedMetalMap = useMemo(() => getBrushedMetalTexture(), []);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -49,17 +53,19 @@ export function SpaceExplorer3D({
     if (rightExhaustRef.current) rightExhaustRef.current.scale.set(1, plumeLength, 1);
   });
 
-  const hullMat = new THREE.MeshStandardMaterial({
+  const hullMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#f8fafc',
+    map: hullPlatesMap,
     metalness: 0.9,
     roughness: 0.16,
-  });
+  }), [hullPlatesMap]);
 
-  const armorMat = new THREE.MeshStandardMaterial({
+  const armorMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#cbd5e1',
+    map: brushedMetalMap,
     metalness: 0.95,
     roughness: 0.1,
-  });
+  }), [brushedMetalMap]);
 
   const wingMat = new THREE.MeshStandardMaterial({
     color: '#7c3aed',
@@ -94,11 +100,11 @@ export function SpaceExplorer3D({
   return (
     <group ref={groupRef}>
       {/* 1. Main Science Fiction Wide Explorer Hull (Wedge/Arrowhead Architecture) */}
-      <mesh material={hullMat} position={[0, 0, 0]}>
+      <mesh material={hullMat} position={[0, 0, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.4, 0.35, 2.6]} />
       </mesh>
       {/* Titanium Center Spine Armor */}
-      <mesh material={armorMat} position={[0, 0.18, 0]}>
+      <mesh material={armorMat} position={[0, 0.18, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.85, 0.05, 2.2]} />
       </mesh>
 

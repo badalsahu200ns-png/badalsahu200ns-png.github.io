@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getSciFiHullPlatesTexture, getBrushedMetalTexture } from '../textures/pbrTextures';
 
 interface VehicleProps {
   throttle?: number;
@@ -19,6 +20,9 @@ export function DiplomacyVessel3D({
   const engineLeftRef = useRef<THREE.Mesh>(null);
   const engineRightRef = useRef<THREE.Mesh>(null);
   const dockingRingRef = useRef<THREE.Mesh>(null);
+
+  const hullPlatesMap = useMemo(() => getSciFiHullPlatesTexture(), []);
+  const brushedMetalMap = useMemo(() => getBrushedMetalTexture(), []);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -50,19 +54,21 @@ export function DiplomacyVessel3D({
   });
 
   // Radiant diplomatic white & gold interstellar livery
-  const whiteHullMat = new THREE.MeshStandardMaterial({
+  const whiteHullMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#f8fafc',
+    map: hullPlatesMap,
     metalness: 0.88,
     roughness: 0.18,
-  });
+  }), [hullPlatesMap]);
 
-  const goldAlloyMat = new THREE.MeshStandardMaterial({
+  const goldAlloyMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#f59e0b',
+    map: brushedMetalMap,
     emissive: '#d97706',
     emissiveIntensity: 0.3,
     metalness: 0.95,
     roughness: 0.12,
-  });
+  }), [brushedMetalMap]);
 
   const bridgeVisorMat = new THREE.MeshStandardMaterial({
     color: '#00e5ff',
@@ -88,26 +94,26 @@ export function DiplomacyVessel3D({
   return (
     <group ref={groupRef} scale={[1.25, 1.25, 1.25]}>
       {/* 1. Main Diplomatic Cruiser Fuselage (Titanium White & Gold) */}
-      <mesh material={whiteHullMat} position={[0, 0, -0.2]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh material={whiteHullMat} position={[0, 0, -0.2]} rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.42, 0.82, 4.2, 16]} />
       </mesh>
 
       {/* Gold Trim Belly Keel */}
-      <mesh material={goldAlloyMat} position={[0, -0.42, 0]}>
+      <mesh material={goldAlloyMat} position={[0, -0.42, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.3, 0.1, 3.8]} />
       </mesh>
 
       {/* 2. Command Bridge Panoramic Observation Lounge */}
-      <mesh material={bridgeVisorMat} position={[0, 0.46, -1.3]}>
+      <mesh material={bridgeVisorMat} position={[0, 0.46, -1.3]} castShadow>
         <boxGeometry args={[0.62, 0.28, 1.5]} />
       </mesh>
 
       {/* 3. Forward Orbital Docking Collar Clamp Ring */}
       <group position={[0, 0.42, 0.2]}>
-        <mesh ref={dockingRingRef} material={goldAlloyMat} rotation={[Math.PI / 2, 0, 0]}>
+        <mesh ref={dockingRingRef} material={goldAlloyMat} rotation={[Math.PI / 2, 0, 0]} castShadow>
           <torusGeometry args={[0.55, 0.06, 12, 24]} />
         </mesh>
-        <mesh material={darkTrimMat} position={[0, -0.06, 0]}>
+        <mesh material={darkTrimMat} position={[0, -0.06, 0]} castShadow receiveShadow>
           <cylinderGeometry args={[0.45, 0.45, 0.1, 16]} />
         </mesh>
       </group>
@@ -115,10 +121,10 @@ export function DiplomacyVessel3D({
       {/* 4. Swept Diplomatic Solar Wings */}
       {/* Left Wing */}
       <group ref={leftWingRef} position={[-1.25, 0, 0.4]} rotation={[0, -0.18, -0.06]}>
-        <mesh material={whiteHullMat}>
+        <mesh material={whiteHullMat} castShadow receiveShadow>
           <boxGeometry args={[1.8, 0.06, 2.2]} />
         </mesh>
-        <mesh material={goldAlloyMat} position={[0, 0.04, -1.0]}>
+        <mesh material={goldAlloyMat} position={[0, 0.04, -1.0]} castShadow>
           <boxGeometry args={[1.75, 0.03, 0.14]} />
         </mesh>
         {/* Wingtip Beacon */}

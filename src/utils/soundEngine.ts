@@ -1,37 +1,73 @@
 /**
- * BADAL // 001 — PROCEDURAL AUDIO SYNTHESIZER ENGINE
- * Web Audio API based sound design for 3D vehicles, rocket launch, and cinematic navigation.
- * Zero external asset dependencies, zero 404 network risks, 100% browser compliant.
+ * BADAL // 001 — REALISTIC 9-MODE TRANSPORTATION AUDIO ENGINE
+ * Dual-layer acoustic system:
+ * 1. Primary Layer: High-resolution stereo WAV audio files loaded from the explicit
+ *    TransportationAudioManifest for each of the 9 transportation modes.
+ * 2. Real-time Dynamic Pitch & Throttle modulation (syncs playback rate and filter cutoff).
+ * 3. Fallback Synthesizer Layer: Procedural Web Audio API physical modeling if offline or pending decode.
+ * 4. UI Sound FX Suite (playHover, playClick, playConfirm, playCountdownBeep, playLaunchIgnition, playArrivalChime).
  */
+
+import { TRANSPORTATION_AUDIO_MANIFEST, type ModeAudioDefinition } from '../components/transportation/TransportationAudioManifest';
+
+interface ActiveVehicleAudio {
+  tabId: string;
+  sourceNode: AudioBufferSourceNode | null;
+  gainNode: GainNode;
+  filterNode: BiquadFilterNode;
+  manifest: ModeAudioDefinition;
+  proceduralNodes?: {
+    oscillators: OscillatorNode[];
+    gains: GainNode[];
+    filters: BiquadFilterNode[];
+  };
+}
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  private sfxGain: GainNode | null = null;
+  private vehicleMasterGain: GainNode | null = null;
+
   private isMuted: boolean = false;
-  private volume: number = 0.65;
-  private currentVehicleNodes: {
-    oscillators: OscillatorNode[];
-    gains: GainNode[];
-    filters: BiquadFilterNode[];
-    noiseSource?: AudioBufferSourceNode;
-  } | null = null;
+  private masterVolume: number = 0.8;
+  private sfxVolume: number = 0.85;
+
+  private currentVehicle: ActiveVehicleAudio | null = null;
   private activeVehicleId: string | null = null;
+  private audioBufferCache: Map<string, AudioBuffer> = new Map();
+  private noiseBuffer: AudioBuffer | null = null;
 
   constructor() {
     if (typeof window !== 'undefined') {
       const storedMute = localStorage.getItem('badal_sound_muted');
       this.isMuted = storedMute === 'true';
+      const storedVol = localStorage.getItem('badal_master_volume');
+      if (storedVol) {
+        const parsed = parseFloat(storedVol);
+        if (!isNaN(parsed)) this.masterVolume = Math.max(0, Math.min(1, parsed));
+      }
     }
   }
 
   private initContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
     if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
         this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
+        this.sfxGain = this.ctx.createGain();
+        this.vehicleMasterGain = this.ctx.createGain();
+
+        this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.masterVolume, this.ctx.currentTime);
+        this.sfxGain.gain.setValueAtTime(this.sfxVolume, this.ctx.currentTime);
+        this.vehicleMasterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+
+        this.sfxGain.connect(this.masterGain);
+        this.vehicleMasterGain.connect(this.masterGain);
         this.masterGain.connect(this.ctx.destination);
       }
     }
@@ -53,7 +89,7 @@ class SoundEngine {
       // ignore
     }
     if (this.masterGain && this.ctx) {
-      this.masterGain.gain.setValueAtTime(muted ? 0 : this.volume, this.ctx.currentTime);
+      this.masterGain.gain.setValueAtTime(muted ? 0 : this.masterVolume, this.ctx.currentTime);
     }
   }
 
@@ -62,25 +98,37 @@ class SoundEngine {
     return this.isMuted;
   }
 
+  public getMasterVolume(): number {
+    return this.masterVolume;
+  }
+
+  public setMasterVolume(val: number) {
+    this.masterVolume = Math.max(0, Math.min(1, val));
+    try {
+      localStorage.setItem('badal_master_volume', this.masterVolume.toString());
+    } catch {
+      // ignore
+    }
+    if (this.masterGain && this.ctx && !this.isMuted) {
+      this.masterGain.gain.setValueAtTime(this.masterVolume, this.ctx.currentTime);
+    }
+  }
+
   public getActiveVehicleId(): string | null {
     return this.activeVehicleId;
   }
 
-  public setVolume(val: number) {
-    this.volume = Math.max(0, Math.min(1, val));
-    if (this.masterGain && this.ctx && !this.isMuted) {
-      this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
-    }
-  }
-
-  // Generate pink/white noise buffer for thrusters, wind, water
-  private createNoiseBuffer(duration = 2.0): AudioBuffer | null {
+  // Pre-calculated pink/brown noise buffer for air, thrusters, and mechanical friction
+  private getNoiseBuffer(): AudioBuffer | null {
     const ctx = this.initContext();
     if (!ctx) return null;
-    const bufferSize = ctx.sampleRate * duration;
+    if (this.noiseBuffer) return this.noiseBuffer;
+
+    const bufferSize = ctx.sampleRate * 3.0;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const output = buffer.getChannelData(0);
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    const data = buffer.getChannelData(0);
+
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0;
     for (let i = 0; i < bufferSize; i++) {
       const white = Math.random() * 2 - 1;
       b0 = 0.99886 * b0 + white * 0.0555179;
@@ -89,13 +137,255 @@ class SoundEngine {
       b3 = 0.86650 * b3 + white * 0.3104856;
       b4 = 0.55000 * b4 + white * 0.5329522;
       b5 = -0.7616 * b5 - white * 0.0168980;
-      output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
-      b6 = white * 0.115926;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + white * 0.5362) * 0.11;
     }
+    this.noiseBuffer = buffer;
     return buffer;
   }
 
-  // --- UI INTERACTION SOUNDS ---
+  /**
+   * Loads or retrieves a cached stereo audio buffer for a given file path.
+   */
+  private async loadAudioBuffer(filePath: string): Promise<AudioBuffer | null> {
+    if (this.audioBufferCache.has(filePath)) {
+      return this.audioBufferCache.get(filePath)!;
+    }
+    const ctx = this.initContext();
+    if (!ctx) return null;
+
+    try {
+      const res = await fetch(filePath);
+      if (!res.ok) throw new Error(`Audio fetch failed: ${res.status}`);
+      const arrayBuffer = await res.arrayBuffer();
+      const decoded = await ctx.decodeAudioData(arrayBuffer);
+      this.audioBufferCache.set(filePath, decoded);
+      return decoded;
+    } catch (err) {
+      console.warn(`[SoundEngine] Could not load audio file ${filePath}, using procedural fallback:`, err);
+      return null;
+    }
+  }
+
+  private sessionCounter: number = 0;
+
+  // ==========================================
+  // VEHICLE AUDIO PLAYBACK (9 DISTINCT MODES)
+  // ==========================================
+
+  public async startVehicleAudio(tabId: string) {
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    // Immediately stop previous audio to prevent overlapping tracks
+    this.stopVehicleAudio();
+
+    const currentSession = ++this.sessionCounter;
+    const manifest = TRANSPORTATION_AUDIO_MANIFEST[tabId] || TRANSPORTATION_AUDIO_MANIFEST['profile'];
+    this.activeVehicleId = tabId;
+
+    const gainNode = ctx.createGain();
+    const filterNode = ctx.createBiquadFilter();
+    filterNode.type = 'lowpass';
+    filterNode.frequency.setValueAtTime(8000, ctx.currentTime);
+
+    // Initial smooth fade-in
+    gainNode.gain.setValueAtTime(0.001, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(manifest.baseVolume, ctx.currentTime + 0.2);
+
+    filterNode.connect(gainNode);
+    gainNode.connect(this.vehicleMasterGain!);
+
+    const activeRecord: ActiveVehicleAudio = {
+      tabId,
+      sourceNode: null,
+      gainNode,
+      filterNode,
+      manifest,
+    };
+    this.currentVehicle = activeRecord;
+
+    // Attempt to load and play the authentic mode-specific audio file
+    const audioBuffer = await this.loadAudioBuffer(manifest.audioFilePath);
+
+    // Verify this is still the active session (not switched away while decoding)
+    if (this.sessionCounter !== currentSession || this.activeVehicleId !== tabId || this.currentVehicle !== activeRecord) {
+      return;
+    }
+
+    if (audioBuffer) {
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.loop = manifest.loop;
+      source.playbackRate.setValueAtTime(manifest.throttlePitchRange[0], ctx.currentTime);
+      source.connect(filterNode);
+      source.start();
+      activeRecord.sourceNode = source;
+    } else {
+      // Graceful fallback to rich procedural physical modeling
+      this.startProceduralFallback(tabId, filterNode);
+    }
+  }
+
+  /**
+   * Dynamically adjusts playbackRate and filter resonance based on vehicle speed/throttle.
+   */
+  public updateVehicleThrottle(throttle: number, _progress: number) {
+    if (!this.currentVehicle || !this.ctx) return;
+    const { sourceNode, filterNode, manifest } = this.currentVehicle;
+    const now = this.ctx.currentTime;
+    const clampedThrottle = Math.max(0, Math.min(1.5, throttle));
+
+    // 1. Modulate primary file playback rate (pitch & tempo)
+    if (sourceNode) {
+      const [minPitch, maxPitch] = manifest.throttlePitchRange;
+      const targetRate = minPitch + clampedThrottle * (maxPitch - minPitch);
+      sourceNode.playbackRate.setValueAtTime(targetRate, now);
+    }
+
+    // 2. Modulate low-pass frequency for aerodynamic opening
+    const targetFreq = 4000 + clampedThrottle * 7000;
+    filterNode.frequency.setValueAtTime(targetFreq, now);
+  }
+
+  /**
+   * Smoothly stops active vehicle sound with exponential fadeout and complete resource cleanup.
+   */
+  public stopVehicleAudio() {
+    this.sessionCounter++; // Invalidate any in-flight async decodes
+    if (!this.currentVehicle || !this.ctx) {
+      this.activeVehicleId = null;
+      return;
+    }
+
+    const { sourceNode, gainNode, proceduralNodes } = this.currentVehicle;
+    const now = this.ctx.currentTime;
+
+    // Smooth 0.15s gain fadeout to prevent audio pops
+    try {
+      gainNode.gain.cancelScheduledValues(now);
+      gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+      gainNode.gain.linearRampToValueAtTime(0.001, now + 0.15);
+    } catch {
+      // ignore
+    }
+
+    setTimeout(() => {
+      try {
+        sourceNode?.stop();
+        sourceNode?.disconnect();
+      } catch {
+        // ignore
+      }
+
+      proceduralNodes?.oscillators.forEach((o) => {
+        try {
+          o.stop();
+          o.disconnect();
+        } catch {
+          // ignore
+        }
+      });
+      gainNode.disconnect();
+    }, 180);
+
+    this.currentVehicle = null;
+    this.activeVehicleId = null;
+  }
+
+  /**
+   * Rich procedural acoustic modeling fallback for all 9 modes:
+   * Provides unique sonic character if offline or while audio buffer loads.
+   */
+  private startProceduralFallback(tabId: string, outputNode: AudioNode) {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const oscs: OscillatorNode[] = [];
+    const gains: GainNode[] = [];
+
+    const createOsc = (type: OscillatorType, freq: number, vol: number) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, now);
+      g.gain.setValueAtTime(vol, now);
+      o.connect(g);
+      g.connect(outputNode);
+      o.start();
+      oscs.push(o);
+      gains.push(g);
+    };
+
+    switch (tabId) {
+      case 'profile': // 01: Hovercraft (twin repulsor harmonic + turbine whine)
+        createOsc('sine', 110, 0.22);
+        createOsc('sine', 330, 0.14);
+        createOsc('sawtooth', 520, 0.08);
+        break;
+
+      case 'internships': // 02: Quadcopter Drone (detuned multi-rotor buzz)
+        createOsc('sawtooth', 285, 0.15);
+        createOsc('sawtooth', 305, 0.15);
+        createOsc('triangle', 610, 0.1);
+        break;
+
+      case 'experience': // 03: Maglev Bullet Train (steel track hum + inverter)
+        createOsc('triangle', 95, 0.25);
+        createOsc('sawtooth', 480, 0.08);
+        createOsc('sine', 720, 0.06);
+        break;
+
+      case 'projects': // 04: Spacecraft (38Hz deep fusion sub-bass pulse)
+        createOsc('sawtooth', 38, 0.32);
+        createOsc('sine', 76, 0.2);
+        createOsc('triangle', 152, 0.1);
+        break;
+
+      case 'education': // 05: Submarine (52Hz deep pressure hull hum)
+        createOsc('sine', 52, 0.3);
+        createOsc('triangle', 104, 0.12);
+        break;
+
+      case 'certifications': // 06: Balloon (stratospheric whistling wind)
+        createOsc('sine', 180, 0.14);
+        createOsc('triangle', 360, 0.09);
+        break;
+
+      case 'core-skills': // 07: Motorcycle (4-stroke internal combustion firing)
+        createOsc('sawtooth', 65, 0.28);
+        createOsc('sawtooth', 130, 0.18);
+        createOsc('triangle', 260, 0.1);
+        break;
+
+      case 'technical-skills': // 08: Transit Pod (linear induction guide whine)
+        createOsc('sawtooth', 520, 0.16);
+        createOsc('sine', 1040, 0.08);
+        break;
+
+      case 'contact': // 09: Diplomatic Shuttle (heavy dual ion drive roar)
+        createOsc('sawtooth', 124, 0.24);
+        createOsc('sawtooth', 128, 0.24);
+        createOsc('sine', 62, 0.2);
+        break;
+
+      default:
+        createOsc('sine', 220, 0.2);
+        break;
+    }
+
+    if (this.currentVehicle) {
+      this.currentVehicle.proceduralNodes = {
+        oscillators: oscs,
+        gains,
+        filters: [],
+      };
+    }
+  }
+
+  // ==========================================
+  // UI & NAVIGATION SOUND FX
+  // ==========================================
 
   public playHover() {
     const ctx = this.initContext();
@@ -103,15 +393,18 @@ class SoundEngine {
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
+
     osc.type = 'sine';
     osc.frequency.setValueAtTime(880, now);
-    osc.frequency.exponentialRampToValueAtTime(1320, now + 0.04);
-    gain.gain.setValueAtTime(0.04, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    osc.frequency.exponentialRampToValueAtTime(1174, now + 0.04);
+
+    gain.gain.setValueAtTime(0.06 * this.sfxVolume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
     osc.connect(gain);
-    gain.connect(this.masterGain!);
+    gain.connect(this.sfxGain!);
     osc.start(now);
-    osc.stop(now + 0.04);
+    osc.stop(now + 0.05);
   }
 
   public playClick() {
@@ -120,55 +413,63 @@ class SoundEngine {
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
+
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(440, now);
-    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-    gain.gain.setValueAtTime(0.12, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    osc.frequency.setValueAtTime(1200, now);
+    osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+
+    gain.gain.setValueAtTime(0.12 * this.sfxVolume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+
     osc.connect(gain);
-    gain.connect(this.masterGain!);
+    gain.connect(this.sfxGain!);
     osc.start(now);
-    osc.stop(now + 0.08);
+    osc.stop(now + 0.06);
   }
 
   public playConfirm() {
     const ctx = this.initContext();
     if (!ctx || this.isMuted) return;
     const now = ctx.currentTime;
-    // Ascending electronic major chord
-    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+
+    [659.25, 880.0].forEach((freq, idx) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      const startTime = now + idx * 0.07;
+
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + i * 0.06);
-      gain.gain.setValueAtTime(0.08, now + i * 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.25);
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.14 * this.sfxVolume, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22);
+
       osc.connect(gain);
-      gain.connect(this.masterGain!);
-      osc.start(now + i * 0.06);
-      osc.stop(now + i * 0.06 + 0.25);
+      gain.connect(this.sfxGain!);
+      osc.start(startTime);
+      osc.stop(startTime + 0.25);
     });
   }
 
-  // --- ROCKET LAUNCH & COUNTDOWN AUDIO ---
-
-  public playCountdownBeep(isFinal = false) {
+  public playCountdownBeep(isFinal: boolean = false) {
     const ctx = this.initContext();
     if (!ctx || this.isMuted) return;
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = isFinal ? 'sawtooth' : 'sine';
-    osc.frequency.setValueAtTime(isFinal ? 1200 : 700, now);
-    if (isFinal) {
-      osc.frequency.exponentialRampToValueAtTime(1800, now + 0.2);
-    }
-    gain.gain.setValueAtTime(isFinal ? 0.25 : 0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + (isFinal ? 0.35 : 0.15));
+
+    const freq = isFinal ? 1318.51 : 659.25;
+    const dur = isFinal ? 0.35 : 0.15;
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now);
+
+    gain.gain.setValueAtTime((isFinal ? 0.2 : 0.12) * this.sfxVolume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
     osc.connect(gain);
-    gain.connect(this.masterGain!);
+    gain.connect(this.sfxGain!);
     osc.start(now);
-    osc.stop(now + (isFinal ? 0.35 : 0.15));
+    osc.stop(now + dur + 0.02);
   }
 
   public playLaunchIgnition() {
@@ -176,355 +477,78 @@ class SoundEngine {
     if (!ctx || this.isMuted) return;
     const now = ctx.currentTime;
 
-    // Sub-bass rumble
-    const subOsc = ctx.createOscillator();
-    const subGain = ctx.createGain();
-    subOsc.type = 'triangle';
-    subOsc.frequency.setValueAtTime(45, now);
-    subOsc.frequency.linearRampToValueAtTime(110, now + 2.5);
-    subGain.gain.setValueAtTime(0.01, now);
-    subGain.gain.linearRampToValueAtTime(0.35, now + 1.2);
-    subGain.gain.exponentialRampToValueAtTime(0.01, now + 4.5);
-    subOsc.connect(subGain);
-    subGain.connect(this.masterGain!);
-    subOsc.start(now);
-    subOsc.stop(now + 4.5);
+    const osc = ctx.createOscillator();
+    const oscGain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(45, now);
+    osc.frequency.exponentialRampToValueAtTime(160, now + 0.6);
 
-    // Roaring exhaust noise
-    const noiseBuf = this.createNoiseBuffer(4.5);
-    if (noiseBuf) {
-      const noise = ctx.createBufferSource();
-      noise.buffer = noiseBuf;
+    oscGain.gain.setValueAtTime(0.05 * this.sfxVolume, now);
+    oscGain.gain.linearRampToValueAtTime(0.28 * this.sfxVolume, now + 0.3);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+    osc.connect(oscGain);
+    oscGain.connect(this.sfxGain!);
+    osc.start(now);
+    osc.stop(now + 0.85);
+
+    const noise = ctx.createBufferSource();
+    const buffer = this.getNoiseBuffer();
+    if (buffer) {
+      noise.buffer = buffer;
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(180, now);
-      filter.frequency.exponentialRampToValueAtTime(2400, now + 2.0);
-      filter.frequency.linearRampToValueAtTime(800, now + 4.5);
+      filter.frequency.setValueAtTime(250, now);
+      filter.frequency.exponentialRampToValueAtTime(1400, now + 0.4);
+
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.05, now);
-      noiseGain.gain.linearRampToValueAtTime(0.4, now + 1.5);
-      noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 4.5);
+      noiseGain.gain.setValueAtTime(0.02 * this.sfxVolume, now);
+      noiseGain.gain.linearRampToValueAtTime(0.3 * this.sfxVolume, now + 0.25);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+
       noise.connect(filter);
       filter.connect(noiseGain);
-      noiseGain.connect(this.masterGain!);
+      noiseGain.connect(this.sfxGain!);
       noise.start(now);
-      noise.stop(now + 4.5);
+      noise.stop(now + 0.9);
     }
   }
 
-  public playWarpTransition() {
-    const ctx = this.initContext();
-    if (!ctx || this.isMuted) return;
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(120, now);
-    osc.frequency.exponentialRampToValueAtTime(1600, now + 0.8);
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.Q.value = 4.0;
-    filter.frequency.setValueAtTime(200, now);
-    filter.frequency.exponentialRampToValueAtTime(2200, now + 0.8);
-    gain.gain.setValueAtTime(0.01, now);
-    gain.gain.linearRampToValueAtTime(0.25, now + 0.4);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.masterGain!);
-    osc.start(now);
-    osc.stop(now + 1.2);
-  }
-
-  // --- VEHICLE AUDIO PROFILES (Nine Distinct Modes) ---
-
-  public startVehicleAudio(tabId: string) {
-    this.stopVehicleAudio();
-    const ctx = this.initContext();
-    if (!ctx || this.isMuted) return;
-
-    this.activeVehicleId = tabId;
-    const now = ctx.currentTime;
-    const oscillators: OscillatorNode[] = [];
-    const gains: GainNode[] = [];
-    const filters: BiquadFilterNode[] = [];
-
-    switch (tabId) {
-      case 'profile': {
-        // 01 EXECUTIVE HOVERCRAFT: Smooth dual anti-gravity hum + wind glide
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
-        const g1 = ctx.createGain();
-        const g2 = ctx.createGain();
-        osc1.type = 'triangle';
-        osc1.frequency.setValueAtTime(110, now);
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(220, now);
-        g1.gain.setValueAtTime(0.12, now);
-        g2.gain.setValueAtTime(0.08, now);
-        osc1.connect(g1);
-        osc2.connect(g2);
-        g1.connect(this.masterGain!);
-        g2.connect(this.masterGain!);
-        osc1.start(now);
-        osc2.start(now);
-        oscillators.push(osc1, osc2);
-        gains.push(g1, g2);
-        break;
-      }
-
-      case 'internships': {
-        // 02 SCOUT DRONE: High-RPM 4-rotor whir + scanning pulses
-        [220, 290, 360, 440].forEach((freq) => {
-          const osc = ctx.createOscillator();
-          const g = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(freq, now);
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(800, now);
-          g.gain.setValueAtTime(0.035, now);
-          osc.connect(filter);
-          filter.connect(g);
-          g.connect(this.masterGain!);
-          osc.start(now);
-          oscillators.push(osc);
-          gains.push(g);
-          filters.push(filter);
-        });
-        break;
-      }
-
-      case 'experience': {
-        // 03 MAGLEV TRAIN: Rail electromagnetic rumble + high speed acceleration hum
-        const oscRail = ctx.createOscillator();
-        const oscWhine = ctx.createOscillator();
-        const gRail = ctx.createGain();
-        const gWhine = ctx.createGain();
-        oscRail.type = 'triangle';
-        oscRail.frequency.setValueAtTime(75, now);
-        oscRail.frequency.linearRampToValueAtTime(140, now + 4.5);
-        oscWhine.type = 'sine';
-        oscWhine.frequency.setValueAtTime(320, now);
-        oscWhine.frequency.linearRampToValueAtTime(680, now + 4.5);
-        gRail.gain.setValueAtTime(0.15, now);
-        gWhine.gain.setValueAtTime(0.07, now);
-        oscRail.connect(gRail);
-        oscWhine.connect(gWhine);
-        gRail.connect(this.masterGain!);
-        gWhine.connect(this.masterGain!);
-        oscRail.start(now);
-        oscWhine.start(now);
-        oscillators.push(oscRail, oscWhine);
-        gains.push(gRail, gWhine);
-        break;
-      }
-
-      case 'projects': {
-        // 04 SPACE EXPLORER: Sub-bass rocket combustion + cosmic drone
-        const oscBass = ctx.createOscillator();
-        const gBass = ctx.createGain();
-        oscBass.type = 'triangle';
-        oscBass.frequency.setValueAtTime(55, now);
-        gBass.gain.setValueAtTime(0.22, now);
-        oscBass.connect(gBass);
-        gBass.connect(this.masterGain!);
-        oscBass.start(now);
-        oscillators.push(oscBass);
-        gains.push(gBass);
-        break;
-      }
-
-      case 'education': {
-        // 05 RESEARCH SUBMARINE: Deep oceanic motor churn + underwater ambience
-        const oscSub = ctx.createOscillator();
-        const gSub = ctx.createGain();
-        oscSub.type = 'sine';
-        oscSub.frequency.setValueAtTime(80, now);
-        gSub.gain.setValueAtTime(0.14, now);
-        oscSub.connect(gSub);
-        gSub.connect(this.masterGain!);
-        oscSub.start(now);
-        oscillators.push(oscSub);
-        gains.push(gSub);
-        // Periodic sonar ping
-        this.playSonarPing();
-        break;
-      }
-
-      case 'certifications': {
-        // 06 HIGH-ALTITUDE BALLOON: Peaceful high-altitude wind breeze + calm tone
-        const oscAir = ctx.createOscillator();
-        const gAir = ctx.createGain();
-        oscAir.type = 'sine';
-        oscAir.frequency.setValueAtTime(175, now);
-        gAir.gain.setValueAtTime(0.08, now);
-        oscAir.connect(gAir);
-        gAir.connect(this.masterGain!);
-        oscAir.start(now);
-        oscillators.push(oscAir);
-        gains.push(gAir);
-        break;
-      }
-
-      case 'core-skills': {
-        // 07 EXPEDITION BIKE: High-torque cyber combustion growl
-        const oscBike = ctx.createOscillator();
-        const gBike = ctx.createGain();
-        oscBike.type = 'sawtooth';
-        oscBike.frequency.setValueAtTime(95, now);
-        oscBike.frequency.linearRampToValueAtTime(180, now + 3.0);
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(450, now);
-        gBike.gain.setValueAtTime(0.09, now);
-        oscBike.connect(filter);
-        filter.connect(gBike);
-        gBike.connect(this.masterGain!);
-        oscBike.start(now);
-        oscillators.push(oscBike);
-        gains.push(gBike);
-        filters.push(filter);
-        break;
-      }
-
-      case 'technical-skills': {
-        // 08 NEURAL TRANSIT POD: High-speed synaptic pulse & harmonic data stream
-        [440, 660, 880].forEach((freq) => {
-          const osc = ctx.createOscillator();
-          const g = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now);
-          g.gain.setValueAtTime(0.04, now);
-          osc.connect(g);
-          g.connect(this.masterGain!);
-          osc.start(now);
-          oscillators.push(osc);
-          gains.push(g);
-        });
-        break;
-      }
-
-      case 'contact': {
-        // 09 DIPLOMATIC SHUTTLE: Thruster stabilization & docking guide tone
-        const oscDock = ctx.createOscillator();
-        const gDock = ctx.createGain();
-        oscDock.type = 'triangle';
-        oscDock.frequency.setValueAtTime(130, now);
-        gDock.gain.setValueAtTime(0.12, now);
-        oscDock.connect(gDock);
-        gDock.connect(this.masterGain!);
-        oscDock.start(now);
-        oscillators.push(oscDock);
-        gains.push(gDock);
-        break;
-      }
-    }
-
-    this.currentVehicleNodes = {
-      oscillators,
-      gains,
-      filters,
-    };
-  }
-
-  // Modulate engine pitch and intensity based on throttle & journey progress
-  public updateVehicleThrottle(throttle: number, progress: number) {
-    if (!this.currentVehicleNodes || !this.ctx || this.isMuted) return;
-    const now = this.ctx.currentTime;
-    const { oscillators, gains } = this.currentVehicleNodes;
-
-    // Smooth gain modulation
-    gains.forEach((g) => {
-      const baseGain = 0.08 + throttle * 0.08;
-      g.gain.setValueAtTime(baseGain * (1 - Math.pow(progress, 3) * 0.5), now);
-    });
-
-    // Pitch bends slightly with acceleration
-    oscillators.forEach((osc) => {
-      try {
-        const currentFreq = osc.frequency.value;
-        const targetFreq = currentFreq * (1.0 + throttle * 0.15);
-        osc.frequency.setTargetAtTime(targetFreq, now, 0.1);
-      } catch {
-        // ignore
-      }
-    });
-  }
-
-  public playArrivalChime(tabId: string) {
-    this.stopVehicleAudio();
+  public playArrivalChime(destinationId: string) {
     const ctx = this.initContext();
     if (!ctx || this.isMuted) return;
     const now = ctx.currentTime;
 
-    // Distinct arrival chimes per vehicle theme
-    const notesByTab: Record<string, number[]> = {
-      profile: [440, 554.37, 659.25], // A major
-      internships: [523.25, 659.25, 783.99], // C major
-      experience: [392.00, 493.88, 587.33, 783.99], // G major
-      projects: [261.63, 392.00, 523.25, 659.25], // Space octave
-      education: [349.23, 440.00, 523.25], // F major sonar
-      certifications: [587.33, 739.99, 880.00, 1174.66], // D high celestial
-      'core-skills': [293.66, 369.99, 440.00], // D cyber
-      'technical-skills': [659.25, 830.61, 987.77, 1318.51], // E crystalline
-      contact: [440, 554.37, 659.25, 880], // Warm welcome
+    const chords: Record<string, number[]> = {
+      profile: [523.25, 659.25, 783.99, 1046.5], // C Major
+      internships: [587.33, 739.99, 880.0, 1174.66], // D Major
+      experience: [440.0, 554.37, 659.25, 880.0], // A Major
+      projects: [466.16, 587.33, 698.46, 932.33], // Bb Major
+      education: [392.0, 493.88, 587.33, 783.99], // G Major
+      certifications: [659.25, 830.61, 987.77, 1318.51], // E Major
+      'core-skills': [523.25, 659.25, 783.99, 1046.5], // C Major
+      'technical-skills': [440.0, 554.37, 659.25, 880.0], // A Major
+      contact: [587.33, 739.99, 880.0, 1174.66], // D Major
     };
 
-    const notes = notesByTab[tabId] || [440, 554.37, 659.25];
-    notes.forEach((freq, i) => {
+    const notes = chords[destinationId] || [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((freq, idx) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      const noteTime = now + idx * 0.08;
+
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + i * 0.08);
-      gain.gain.setValueAtTime(0.14, now + i * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.6);
+      osc.frequency.setValueAtTime(freq, noteTime);
+
+      gain.gain.setValueAtTime(0.01, noteTime);
+      gain.gain.linearRampToValueAtTime(0.18 * this.sfxVolume, noteTime + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 1.2);
+
       osc.connect(gain);
-      gain.connect(this.masterGain!);
-      osc.start(now + i * 0.08);
-      osc.stop(now + i * 0.08 + 0.6);
+      gain.connect(this.sfxGain!);
+      osc.start(noteTime);
+      osc.stop(noteTime + 1.3);
     });
-  }
-
-  private playSonarPing() {
-    const ctx = this.initContext();
-    if (!ctx || this.isMuted) return;
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(1400, now + 1.2);
-    gain.gain.setValueAtTime(0.18, now + 1.2);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
-    osc.connect(gain);
-    gain.connect(this.masterGain!);
-    osc.start(now + 1.2);
-    osc.stop(now + 2.5);
-  }
-
-  public stopVehicleAudio() {
-    if (this.currentVehicleNodes && this.ctx) {
-      const now = this.ctx.currentTime;
-      this.currentVehicleNodes.gains.forEach((g) => {
-        try {
-          g.gain.linearRampToValueAtTime(0.001, now + 0.2);
-        } catch {
-          // ignore
-        }
-      });
-      setTimeout(() => {
-        this.currentVehicleNodes?.oscillators.forEach((o) => {
-          try {
-            o.stop();
-            o.disconnect();
-          } catch {
-            // ignore
-          }
-        });
-        this.currentVehicleNodes = null;
-        this.activeVehicleId = null;
-      }, 250);
-    }
   }
 }
 

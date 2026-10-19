@@ -221,3 +221,15 @@ export const TRANSPORTATION_DESTINATIONS: Record<string, DestinationConfig> = {
     durationMs: 6000,
   },
 };
+
+export const TRANSPORTATION_MODE_LIST = [
+  { id: 'profile', tab: '01', label: 'HOVERCRAFT' },
+  { id: 'internships', tab: '02', label: 'DRONE' },
+  { id: 'experience', tab: '03', label: 'TRAIN' },
+  { id: 'projects', tab: '04', label: 'SPACECRAFT' },
+  { id: 'education', tab: '05', label: 'SUBMARINE' },
+  { id: 'certifications', tab: '06', label: 'BALLOON' },
+  { id: 'core-skills', tab: '07', label: 'MOTORCYCLE' },
+  { id: 'technical-skills', tab: '08', label: 'TRANSIT POD' },
+  { id: 'contact', tab: '09', label: 'SHUTTLE' },
+];

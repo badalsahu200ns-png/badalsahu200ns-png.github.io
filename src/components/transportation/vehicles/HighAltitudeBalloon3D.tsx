@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getSolarPanelTexture, getBrushedMetalTexture } from '../textures/pbrTextures';
 
 interface VehicleProps {
   throttle?: number;
@@ -16,9 +17,16 @@ export function HighAltitudeBalloon3D({
   const groupRef = useRef<THREE.Group>(null);
   const gondolaRef = useRef<THREE.Group>(null);
   const radarRef = useRef<THREE.Group>(null);
+  const burnerFlameRef = useRef<THREE.Mesh>(null);
+  const burnerLightRef = useRef<THREE.PointLight>(null);
+
+  const solarMap = useMemo(() => getSolarPanelTexture(), []);
+  const brushedMetalMap = useMemo(() => getBrushedMetalTexture(), []);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
+
+    const t = state.clock.elapsedTime;
 
     if (!reducedMotion) {
       const targetRoll = -banking.x * 0.15;
@@ -28,22 +36,33 @@ export function HighAltitudeBalloon3D({
       groupRef.current.rotation.x += (targetPitch - groupRef.current.rotation.x) * 0.05;
 
       // Gentle buoyant stratospheric bobbing
-      const bob = Math.sin(state.clock.elapsedTime * 1.8) * 0.08 * throttle;
+      const bob = Math.sin(t * 1.8) * 0.08 * throttle;
       groupRef.current.position.y = bob;
 
       // Gondola subtle pendulum sway
       if (gondolaRef.current) {
-        gondolaRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 2.2) * 0.04;
+        gondolaRef.current.rotation.z = Math.sin(t * 2.2) * 0.04;
       }
     }
 
     if (radarRef.current) {
       radarRef.current.rotation.y += delta * 2.2;
     }
+
+    // Dynamic burner burst animation
+    const burnerPulse = Math.sin(t * 4);
+    const isBurnerOn = burnerPulse > 0.1;
+    if (burnerFlameRef.current) {
+      const flameScale = isBurnerOn ? 0.8 + Math.sin(t * 25) * 0.25 : 0.05;
+      burnerFlameRef.current.scale.set(flameScale, flameScale * 1.4, flameScale);
+    }
+    if (burnerLightRef.current) {
+      burnerLightRef.current.intensity = isBurnerOn ? 5.5 + Math.sin(t * 30) * 1.5 : 0.4;
+    }
   });
 
   // Radiant translucent golden-amber envelope with white contrast
-  const envelopeMat = new THREE.MeshStandardMaterial({
+  const envelopeMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#fbbf24',
     emissive: '#d97706',
     emissiveIntensity: 0.45,
@@ -51,39 +70,39 @@ export function HighAltitudeBalloon3D({
     roughness: 0.2,
     transparent: true,
     opacity: 0.94,
-  });
+  }), []);
 
-  const goreLineMat = new THREE.MeshBasicMaterial({
+  const goreLineMat = useMemo(() => new THREE.MeshBasicMaterial({
     color: '#ffffff',
     transparent: true,
     opacity: 0.8,
-  });
+  }), []);
 
-  const gondolaMat = new THREE.MeshStandardMaterial({
+  const gondolaMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#f8fafc',
+    map: brushedMetalMap,
     metalness: 0.9,
     roughness: 0.18,
-  });
+  }), [brushedMetalMap]);
 
-  const solarMat = new THREE.MeshStandardMaterial({
+  const solarMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#0284c7',
-    emissive: '#0369a1',
-    emissiveIntensity: 0.5,
+    map: solarMap,
     metalness: 0.95,
     roughness: 0.08,
-  });
+  }), [solarMap]);
 
-  const sensorMat = new THREE.MeshStandardMaterial({
+  const sensorMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#00e5ff',
     emissive: '#00e5ff',
     emissiveIntensity: 1.5,
-  });
+  }), []);
 
   return (
     <group ref={groupRef} scale={[1.3, 1.3, 1.3]}>
       {/* 1. Main Aerostat Envelope (Large Teardrop Buoyant Geometry) */}
       <group position={[0, 1.8, 0]}>
-        <mesh material={envelopeMat} scale={[1.5, 1.9, 1.5]}>
+        <mesh material={envelopeMat} scale={[1.5, 1.9, 1.5]} castShadow receiveShadow>
           <sphereGeometry args={[1.2, 32, 32]} />
         </mesh>
         
@@ -129,9 +148,26 @@ export function HighAltitudeBalloon3D({
       {/* 3. Scientific Research Instrument Gondola */}
       <group ref={gondolaRef} position={[0, -0.9, 0]}>
         {/* White Aerospace Instrument Enclosure */}
-        <mesh material={gondolaMat}>
+        <mesh material={gondolaMat} castShadow receiveShadow>
           <boxGeometry args={[1.0, 0.65, 1.0]} />
         </mesh>
+
+        {/* Propane Burner Assembly & Active Flame */}
+        <group position={[0, 0.42, 0]}>
+          <mesh material={gondolaMat}>
+            <cylinderGeometry args={[0.1, 0.08, 0.16, 12]} />
+          </mesh>
+          <mesh ref={burnerFlameRef} position={[0, 0.35, 0]}>
+            <coneGeometry args={[0.22, 0.7, 16]} />
+            <meshBasicMaterial
+              color="#f59e0b"
+              transparent
+              opacity={0.88}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+          <pointLight ref={burnerLightRef} position={[0, 0.4, 0]} color="#f97316" intensity={4} distance={8} />
+        </group>
 
         {/* Observation Porthole Windows */}
         <mesh position={[0, 0, 0.51]}>

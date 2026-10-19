@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { TRANSPORTATION_DESTINATIONS } from './TransportationConfig';
+import { TRANSPORTATION_DESTINATIONS, TRANSPORTATION_MODE_LIST } from './TransportationConfig';
 import { TransportationScene } from './TransportationScene';
 import { TransportationHUD } from './TransportationHUD';
 import { WebGLErrorBoundary } from '../common/WebGLErrorBoundary';
@@ -8,12 +8,19 @@ import { soundEngine } from '../../utils/soundEngine';
 interface TransportationManagerProps {
   destinationId: string;
   onArrival: () => void;
+  onChangeDestination?: (id: string) => void;
 }
 
 export const EXACT_JOURNEY_DURATION_MS = 6000; // Strictly 6,000 milliseconds (6.0s)
 
-export function TransportationManager({ destinationId, onArrival }: TransportationManagerProps) {
-  const config = TRANSPORTATION_DESTINATIONS[destinationId] || TRANSPORTATION_DESTINATIONS['profile'];
+export function TransportationManager({ destinationId, onArrival, onChangeDestination }: TransportationManagerProps) {
+  const [activeDestId, setActiveDestId] = useState(destinationId);
+
+  useEffect(() => {
+    setActiveDestId(destinationId);
+  }, [destinationId]);
+
+  const config = TRANSPORTATION_DESTINATIONS[activeDestId] || TRANSPORTATION_DESTINATIONS['profile'];
   
   const [progress, setProgress] = useState(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
@@ -36,7 +43,7 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
     if (isArrivingRef.current) return;
     isArrivingRef.current = true;
     setIsArriving(true);
-    soundEngine.playArrivalChime(destinationId);
+    soundEngine.playArrivalChime(activeDestId);
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
@@ -44,19 +51,39 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
     setTimeout(() => {
       onArrival();
     }, 200);
-  }, [destinationId, onArrival]);
+  }, [activeDestId, onArrival]);
 
-  // Global ESC key to skip
+  const handleSelectMode = useCallback((newId: string) => {
+    if (newId === activeDestId) return;
+    soundEngine.playClick();
+    soundEngine.stopVehicleAudio();
+    setActiveDestId(newId);
+    setProgress(0);
+    isArrivingRef.current = false;
+    setIsArriving(false);
+    if (onChangeDestination) {
+      onChangeDestination(newId);
+    }
+  }, [activeDestId, onChangeDestination]);
+
+  // Global ESC key to skip and Number keys 1-9 to jump directly between modes
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         handleSkip();
+      } else if (e.key >= '1' && e.key <= '9') {
+        const idx = parseInt(e.key, 10) - 1;
+        const target = TRANSPORTATION_MODE_LIST[idx];
+        if (target && target.id !== activeDestId) {
+          e.preventDefault();
+          handleSelectMode(target.id);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSkip]);
+  }, [handleSkip, handleSelectMode, activeDestId]);
 
   // Track mouse coordinates for 3D camera & vehicle banking
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -69,11 +96,11 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
 
   // Safe animation loop for transportation journey
   useEffect(() => {
-    soundEngine.startVehicleAudio(destinationId);
+    soundEngine.startVehicleAudio(activeDestId);
 
     if (prefersReducedMotion) {
       const reducedTimer = setTimeout(() => {
-        soundEngine.playArrivalChime(destinationId);
+        soundEngine.playArrivalChime(activeDestId);
         onArrival();
       }, 1000);
       return () => {
@@ -102,7 +129,7 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
         if (next >= 1.0 && !isArrivingRef.current) {
           isArrivingRef.current = true;
           setIsArriving(true);
-          soundEngine.playArrivalChime(destinationId);
+          soundEngine.playArrivalChime(activeDestId);
           setTimeout(() => {
             onArrival();
           }, 350);
@@ -124,7 +151,7 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
       }
       soundEngine.stopVehicleAudio();
     };
-  }, [destinationId, onArrival, prefersReducedMotion]);
+  }, [activeDestId, onArrival, prefersReducedMotion]);
 
   return (
     <div
@@ -162,6 +189,7 @@ export function TransportationManager({ destinationId, onArrival }: Transportati
         isBoosting={isBoosting}
         onSetBoosting={setIsBoosting}
         onSkip={handleSkip}
+        onSelectMode={handleSelectMode}
       />
     </div>
   );

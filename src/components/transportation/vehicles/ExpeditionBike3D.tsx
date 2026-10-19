@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getTireTreadTexture, getCarbonFiberTexture, getBrushedMetalTexture } from '../textures/pbrTextures';
 
 interface VehicleProps {
   throttle?: number;
@@ -16,6 +17,23 @@ export function ExpeditionBike3D({
   const groupRef = useRef<THREE.Group>(null);
   const frontWheelRef = useRef<THREE.Group>(null);
   const rearWheelRef = useRef<THREE.Group>(null);
+  const dustRef = useRef<THREE.Points>(null);
+
+  const tireTreadMap = useMemo(() => getTireTreadTexture(), []);
+  const carbonMap = useMemo(() => getCarbonFiberTexture(), []);
+  const brushedMetalMap = useMemo(() => getBrushedMetalTexture(), []);
+
+  // Rear tire kicked-up dust/gravel particles
+  const dustParticles = useMemo(() => {
+    const count = 90;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 0.4;
+      positions[i * 3 + 1] = 0.15 + Math.random() * 0.5;
+      positions[i * 3 + 2] = 1.35 + Math.random() * 1.6;
+    }
+    return positions;
+  }, []);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -33,6 +51,19 @@ export function ExpeditionBike3D({
       // Terrain engine vibration
       const vib = Math.sin(state.clock.elapsedTime * 45) * 0.015 * throttle;
       groupRef.current.position.y = vib;
+
+      if (dustRef.current) {
+        const positions = dustRef.current.geometry.attributes.position.array as Float32Array;
+        for (let i = 0; i < positions.length / 3; i++) {
+          positions[i * 3 + 2] += delta * 15 * throttle;
+          positions[i * 3 + 1] += delta * 0.8;
+          if (positions[i * 3 + 2] > 3.2) {
+            positions[i * 3 + 2] = 1.35;
+            positions[i * 3 + 1] = 0.15 + Math.random() * 0.2;
+          }
+        }
+        dustRef.current.geometry.attributes.position.needsUpdate = true;
+      }
     }
 
     // High speed wheel spinning
@@ -42,53 +73,56 @@ export function ExpeditionBike3D({
   });
 
   // Materials: High contrast, off-road cyber styling
-  const frameMat = new THREE.MeshStandardMaterial({
+  const frameMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#0f172a',
+    map: carbonMap,
     metalness: 0.9,
     roughness: 0.2,
-  });
+  }), [carbonMap]);
 
-  const chromeForkMat = new THREE.MeshStandardMaterial({
+  const chromeForkMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#f8fafc',
+    map: brushedMetalMap,
     metalness: 0.96,
     roughness: 0.1,
-  });
+  }), [brushedMetalMap]);
 
-  const neonGreenMat = new THREE.MeshBasicMaterial({
+  const neonGreenMat = useMemo(() => new THREE.MeshBasicMaterial({
     color: '#10b981',
     transparent: true,
     opacity: 0.9,
     blending: THREE.AdditiveBlending,
-  });
+  }), []);
 
-  const cyanAccentMat = new THREE.MeshStandardMaterial({
+  const cyanAccentMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#00e5ff',
     emissive: '#00e5ff',
     emissiveIntensity: 1.2,
     metalness: 0.9,
     roughness: 0.1,
-  });
+  }), []);
 
-  const tireMat = new THREE.MeshStandardMaterial({
+  const tireMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#020617',
+    map: tireTreadMap,
     roughness: 0.85,
     metalness: 0.15,
-  });
+  }), [tireTreadMap]);
 
-  const seatMat = new THREE.MeshStandardMaterial({
+  const seatMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#1e293b',
     roughness: 0.9,
-  });
+  }), []);
 
   return (
     <group ref={groupRef} scale={[1.35, 1.35, 1.35]}>
       {/* 1. Main Cyber Chassis & Engine Block */}
-      <mesh material={frameMat} position={[0, 0.48, 0]}>
+      <mesh material={frameMat} position={[0, 0.48, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.55, 0.45, 2.0]} />
       </mesh>
 
       {/* Cyber Fuel Tank / Power Core */}
-      <mesh material={chromeForkMat} position={[0, 0.8, -0.3]}>
+      <mesh material={chromeForkMat} position={[0, 0.8, -0.3]} castShadow receiveShadow>
         <boxGeometry args={[0.48, 0.32, 1.0]} />
       </mesh>
       {/* Neon Green Tank Graphic Stripes */}
@@ -100,7 +134,7 @@ export function ExpeditionBike3D({
       </mesh>
 
       {/* Ergonomic Pilot Saddle */}
-      <mesh material={seatMat} position={[0, 0.72, 0.5]}>
+      <mesh material={seatMat} position={[0, 0.72, 0.5]} castShadow receiveShadow>
         <boxGeometry args={[0.42, 0.14, 0.75]} />
       </mesh>
 
@@ -181,6 +215,24 @@ export function ExpeditionBike3D({
       <pointLight position={[0, 0.6, -1.4]} color="#10b981" intensity={3} distance={10} />
       {/* Rear Tail Light */}
       <pointLight position={[0, 0.65, 1.4]} color="#ef4444" intensity={2} distance={5} />
+
+      {/* 8. Kicked-Up Terrain Dust Particles */}
+      <points ref={dustRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[dustParticles, 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.06}
+          color="#10b981"
+          transparent
+          opacity={0.4}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </points>
     </group>
   );
 }

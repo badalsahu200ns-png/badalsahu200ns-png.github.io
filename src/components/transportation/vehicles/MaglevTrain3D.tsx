@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getBrushedMetalTexture } from '../textures/pbrTextures';
 
 interface VehicleProps {
   throttle?: number;
@@ -17,6 +18,8 @@ export function MaglevTrain3D({
   const leftSkateRef = useRef<THREE.Mesh>(null);
   const rightSkateRef = useRef<THREE.Mesh>(null);
   const carriage2Ref = useRef<THREE.Group>(null);
+
+  const brushedMetalMap = useMemo(() => getBrushedMetalTexture(), []);
 
   useFrame((state) => {
     if (!groupRef.current) return;
@@ -44,25 +47,26 @@ export function MaglevTrain3D({
   });
 
   // High-contrast, radiant white & electric blue maglev materials
-  const whiteChassisMat = new THREE.MeshStandardMaterial({
+  const whiteChassisMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#f8fafc',
     metalness: 0.88,
     roughness: 0.16,
-  });
+  }), []);
 
-  const blueStripeMat = new THREE.MeshStandardMaterial({
+  const blueStripeMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#1d4ed8',
     emissive: '#2563eb',
     emissiveIntensity: 0.4,
     metalness: 0.9,
     roughness: 0.15,
-  });
+  }), []);
 
-  const chromeAccentMat = new THREE.MeshStandardMaterial({
+  const chromeAccentMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#cbd5e1',
+    map: brushedMetalMap,
     metalness: 0.96,
     roughness: 0.08,
-  });
+  }), [brushedMetalMap]);
 
   const windowStripMat = new THREE.MeshStandardMaterial({
     color: '#00e5ff',
@@ -89,20 +93,20 @@ export function MaglevTrain3D({
       {/* ================= CARRIAGE 01: LEAD LOCOMOTIVE ================= */}
       <group position={[0, 0, -1.2]}>
         {/* Main Carriage Body (Titanium White) */}
-        <mesh material={whiteChassisMat} position={[0, 0.42, 0]}>
+        <mesh material={whiteChassisMat} position={[0, 0.42, 0]} castShadow receiveShadow>
           <boxGeometry args={[1.35, 0.82, 3.6]} />
         </mesh>
 
         {/* Lower Blue Racing Band */}
-        <mesh material={blueStripeMat} position={[0, 0.12, 0]}>
+        <mesh material={blueStripeMat} position={[0, 0.12, 0]} castShadow receiveShadow>
           <boxGeometry args={[1.38, 0.14, 3.6]} />
         </mesh>
 
         {/* Aerodynamic Tapered Bullet Nose */}
-        <mesh material={whiteChassisMat} position={[0, 0.38, -2.2]} rotation={[-0.12, 0, 0]}>
+        <mesh material={whiteChassisMat} position={[0, 0.38, -2.2]} rotation={[-0.12, 0, 0]} castShadow receiveShadow>
           <boxGeometry args={[1.25, 0.7, 1.3]} />
         </mesh>
-        <mesh material={chromeAccentMat} position={[0, 0.26, -3.0]} rotation={[-0.22, 0, 0]}>
+        <mesh material={chromeAccentMat} position={[0, 0.26, -3.0]} rotation={[-0.22, 0, 0]} castShadow>
           <coneGeometry args={[0.58, 1.1, 16]} />
         </mesh>
 
@@ -159,10 +163,10 @@ export function MaglevTrain3D({
       {/* ================= CARRIAGE 02: SECOND PASSENGER CAR ================= */}
       <group ref={carriage2Ref} position={[0, 0, 2.8]}>
         {/* Main Carriage 2 Body */}
-        <mesh material={whiteChassisMat} position={[0, 0.42, 0]}>
+        <mesh material={whiteChassisMat} position={[0, 0.42, 0]} castShadow receiveShadow>
           <boxGeometry args={[1.35, 0.82, 3.0]} />
         </mesh>
-        <mesh material={blueStripeMat} position={[0, 0.12, 0]}>
+        <mesh material={blueStripeMat} position={[0, 0.12, 0]} castShadow receiveShadow>
           <boxGeometry args={[1.38, 0.14, 3.0]} />
         </mesh>
 

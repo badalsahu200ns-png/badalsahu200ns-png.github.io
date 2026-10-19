@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { getCarbonFiberTexture, getBrushedMetalTexture } from '../textures/pbrTextures';
 
 interface VehicleProps {
   throttle?: number;
@@ -23,6 +24,9 @@ export function ScoutDrone3D({
   const redStrobeRef = useRef<THREE.PointLight>(null);
   const greenStrobeRef = useRef<THREE.PointLight>(null);
   const whiteBeaconRef = useRef<THREE.PointLight>(null);
+
+  const carbonMap = useMemo(() => getCarbonFiberTexture(), []);
+  const brushedMetalMap = useMemo(() => getBrushedMetalTexture(), []);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -71,45 +75,48 @@ export function ScoutDrone3D({
   });
 
   // Materials: High contrast, radiant, physically based
-  const whiteArmorMat = new THREE.MeshStandardMaterial({
+  const whiteArmorMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#f8fafc',
     metalness: 0.85,
     roughness: 0.18,
-  });
+  }), []);
 
-  const carbonChassisMat = new THREE.MeshStandardMaterial({
+  const carbonChassisMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#1e293b',
+    map: carbonMap,
     metalness: 0.9,
-    roughness: 0.3,
-  });
+    roughness: 0.25,
+  }), [carbonMap]);
 
-  const cyanAlloyMat = new THREE.MeshStandardMaterial({
+  const cyanAlloyMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#00e5ff',
     emissive: '#0891b2',
     emissiveIntensity: 0.8,
     metalness: 0.85,
     roughness: 0.15,
-  });
+  }), []);
 
-  const neonGreenMat = new THREE.MeshStandardMaterial({
+  const neonGreenMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#10b981',
     emissive: '#10b981',
     emissiveIntensity: 1.2,
     metalness: 0.9,
     roughness: 0.1,
-  });
+  }), []);
 
-  const motorBellMat = new THREE.MeshStandardMaterial({
+  const motorBellMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#334155',
+    map: brushedMetalMap,
     metalness: 0.95,
     roughness: 0.15,
-  });
+  }), [brushedMetalMap]);
 
-  const landingGearMat = new THREE.MeshStandardMaterial({
+  const landingGearMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#64748b',
+    map: brushedMetalMap,
     metalness: 0.95,
     roughness: 0.12,
-  });
+  }), [brushedMetalMap]);
 
   const propellerBladeMat = new THREE.MeshStandardMaterial({
     color: '#0f172a',
@@ -155,19 +162,19 @@ export function ScoutDrone3D({
       
       {/* 1. CENTRAL AERODYNAMIC COMPOSITE FUSELAGE */}
       {/* Upper Titanium-White Armor Canopy */}
-      <mesh material={whiteArmorMat} position={[0, 0.16, 0]}>
+      <mesh material={whiteArmorMat} position={[0, 0.16, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.95, 0.26, 1.4]} />
       </mesh>
       {/* Aerodynamic Forward Nose Hood */}
-      <mesh material={whiteArmorMat} position={[0, 0.1, -0.85]} rotation={[-0.2, 0, 0]}>
+      <mesh material={whiteArmorMat} position={[0, 0.1, -0.85]} rotation={[-0.2, 0, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.7, 0.18, 0.55]} />
       </mesh>
       {/* Lower Dark Carbon Fiber Hull */}
-      <mesh material={carbonChassisMat} position={[0, -0.04, 0]}>
+      <mesh material={carbonChassisMat} position={[0, -0.04, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.05, 0.2, 1.5]} />
       </mesh>
       {/* Center Racing Stripe & Core Vents */}
-      <mesh material={cyanAlloyMat} position={[0, 0.3, 0]}>
+      <mesh material={cyanAlloyMat} position={[0, 0.3, 0]} castShadow>
         <boxGeometry args={[0.22, 0.06, 1.3]} />
       </mesh>
 

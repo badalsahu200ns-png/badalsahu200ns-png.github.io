@@ -170,9 +170,9 @@ export function App() {
         {/* 3D Transportation Experience (plays upon selecting a career chapter) */}
         {transitDestination && (
           <TransportationManager
-            key={transitDestination}
             destinationId={transitDestination}
             onArrival={handleTransitArrival}
+            onChangeDestination={setTransitDestination}
           />
         )}
 
