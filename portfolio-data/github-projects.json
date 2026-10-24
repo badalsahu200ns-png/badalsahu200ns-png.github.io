@@ -1,5 +1,19 @@
 [
   {
+    "name": "CymbalMart-AI-Party-Planner-Shopping-Assistant.",
+    "fullName": "badalsahu200ns-png/CymbalMart-AI-Party-Planner-Shopping-Assistant.",
+    "description": "AI-powered party planning and shopping assistant with smart budgeting, guest management, personalized invitations, RSVP tracking, Google Maps navigation, Google Calendar integration, voice control, and Gemini-powered recommendations.",
+    "githubUrl": "https://github.com/badalsahu200ns-png/CymbalMart-AI-Party-Planner-Shopping-Assistant.",
+    "homepage": "https://cymbal-mart-ai-party-planner-shoppi.vercel.app",
+    "language": "TypeScript",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "updatedAt": "2026-10-23T18:25:10Z",
+    "pushedAt": "2026-10-23T18:27:27Z",
+    "isArchived": false
+  },
+  {
     "name": "Healthcare-Analytics-for-Doctor-Visits",
     "fullName": "badalsahu200ns-png/Healthcare-Analytics-for-Doctor-Visits",
     "description": "Healthcare Analytics project analyzing doctor visit patterns using demographic, socioeconomic, health, illness, insurance, and chronic-condition data. Includes data preprocessing, exploratory data analysis, statistical analysis, correlation analysis, outlier detection, and data visualization using Python, Pandas, Matplotlib, and Seaborn.",
@@ -95,20 +109,6 @@
     "forks": 0,
     "updatedAt": "2026-09-03T08:38:38Z",
     "pushedAt": "2026-09-03T08:36:37Z",
-    "isArchived": false
-  },
-  {
-    "name": "CymbalMart-AI-Party-Planner-Shopping-Assistant.",
-    "fullName": "badalsahu200ns-png/CymbalMart-AI-Party-Planner-Shopping-Assistant.",
-    "description": "AI-powered party planning and shopping assistant with smart budgeting, guest management, personalized invitations, RSVP tracking, Google Maps navigation, Google Calendar integration, voice control, and Gemini-powered recommendations.",
-    "githubUrl": "https://github.com/badalsahu200ns-png/CymbalMart-AI-Party-Planner-Shopping-Assistant.",
-    "homepage": null,
-    "language": "TypeScript",
-    "topics": [],
-    "stars": 0,
-    "forks": 0,
-    "updatedAt": "2026-09-03T08:32:47Z",
-    "pushedAt": "2026-09-03T08:31:55Z",
     "isArchived": false
   },
   {
