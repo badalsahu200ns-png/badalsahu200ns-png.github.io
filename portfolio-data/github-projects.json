@@ -1,5 +1,19 @@
 [
   {
+    "name": "AICTE-AI-Grant-And-Funding-Finder-For-Startups",
+    "fullName": "badalsahu200ns-png/AICTE-AI-Grant-And-Funding-Finder-For-Startups",
+    "description": "AI-powered startup funding discovery platform using IBM Granite and IBM Cloud. Aggregates grants, analyzes eligibility, delivers personalized funding recommendations, extracts application requirements, and generates evidence-backed proposal drafts through an intelligent multi-agent architecture.",
+    "githubUrl": "https://github.com/badalsahu200ns-png/AICTE-AI-Grant-And-Funding-Finder-For-Startups",
+    "homepage": null,
+    "language": "Python",
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "updatedAt": "2026-11-04T20:52:19Z",
+    "pushedAt": "2026-11-04T20:52:13Z",
+    "isArchived": false
+  },
+  {
     "name": "CymbalMart-AI-Party-Planner-Shopping-Assistant.",
     "fullName": "badalsahu200ns-png/CymbalMart-AI-Party-Planner-Shopping-Assistant.",
     "description": "AI-powered party planning and shopping assistant with smart budgeting, guest management, personalized invitations, RSVP tracking, Google Maps navigation, Google Calendar integration, voice control, and Gemini-powered recommendations.",
