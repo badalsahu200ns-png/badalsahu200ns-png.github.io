@@ -113,8 +113,15 @@ export function CinematicSpaceflightScene({
     <div className="absolute inset-0 w-full h-full bg-[#020408]">
       <Canvas
         camera={{ position: [0, 1.2, 5.2], fov: 52 }}
-        gl={{ powerPreference: 'high-performance', antialias: true, alpha: false }}
-        dpr={[1, 1.75]} // capped for high performance
+        gl={{
+          powerPreference: 'high-performance',
+          antialias: true,
+          alpha: false,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          outputColorSpace: THREE.SRGBColorSpace,
+        }}
+        shadows
+        dpr={[1, 1.5]} // balanced quality for desktop and mobile GPUs
       >
         {/* Sovereign Space Environment Lighting with strong rim lights for green metallic hull */}
         <ambientLight intensity={0.5} color="#059669" />
