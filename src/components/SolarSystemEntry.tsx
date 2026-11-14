@@ -57,6 +57,7 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
   const [isWarpBoosting, setIsWarpBoosting] = useState(false);
   const animFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const flightProgressRef = useRef<number>(0);
 
   // Check reduced motion preference
   const prefersReducedMotion = typeof window !== 'undefined'
@@ -86,6 +87,7 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
 
   // Replay launch sequence
   const handleReplay = () => {
+    flightProgressRef.current = 0;
     setFlightProgress(0);
     setCountdownVal(3);
     startTimeRef.current = null;
@@ -171,35 +173,41 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
   // Scroll wheel to accelerate travel
   const handleWheel = (e: React.WheelEvent) => {
     if (stage !== 'travel') return;
-    setFlightProgress((prev) => Math.min(1, Math.max(0, prev + (e.deltaY > 0 ? 0.05 : -0.02))));
+    const next = Math.min(1, Math.max(0, flightProgressRef.current + (e.deltaY > 0 ? 0.05 : -0.02)));
+    flightProgressRef.current = next;
+    setFlightProgress(next);
   };
 
-  // Automated cinematic timeline flight progression
+  // Automated cinematic timeline flight progression.
+  // Keep the authoritative progress in a ref and update React's HUD/scene state
+  // at ~30 FPS instead of forcing a component render on every display frame.
   useEffect(() => {
     if (stage !== 'travel') return;
 
-    const baseDuration = 6800; // 6.8 seconds cinematic flight
+    const baseDuration = 6800;
+    let progress = flightProgressRef.current;
     let lastTime = performance.now();
+    let lastUiUpdate = 0;
 
     const loop = (now: number) => {
       if (!startTimeRef.current) startTimeRef.current = now;
       const delta = now - lastTime;
       lastTime = now;
 
-      // Rate of progress (accelerated if warp boost active)
       const speedMultiplier = isWarpBoosting ? 2.6 : 1.0;
-      const increment = (delta / baseDuration) * speedMultiplier;
+      progress = Math.min(1, progress + (delta / baseDuration) * speedMultiplier);
+      flightProgressRef.current = progress;
 
-      setFlightProgress((prev) => {
-        const next = prev + increment;
-        if (next >= 0.95) {
-          setStage('arrival');
-        }
-        if (next >= 1.0) {
-          return 1.0;
-        }
-        return next;
-      });
+      // The 3D scene and HUD do not need a React render for every RAF tick.
+      if (now - lastUiUpdate >= 33 || progress >= 0.95) {
+        setFlightProgress(progress);
+        lastUiUpdate = now;
+      }
+
+      if (progress >= 0.95) {
+        setStage('arrival');
+        return;
+      }
 
       animFrameRef.current = requestAnimationFrame(loop);
     };
@@ -207,7 +215,7 @@ export function SolarSystemEntry({ onComplete }: SolarSystemEntryProps) {
     animFrameRef.current = requestAnimationFrame(loop);
 
     return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current);
     };
   }, [stage, isWarpBoosting]);
 
